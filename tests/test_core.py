@@ -1345,3 +1345,97 @@ def test_install_reports_missing_npx_and_process_failure(
     monkeypatch.setattr(installer.subprocess, "run", fail)
     with pytest.raises(GoogleGuideSkillsError, match="Skill installation failed"):
         installer.install(loaded, project, ["codex"])
+
+
+def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    public = loaded.root_for("committed") / "public-guide"
+    restricted = loaded.root_for("local-only") / "restricted-guide"
+    for skill, text in ((public, "public\n"), (restricted, "restricted\n")):
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(text, encoding="utf-8")
+    user_home = tmp_path / "user"
+
+    planned = installer.install_user_links(
+        loaded,
+        ["codex"],
+        skills=["public-guide", "restricted-guide"],
+        include_local=True,
+        dry_run=True,
+        user_home=user_home,
+    )
+    assert [action.status for action in planned] == ["would-link", "would-link"]
+    assert not (user_home / ".codex/skills").exists()
+
+    actions = installer.install_user_links(
+        loaded,
+        ["codex"],
+        skills=["public-guide", "restricted-guide"],
+        include_local=True,
+        user_home=user_home,
+    )
+    assert [action.status for action in actions] == ["linked", "linked"]
+    public_link = user_home / ".codex/skills/public-guide"
+    restricted_link = user_home / ".codex/skills/restricted-guide"
+    assert public_link.is_symlink() and public_link.resolve() == public.resolve()
+    assert restricted_link.is_symlink() and restricted_link.resolve() == restricted.resolve()
+    assert ".generated/skills" in restricted_link.resolve().as_posix()
+
+    repeated = installer.install_user_links(
+        loaded,
+        ["codex"],
+        skills=["public-guide", "restricted-guide"],
+        include_local=True,
+        user_home=user_home,
+    )
+    assert [action.status for action in repeated] == [
+        "already-linked",
+        "already-linked",
+    ]
+
+
+def test_user_install_accepts_identical_copy_and_rejects_collisions(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    source = loaded.root_for("committed") / "public-guide"
+    source.mkdir(parents=True)
+    (source / "SKILL.md").write_text("same\n", encoding="utf-8")
+    user_home = tmp_path / "user"
+    destination = user_home / ".codex/skills/public-guide"
+    destination.mkdir(parents=True)
+    (destination / "SKILL.md").write_text("same\n", encoding="utf-8")
+
+    actions = installer.install_user_links(
+        loaded,
+        ["codex"],
+        skills=["public-guide"],
+        user_home=user_home,
+    )
+    assert actions[0].status == "already-identical"
+
+    (destination / "SKILL.md").write_text("different\n", encoding="utf-8")
+    with pytest.raises(GoogleGuideSkillsError, match="different content"):
+        installer.install_user_links(
+            loaded,
+            ["codex"],
+            skills=["public-guide"],
+            user_home=user_home,
+        )
+
+
+def test_user_install_requires_local_generation_and_explicit_opt_in(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    with pytest.raises(GoogleGuideSkillsError, match="unavailable"):
+        installer.install_user_links(
+            loaded,
+            ["codex"],
+            skills=["restricted-guide"],
+            user_home=tmp_path / "user",
+        )
+    with pytest.raises(GoogleGuideSkillsError, match="all --include-swe-book"):
+        installer.install_user_links(
+            loaded,
+            ["codex"],
+            skills=["restricted-guide"],
+            include_local=True,
+            user_home=tmp_path / "user",
+        )

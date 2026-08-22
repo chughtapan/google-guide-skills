@@ -37,7 +37,7 @@ regenerates the catalog and `o200k_base` token report, and validates the result.
 Generate the restricted SWE-book skills for private local evaluation:
 
 ```bash
-uv run google-guides all --include-local
+uv run google-guides all --include-swe-book
 ```
 
 The resulting `.generated/` files retain their upstream license restrictions. Generate and use
@@ -49,11 +49,12 @@ it merely because the conversion happened locally. Review the full recorded lice
 ```text
 google-guides sync                         clone and checkout pinned repositories
 google-guides build [--collection ID]     build selected redistributable skills
-google-guides build --include-local        also build local-only collections
+google-guides build --include-swe-book     also build the private SWE-book skills
 google-guides catalog                      regenerate catalog and index
-google-guides metrics [--include-local]    count every generated text file with o200k_base
-google-guides validate [--include-local]   check skill, reference, and license boundaries
-google-guides install --agent codex        install through the open `skills` CLI
+google-guides metrics [--include-swe-book] count every generated text file with o200k_base
+google-guides validate [--include-swe-book] check skill, reference, and license boundaries
+google-guides install --agent codex        install for the current user
+google-guides install --include-swe-book   also generate and link the private SWE-book skills
 google-guides eval triggers                plan fresh-agent discoverability cases
 google-guides eval quality                 plan no-skill versus skill answer A/Bs
 google-guides all                           run the deterministic end-to-end pipeline
@@ -71,8 +72,14 @@ uv run google-guides install \
 
 The wrapper delegates to pinned [`npx skills@1.5.23`](https://github.com/vercel-labs/skills), so the same skill
 folders remain usable across supported agents. Use `--dry-run` to inspect commands first.
-The public installer enumerates only manifest-declared redistributable skills; it cannot export
-local-only output.
+With no `--project`, installation targets the current user. Include the private book skills with:
+
+```bash
+uv run google-guides install --agent codex --include-swe-book
+```
+
+The flag generates all eight book skills and links them from `.generated/skills/`; it does not copy
+or publish them. Explicit `--project` installs continue to include only redistributable skills.
 
 The 24-skill pack uses 7,780 of Codex's 8,000 fallback startup-metadata characters at the recorded
 reference path. That leaves 220 characters and supports an install-root path of at most 54
@@ -120,7 +127,7 @@ uv run google-guides all
 git diff --exit-code -- skills catalog
 ```
 
-Maintainers run `uv run google-guides all --include-local` as an explicit local release check.
+Maintainers run `uv run google-guides all --include-swe-book` as an explicit local release check.
 Hosted CI uses synthetic restricted-source fixtures and never materializes the real SWE-book
 derivatives.
 

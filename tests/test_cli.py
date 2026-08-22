@@ -50,13 +50,13 @@ def test_build_and_all_forward_include_local(
     )
     monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
 
-    assert cli.main(["build", "--include-local", "--no-sync"]) == 0
+    assert cli.main(["build", "--include-swe-book", "--no-sync"]) == 0
     assert build_calls[-1]["include_local"] is True
     assert build_calls[-1]["sync_first"] is False
     assert metric_calls == [False, True]
 
     metric_calls.clear()
-    assert cli.main(["all", "--include-local"]) == 0
+    assert cli.main(["all", "--include-swe-book"]) == 0
     assert sync_calls[-1][0] is fake_manifest
     assert build_calls[-1]["include_local"] is True
     assert build_calls[-1]["sync_first"] is False
@@ -75,7 +75,7 @@ def test_validate_failure_exit_and_json_output(
     assert '"message": "broken"' in capsys.readouterr().out
 
 
-def test_install_uses_default_agents_and_never_exports_local(
+def test_install_uses_default_agents_for_project_install(
     fake_manifest: SimpleNamespace,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -96,6 +96,105 @@ def test_install_uses_default_agents_and_never_exports_local(
     assert "skills@1.5.23" in capsys.readouterr().out
 
 
+def test_self_install_routes_local_skills_to_user_links(
+    fake_manifest: SimpleNamespace,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    captured: dict[str, object] = {}
+    action = SimpleNamespace(
+        status="would-link",
+        destination=tmp_path / ".codex/skills/restricted-guide",
+        source=tmp_path / ".generated/skills/restricted-guide",
+        distribution="local-only",
+    )
+    monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
+
+    def fake_user_install(
+        manifest: object, agents: list[str], **kwargs: object
+    ) -> list[SimpleNamespace]:
+        captured.update(manifest=manifest, agents=agents, **kwargs)
+        return [action]
+
+    monkeypatch.setattr(cli, "install_user_links", fake_user_install)
+
+    assert (
+        cli.main(
+            [
+                "install",
+                "--include-swe-book",
+                "--agent",
+                "codex",
+                "--dry-run",
+            ]
+        )
+        == 0
+    )
+    assert captured == {
+        "manifest": fake_manifest,
+        "agents": ["codex"],
+        "skills": None,
+        "include_local": True,
+        "dry_run": True,
+    }
+    assert "[local-only]" in capsys.readouterr().out
+
+
+def test_swe_book_install_rejects_copy_and_project_destinations(
+    fake_manifest: SimpleNamespace,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
+
+    assert cli.main(["install", "--copy", "--dry-run"]) == 2
+    assert (
+        cli.main(
+            ["install", "--include-swe-book", "--project", str(tmp_path), "--dry-run"]
+        )
+        == 2
+    )
+
+
+def test_swe_book_install_generates_before_linking(
+    fake_manifest: SimpleNamespace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, object]] = []
+    monkeypatch.setattr(
+        cli,
+        "build",
+        lambda manifest, **kwargs: calls.append(("build", (manifest, kwargs))) or [1] * 8,
+    )
+    monkeypatch.setattr(
+        cli,
+        "write_metrics",
+        lambda manifest, include_local=False: calls.append(
+            ("metrics", (manifest, include_local))
+        )
+        or (),
+    )
+    monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
+    monkeypatch.setattr(
+        cli,
+        "install_user_links",
+        lambda manifest, agents, **kwargs: calls.append(
+            ("install", (manifest, agents, kwargs))
+        )
+        or [],
+    )
+
+    assert cli.main(["install", "--include-swe-book", "--agent", "codex"]) == 0
+    assert [name for name, _value in calls] == ["build", "metrics", "install"]
+    build_call = calls[0][1]
+    assert isinstance(build_call, tuple)
+    assert build_call[1] == {
+        "collection_ids": ["software-engineering-at-google"],
+        "include_local": True,
+    }
+
+
 def test_sync_catalog_metrics_and_handled_manifest_failure(
     fake_manifest: SimpleNamespace,
     tmp_path: Path,
@@ -113,7 +212,7 @@ def test_sync_catalog_metrics_and_handled_manifest_failure(
 
     assert cli.main(["sync"]) == 0
     assert cli.main(["catalog"]) == 0
-    assert cli.main(["metrics", "--include-local"]) == 0
+    assert cli.main(["metrics", "--include-swe-book"]) == 0
 
     monkeypatch.setattr(cli, "_manifest", lambda _path: (_ for _ in ()).throw(ManifestError("bad")))
     assert cli.main(["catalog"]) == 2

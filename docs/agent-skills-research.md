@@ -59,6 +59,11 @@ It accepts local paths, supports Codex and Claude Code among many agents, lists 
 installs selected skills, and can symlink or copy them. `google-guides install` is a thin,
 inspectable wrapper around that CLI; the generated folders do not depend on it.
 
+For private generated material that cannot be published through an npm/GitHub source, the
+source-checkout CLI supports `google-guides install --include-swe-book`. That explicit opt-in generates the
+book skills and creates links in the current user's Codex or Claude skill directory back to the
+ignored generated root. It does not copy local-only bytes into a project or package.
+
 ## Generator decision
 
 Generic creators are useful for one handcrafted workflow. This corpus needs deterministic bulk

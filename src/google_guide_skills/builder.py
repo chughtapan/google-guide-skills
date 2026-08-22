@@ -560,7 +560,7 @@ def build(
     )
     if collection_ids and blocked_collections:
         raise BuildError(
-            "Explicit local-only collections require --include-local: "
+            "Explicit local-only collections require --include-swe-book: "
             + ", ".join(blocked_collections)
         )
     selected_artifacts = set(artifact_names or [])

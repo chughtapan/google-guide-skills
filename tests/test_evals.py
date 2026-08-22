@@ -1596,7 +1596,7 @@ def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
     local_case = _case(
         "local-case", expected=("local-testing",), rubric=()
     )
-    with pytest.raises(EvaluationError, match="require --include-local"):
+    with pytest.raises(EvaluationError, match="require --include-swe-book"):
         run_evaluation(
             manifest,
             [local_case],

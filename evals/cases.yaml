@@ -99,7 +99,7 @@ smoke:
         forbidden: [google-guides-index]
 
 # Local-only routing controls. These contain prompts and identifiers, not converted book text.
-# They can be planned with --include-local, but live hosted-agent runs are intentionally blocked.
+# They can be planned with --include-swe-book, but live hosted-agent runs are intentionally blocked.
 local_smoke:
   - id: local-smoke-culture-leadership
     prompt: Use the locally generated Software Engineering at Google material to discuss engineering culture, knowledge sharing, leadership, and productivity.

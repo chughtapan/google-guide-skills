@@ -1435,7 +1435,7 @@ def run_evaluation(
     )
     if requested_local and not include_local:
         raise EvaluationError(
-            "Local-only evaluation cases require --include-local: "
+            "SWE-book evaluation cases require --include-swe-book: "
             + ", ".join(requested_local)
         )
 

@@ -41,6 +41,11 @@ do not assume that mechanical conversion, local generation, or an ignored direct
 adapted material redistributable or commercially usable. The SWE-book recipe is explicitly for
 noncommercial local use and its generated output must not be shared.
 
+`google-guides install --include-swe-book` may expose that locally generated output to the current user's
+agents through symlinks. The link target remains `.generated/skills/`; the installer does not copy
+restricted bytes into agent homes, consumer projects, packages, or Git history. It rejects
+`--copy`, project destinations, and conflicting existing user skills for this workflow.
+
 The R guide remains catalog-only because its source identifies a CC BY-SA 2.0 Tidyverse base in
 addition to the repository's CC BY 3.0 license. The pipeline will not generate it until composite
 license and ShareAlike attribution are modeled. The Google Cloud product-management article is

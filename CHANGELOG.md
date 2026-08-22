@@ -16,6 +16,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   metrics.
 - Pinned cross-agent installation and isolated Codex/Claude Code discoverability and quality
   evaluation plans.
+- Safe user-level self-installation that links optional local-only SWE-book skills from the ignored
+  generated root without copying or publishing their bytes.
 
 ### Security
 

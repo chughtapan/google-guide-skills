@@ -19,7 +19,7 @@ from .evals import (
     run_evaluation,
     select_cases,
 )
-from .installer import DEFAULT_AGENTS, install
+from .installer import DEFAULT_AGENTS, install, install_user_links
 from .manifest import find_project_root, load_manifest
 from .metrics import write_metrics
 from .sources import sync
@@ -44,21 +44,34 @@ def _parser() -> argparse.ArgumentParser:
     build_parser = subparsers.add_parser("build", help="Build generated skills")
     build_parser.add_argument("--collection", action="append", dest="collections")
     build_parser.add_argument("--skill", action="append", dest="skills")
-    build_parser.add_argument("--include-local", action="store_true")
+    build_parser.add_argument(
+        "--include-swe-book", action="store_true", dest="include_local"
+    )
     build_parser.add_argument("--no-sync", action="store_true")
 
     subparsers.add_parser("catalog", help="Regenerate catalog files and the index skill")
     metrics_parser = subparsers.add_parser("metrics", help="Measure every generated text file")
-    metrics_parser.add_argument("--include-local", action="store_true")
+    metrics_parser.add_argument(
+        "--include-swe-book", action="store_true", dest="include_local"
+    )
     validate_parser = subparsers.add_parser("validate", help="Validate all skill invariants")
-    validate_parser.add_argument("--include-local", action="store_true")
+    validate_parser.add_argument(
+        "--include-swe-book", action="store_true", dest="include_local"
+    )
     validate_parser.add_argument("--json", action="store_true", dest="json_output")
 
-    install_parser = subparsers.add_parser("install", help="Install skills through npx skills")
-    install_parser.add_argument("--project", type=Path, default=Path.cwd())
+    install_parser = subparsers.add_parser(
+        "install", help="Install skills for the current user or an explicit project"
+    )
+    install_parser.add_argument("--project", type=Path)
     install_parser.add_argument("--agent", action="append", choices=DEFAULT_AGENTS)
     install_parser.add_argument("--skill", action="append", dest="skills")
     install_parser.add_argument("--copy", action="store_true")
+    install_parser.add_argument(
+        "--include-swe-book",
+        action="store_true",
+        help="Generate and link the private Software Engineering at Google skills",
+    )
     install_parser.add_argument("--dry-run", action="store_true")
 
     eval_parser = subparsers.add_parser(
@@ -78,7 +91,9 @@ def _parser() -> argparse.ArgumentParser:
         mode_parser.add_argument("--case", action="append", dest="case_ids")
         mode_parser.add_argument("--repeat", type=int, default=1)
         mode_parser.add_argument("--limit", type=int)
-        mode_parser.add_argument("--include-local", action="store_true")
+        mode_parser.add_argument(
+            "--include-swe-book", action="store_true", dest="include_local"
+        )
         mode_parser.add_argument("--timeout", type=int, default=180)
         mode_parser.add_argument("--max-budget-usd", type=float)
         mode_parser.add_argument("--codex-model")
@@ -98,7 +113,9 @@ def _parser() -> argparse.ArgumentParser:
         )
 
     all_parser = subparsers.add_parser("all", help="Sync, build, catalog, measure, and validate")
-    all_parser.add_argument("--include-local", action="store_true")
+    all_parser.add_argument(
+        "--include-swe-book", action="store_true", dest="include_local"
+    )
     return parser
 
 
@@ -159,10 +176,49 @@ def main(argv: list[str] | None = None) -> int:
             _print_validation(issues, as_json=args.json_output)
             return 1 if has_errors(issues) else 0
         if args.command == "install":
+            selected_agents = args.agent or list(DEFAULT_AGENTS)
+            if args.project is None:
+                if args.copy:
+                    raise GoogleGuideSkillsError(
+                        "User installation uses symlinks; --copy requires --project"
+                    )
+                if args.include_swe_book and not args.dry_run:
+                    built = build(
+                        manifest,
+                        collection_ids=["software-engineering-at-google"],
+                        include_local=True,
+                    )
+                    write_metrics(manifest, include_local=True)
+                    print(f"Generated {len(built)} private SWE-book skill(s).")
+                issues = validate(manifest, include_local=args.include_swe_book)
+                if has_errors(issues):
+                    raise GoogleGuideSkillsError(
+                        "Generated skills failed validation; run `google-guides validate"
+                        + (" --include-swe-book" if args.include_swe_book else "")
+                        + "` for details"
+                    )
+                actions = install_user_links(
+                    manifest,
+                    selected_agents,
+                    skills=args.skills,
+                    include_local=args.include_swe_book,
+                    dry_run=args.dry_run,
+                )
+                for action in actions:
+                    print(
+                        f"{action.status}: {action.destination} -> {action.source} "
+                        f"[{action.distribution}]"
+                    )
+                return 0
+            if args.include_swe_book:
+                raise GoogleGuideSkillsError(
+                    "--include-swe-book is for private user installation and cannot be combined "
+                    "with --project"
+                )
             commands = install(
                 manifest,
                 args.project,
-                args.agent or list(DEFAULT_AGENTS),
+                selected_agents,
                 skills=args.skills,
                 include_local=False,
                 copy=args.copy,
