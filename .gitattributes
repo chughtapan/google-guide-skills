@@ -1,0 +1,5 @@
+# Mechanically converted source preserves upstream whitespace in the immutable v0.1 baseline.
+skills/** -whitespace
+
+# Generated CSV is normalized to LF, but exempt it from prose whitespace policy.
+catalog/tokens.csv -whitespace

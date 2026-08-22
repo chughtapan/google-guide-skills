@@ -1,0 +1,190 @@
+{
+  "artifact": "abseil-cpp-guides",
+  "collection": "abseil-documentation",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/atomic_danger.md",
+      "sha256": "9bd86021babd1ff7f66cf3513ec867bb9faadf08796f96d34bb66455f841c203"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/abslstringify.md",
+      "sha256": "bddadc99b2f42cf88dcd169ae522b62179b177e1347f4a0718fb61f2cb27226b"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/base.md",
+      "sha256": "9449e8c4e007fc57177251138adf359407d4acb990e01bc95f25bc27644e5e04"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/container.md",
+      "sha256": "96e6d21f3be257ac8598991950d1b4c3f3b0582a567a68cd882081f77498624a"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/flags.md",
+      "sha256": "3c251db3edf0ff25629fc179efd2f8849d0232d19287014419e98411f99b3b9c"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/format.md",
+      "sha256": "853ad0b4c4475b3989bf139a6c0d6bd64c3231ce4d46784d99af613359029ba0"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/hash.md",
+      "sha256": "db6655c60be263126b00a60d2fe4ab68808a64f5bdecfff01ad93d03dc746879"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/index.md",
+      "sha256": "d97888498ff425d28695b4e285977c9bda629a5e8a55738ab8881e525d27059e"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/logging.md",
+      "sha256": "7755936147fb71d043b65eeca2b3b7767d88b7512ccc2084a938a3e65b91ea1f"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/meta.md",
+      "sha256": "a81ec5928dbce578b3b67d3afb106ab4326c736216659ca5531c270dba4246cb"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/numeric.md",
+      "sha256": "148e1aa008bffb069a6792d51cf08e2a53eb0f35855fc70a45a7859395a37c40"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/options.md",
+      "sha256": "e558247d85613af99e0f1d14fff41be31bf1c746ab6066d236ca65328f6548ba"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/random.md",
+      "sha256": "6ae5a4bbdd98be4d4122a20c6f90a5590ce280971926e8cf1ae4185a9e6f00ab"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/status-codes.md",
+      "sha256": "dbaf94b547891e7293be8250bfdd5d2ede106728171da3388c92442d1b698626"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/status.md",
+      "sha256": "dfe274b2ca2885e0b6762a69de1dba084e448daca42dd76342e5c4bf314117c3"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/strings.md",
+      "sha256": "8c2f1f2d43f7d7baac800e89e51062c82caa1d000d42d85a52c0502d63f80a31"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/synchronization.md",
+      "sha256": "781c653565768728677b44203227b59e0031b2e9dcc08984e3b7bef25efec00e"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/time.md",
+      "sha256": "29053ba764ad0319522a5fe40370ab367b72614ee7a012f31a675248216ce167"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/guides/types.md",
+      "sha256": "26ff593ca06de8b8c75216ff0fcae617d242ebc206ae6c16ecae503825ad54f5"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/platforms/compilerflags.md",
+      "sha256": "f1e448260f24702e7b5feabe87bb623ddfe543e8ec336acac33046b510bf8e65"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/platforms/feature_checks.md",
+      "sha256": "bcc53b457a13a3a40fd692acec42182e9f30acdb222b34838bc24f7d8cf71fea"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/platforms/index.md",
+      "sha256": "9968bd510638d9db76be112e3e78452e1b4a03d29ea7816537656eb4ff4d1ec3"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/platforms/macros.md",
+      "sha256": "0769c1b0ca43dd0ed9934a613615fd3fdf9e173e70505d53e5d79784e0fbe432"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/platforms/platforms.md",
+      "sha256": "e6413b304a0b48315e9c7e9c2afd94d62a67d7a9da767883ff687b1c518c0eb9"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/quickstart-cmake.md",
+      "sha256": "a9a578eabd9dd996327b6a82fe4b78bd2586d17e77171c97fa065167083c15d1"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/quickstart.md",
+      "sha256": "93a890d924482fbc216d042f04617898307732fadc202f2fc6722307b92b0e78"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/tools/clang-tidy.md",
+      "sha256": "bfb56ff2ff448a353bf6480b71f7034e8f416ae7f0ec5567c6bf6338d91d4d22"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/tools/cmake-installs.md",
+      "sha256": "bbb6a78b77a399ca5f9f56a47e46089261e046e4155a39a4690e581f5acc85e6"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/tools/index.md",
+      "sha256": "602cfa0d447d04d96739f2f733207dacb4b94c37f906946c765378e7fb79257e"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/cpp/tools/upgrades/duration-conversions.md",
+      "sha256": "531397a8969870d98d5204d242ab0eae83d24ab41c11f062eb3c030cb0e98e2b"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "The Abseil Authors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Apache License 2.0",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  },
+  "license_note": null,
+  "repository": {
+    "id": "abseil",
+    "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
+    "url": "https://github.com/abseil/abseil.github.io.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored skill wrapper, metadata, navigation, and index content.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

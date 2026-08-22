@@ -1,0 +1,20 @@
+{
+  "artifact": "google-guides-index",
+  "authorship": "Project-authored routing index generated from corpus.yaml.",
+  "collection": "authored-index",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE.txt",
+    "scope": "Generator-authored skill wrapper, metadata, navigation, and index content.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  },
+  "source_manifest": {
+    "path": "corpus.yaml",
+    "sha256": "88be98e8c4cce65bc51db8c7cb9090e0cd63222e1333e1a8265d3fc7262c8f42"
+  }
+}

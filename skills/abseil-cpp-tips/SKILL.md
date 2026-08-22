@@ -1,0 +1,106 @@
+---
+name: abseil-cpp-tips
+description: >-
+  Use when an advanced C++ design, API, readability, performance, ownership, type, or
+  language-feature question matches Google's Abseil C++ Tips of the Week. Search the focused
+  references before inventing a local rule.
+---
+
+# Abseil C++ Tips of the Week
+
+Read only the source references needed for the task. Search reference filenames and headings first when the collection is large. Apply the source guidance without silently inventing new rules.
+
+The reference prose is not summarized or editorially rewritten. HTML and XML inputs are converted mechanically to Markdown.
+
+## References
+
+- [_posts/2017-09-26-totw-1.md](references/_posts--2017-09-26-totw-1.md)
+- [_posts/2017-10-20-totw-122.md](references/_posts--2017-10-20-totw-122.md)
+- [_posts/2017-10-20-totw-55.md](references/_posts--2017-10-20-totw-55.md)
+- [_posts/2017-10-20-totw-77.md](references/_posts--2017-10-20-totw-77.md)
+- [_posts/2017-10-26-totw-64.md](references/_posts--2017-10-26-totw-64.md)
+- [_posts/2017-10-26-totw-86.md](references/_posts--2017-10-26-totw-86.md)
+- [_posts/2017-10-26-totw-94.md](references/_posts--2017-10-26-totw-94.md)
+- [_posts/2017-11-02-totw-101.md](references/_posts--2017-11-02-totw-101.md)
+- [_posts/2017-11-02-totw-107.md](references/_posts--2017-11-02-totw-107.md)
+- [_posts/2017-11-09-totw-135.md](references/_posts--2017-11-09-totw-135.md)
+- [_posts/2017-11-09-totw-49.md](references/_posts--2017-11-09-totw-49.md)
+- [_posts/2017-11-16-totw-112.md](references/_posts--2017-11-16-totw-112.md)
+- [_posts/2017-11-16-totw-65.md](references/_posts--2017-11-16-totw-65.md)
+- [_posts/2017-11-16-totw-99.md](references/_posts--2017-11-16-totw-99.md)
+- [_posts/2017-11-23-totw-109.md](references/_posts--2017-11-23-totw-109.md)
+- [_posts/2017-11-23-totw-126.md](references/_posts--2017-11-23-totw-126.md)
+- [_posts/2017-11-30-totw-119.md](references/_posts--2017-11-30-totw-119.md)
+- [_posts/2017-11-30-totw-130.md](references/_posts--2017-11-30-totw-130.md)
+- [_posts/2017-12-07-totw-123.md](references/_posts--2017-12-07-totw-123.md)
+- [_posts/2017-12-07-totw-131.md](references/_posts--2017-12-07-totw-131.md)
+- [_posts/2017-12-21-totw-42.md](references/_posts--2017-12-21-totw-42.md)
+- [_posts/2017-12-21-totw-74.md](references/_posts--2017-12-21-totw-74.md)
+- [_posts/2018-01-25-totw-10.md](references/_posts--2018-01-25-totw-10.md)
+- [_posts/2018-01-25-totw-3.md](references/_posts--2018-01-25-totw-3.md)
+- [_posts/2018-01-25-totw-36.md](references/_posts--2018-01-25-totw-36.md)
+- [_posts/2018-01-25-totw-59.md](references/_posts--2018-01-25-totw-59.md)
+- [_posts/2018-02-15-totw-142.md](references/_posts--2018-02-15-totw-142.md)
+- [_posts/2018-02-15-totw-88.md](references/_posts--2018-02-15-totw-88.md)
+- [_posts/2018-02-22-totw-134.md](references/_posts--2018-02-22-totw-134.md)
+- [_posts/2018-02-22-totw-61.md](references/_posts--2018-02-22-totw-61.md)
+- [_posts/2018-02-22-totw-93.md](references/_posts--2018-02-22-totw-93.md)
+- [_posts/2018-03-15-totw-141.md](references/_posts--2018-03-15-totw-141.md)
+- [_posts/2018-03-15-totw-143.md](references/_posts--2018-03-15-totw-143.md)
+- [_posts/2018-04-20-totw-11.md](references/_posts--2018-04-20-totw-11.md)
+- [_posts/2018-04-20-totw-120.md](references/_posts--2018-04-20-totw-120.md)
+- [_posts/2018-04-20-totw-24.md](references/_posts--2018-04-20-totw-24.md)
+- [_posts/2018-05-03-totw-117.md](references/_posts--2018-05-03-totw-117.md)
+- [_posts/2018-05-03-totw-148.md](references/_posts--2018-05-03-totw-148.md)
+- [_posts/2018-05-03-totw-149.md](references/_posts--2018-05-03-totw-149.md)
+- [_posts/2018-09-28-totw-136.md](references/_posts--2018-09-28-totw-136.md)
+- [_posts/2018-09-28-totw-144.md](references/_posts--2018-09-28-totw-144.md)
+- [_posts/2018-09-28-totw-152.md](references/_posts--2018-09-28-totw-152.md)
+- [_posts/2018-09-30-totw-153.md](references/_posts--2018-09-30-totw-153.md)
+- [_posts/2019-05-10-totw-103.md](references/_posts--2019-05-10-totw-103.md)
+- [_posts/2019-05-10-totw-45.md](references/_posts--2019-05-10-totw-45.md)
+- [_posts/2019-05-10-totw-90.md](references/_posts--2019-05-10-totw-90.md)
+- [_posts/2019-09-09-totw-147.md](references/_posts--2019-09-09-totw-147.md)
+- [_posts/2019-10-01-totw-158.md](references/_posts--2019-10-01-totw-158.md)
+- [_posts/2019-10-01-totw-180.md](references/_posts--2019-10-01-totw-180.md)
+- [_posts/2019-10-01-totw-182.md](references/_posts--2019-10-01-totw-182.md)
+- [_posts/2019-11-25-totw-132.md](references/_posts--2019-11-25-totw-132.md)
+- [_posts/2019-11-25-totw-161.md](references/_posts--2019-11-25-totw-161.md)
+- [_posts/2019-11-25-totw-168.md](references/_posts--2019-11-25-totw-168.md)
+- [_posts/2019-12-12-totw-146.md](references/_posts--2019-12-12-totw-146.md)
+- [_posts/2019-12-12-totw-166.md](references/_posts--2019-12-12-totw-166.md)
+- [_posts/2019-12-19-totw-108.md](references/_posts--2019-12-19-totw-108.md)
+- [_posts/2020-04-06-totw-163.md](references/_posts--2020-04-06-totw-163.md)
+- [_posts/2020-04-06-totw-171.md](references/_posts--2020-04-06-totw-171.md)
+- [_posts/2020-04-06-totw-172.md](references/_posts--2020-04-06-totw-172.md)
+- [_posts/2020-04-06-totw-173.md](references/_posts--2020-04-06-totw-173.md)
+- [_posts/2020-04-06-totw-175.md](references/_posts--2020-04-06-totw-175.md)
+- [_posts/2020-04-06-totw-176.md](references/_posts--2020-04-06-totw-176.md)
+- [_posts/2020-04-06-totw-177.md](references/_posts--2020-04-06-totw-177.md)
+- [_posts/2020-06-01-totw-5.md](references/_posts--2020-06-01-totw-5.md)
+- [_posts/2020-09-01-totw-140.md](references/_posts--2020-09-01-totw-140.md)
+- [_posts/2020-09-11-totw-116.md](references/_posts--2020-09-11-totw-116.md)
+- [_posts/2020-09-11-totw-165.md](references/_posts--2020-09-11-totw-165.md)
+- [_posts/2020-09-11-totw-181.md](references/_posts--2020-09-11-totw-181.md)
+- [_posts/2020-09-11-totw-5.md](references/_posts--2020-09-11-totw-5.md)
+- [_posts/2020-09-11-totw-76.md](references/_posts--2020-09-11-totw-76.md)
+- [_posts/2020-11-11-totw-186.md](references/_posts--2020-11-11-totw-186.md)
+- [_posts/2020-11-11-totw-187.md](references/_posts--2020-11-11-totw-187.md)
+- [_posts/2020-12-10-totw-188.md](references/_posts--2020-12-10-totw-188.md)
+- [_posts/2022-11-16-totw-124.md](references/_posts--2022-11-16-totw-124.md)
+- [_posts/2022-11-16-totw-18.md](references/_posts--2022-11-16-totw-18.md)
+- [_posts/2022-11-16-totw-215.md](references/_posts--2022-11-16-totw-215.md)
+- [_posts/2022-11-16-totw-3.md](references/_posts--2022-11-16-totw-3.md)
+- [_posts/2023-01-19-totw-218.md](references/_posts--2023-01-19-totw-218.md)
+- [_posts/2023-02-15-totw-198.md](references/_posts--2023-02-15-totw-198.md)
+- [_posts/2024-03-21-totw-224.md](references/_posts--2024-03-21-totw-224.md)
+- [_posts/2024-03-21-totw-227.md](references/_posts--2024-03-21-totw-227.md)
+- [_posts/2024-03-21-totw-229.md](references/_posts--2024-03-21-totw-229.md)
+- [_posts/2024-06-25-totw-197.md](references/_posts--2024-06-25-totw-197.md)
+- [_posts/2024-09-30-totw-231.md](references/_posts--2024-09-30-totw-231.md)
+- [_posts/2024-09-30-totw-232.md](references/_posts--2024-09-30-totw-232.md)
+- [_posts/2024-09-30-totw-234.md](references/_posts--2024-09-30-totw-234.md)
+
+## Provenance
+
+Read [source metadata](references/source.json) and [the source license](references/LICENSE.txt) when attribution, revision, or reuse terms matter.

@@ -1,0 +1,65 @@
+{
+  "artifact": "google-documentation-guide",
+  "collection": "google-style-guides",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "identity",
+      "path": "docguide/README.md",
+      "sha256": "80003ff6a719b4388728857238becbb29a4b22db12feaf1c368c7d71c4334ba2"
+    },
+    {
+      "conversion": "identity",
+      "path": "docguide/READMEs.md",
+      "sha256": "5de33ff445b3897b39106f2d7f689f79142a12cf7fab1e191900be27d1b178b1"
+    },
+    {
+      "conversion": "identity",
+      "path": "docguide/best_practices.md",
+      "sha256": "6f9843dc227b934807b2bd231ad9682512c522d83e8646b317f216e1a22b1e62"
+    },
+    {
+      "conversion": "identity",
+      "path": "docguide/philosophy.md",
+      "sha256": "5715b9bd8a442c01f2ed2c064e50f847d9749e68208442745b250950b5bcd86b"
+    },
+    {
+      "conversion": "identity",
+      "path": "docguide/style.md",
+      "sha256": "cf6ef17b4a4c72420a61621a196e964800e166c9a13304c8ab989e7604b2ee95"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Google Style Guides contributors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 3.0 Unported",
+    "spdx": "CC-BY-3.0",
+    "url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  "license_note": null,
+  "repository": {
+    "id": "styleguide",
+    "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
+    "url": "https://github.com/google/styleguide.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored skill wrapper, metadata, navigation, and index content.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

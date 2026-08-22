@@ -1,0 +1,523 @@
+schema_version: 1
+generator:
+  python: "3.13.7"
+generated_roots:
+  committed: skills
+  local_only: .generated/skills
+
+repositories:
+  styleguide:
+    url: https://github.com/google/styleguide.git
+    revision: 1809c769de31ba388c755ad15dd057a9ba8531fd
+    default_branch: gh-pages
+    license:
+      spdx: CC-BY-3.0
+      name: Creative Commons Attribution 3.0 Unported
+      url: https://creativecommons.org/licenses/by/3.0/
+      evidence_path: LICENSE
+      attribution: Google LLC and the Google Style Guides contributors
+      audited: "2026-08-22"
+      allow_committed_output: true
+
+  eng-practices:
+    url: https://github.com/google/eng-practices.git
+    revision: 3bb3ec25b3b0199f4940b1aa75f0ac5c5753301c
+    default_branch: master
+    license:
+      spdx: CC-BY-3.0
+      name: Creative Commons Attribution 3.0 Unported
+      url: https://creativecommons.org/licenses/by/3.0/
+      evidence_path: LICENSE
+      attribution: Google LLC and the Google Engineering Practices contributors
+      audited: "2026-08-22"
+      allow_committed_output: true
+
+  abseil:
+    url: https://github.com/abseil/abseil.github.io.git
+    revision: e9e24835cb889fe25251cb9ec6d51b79233e358d
+    default_branch: master
+    license:
+      spdx: Apache-2.0
+      name: Apache License 2.0
+      url: https://www.apache.org/licenses/LICENSE-2.0
+      evidence_path: LICENSE
+      attribution: The Abseil Authors
+      audited: "2026-08-22"
+      allow_committed_output: true
+
+source_path_policies:
+  - repository: abseil
+    pattern: resources/swe-book/html/**
+    required_distribution: local-only
+    reason: Each matched chapter carries a CC-BY-NC-ND-4.0 file-level notice.
+  - repository: styleguide
+    pattern: Rguide.md
+    required_distribution: catalog-only
+    reason: The file incorporates CC-BY-SA-2.0 Tidyverse material and needs composite review.
+
+collections:
+  google-style-guides:
+    repository: styleguide
+    distribution: committed
+    description: Canonical language and documentation style guides from google/styleguide.
+    artifacts:
+      - name: google-cpp-style
+        title: Google C++ Style Guide
+        description: >-
+          Use when writing or reviewing C++ under Google's C++ style conventions,
+          including headers, naming, classes, functions, ownership, exceptions, and formatting.
+          Do not use as a general C++ language tutorial.
+        tags: [language, cpp, style, review]
+        layout: inline
+        inputs: [cppguide.html]
+
+      - name: google-csharp-style
+        title: C# at Google Style Guide
+        description: >-
+          Use when writing or reviewing C# under Google's conventions for naming,
+          formatting, language features, and source organization. Do not use for unrelated
+          .NET architecture or framework selection.
+        tags: [language, csharp, style, review]
+        layout: inline
+        inputs: [csharp-style.md]
+
+      - name: google-angularjs-style
+        title: Google AngularJS Style Guide
+        description: >-
+          Use when maintaining AngularJS 1.x code under Google's conventions for modules,
+          controllers, directives, services, templates, events, and testing. Do not use for
+          modern Angular projects unless they deliberately follow this legacy guide.
+        tags: [language, javascript, angularjs, style]
+        layout: inline
+        inputs: [angularjs-google-style.html]
+
+      - name: google-documentation-guide
+        title: Google Documentation Guide
+        description: >-
+          Use when planning, writing, or reviewing developer documentation, Markdown, READMEs,
+          and documentation maintenance using Google's documentation philosophy and practices.
+          Do not use for prose that is not technical documentation.
+        tags: [documentation, markdown, readme, review]
+        layout: inline
+        inputs:
+          - docguide/README.md
+          - docguide/philosophy.md
+          - docguide/best_practices.md
+          - docguide/style.md
+          - docguide/READMEs.md
+
+      - name: google-go-style
+        title: Google Go Style Guide
+        description: >-
+          Use when writing or reviewing Go code under Google's style decisions and best
+          practices, including naming, APIs, errors, documentation, tests, and maintainability.
+          Do not use as a replacement for the Go language specification.
+        tags: [language, go, style, review, testing]
+        layout: inline
+        inputs:
+          - go/guide.md
+          - go/decisions.md
+          - go/best-practices.md
+
+      - name: google-html-css-style
+        title: Google HTML/CSS Style Guide
+        description: >-
+          Use when writing or reviewing HTML and CSS under Google's conventions for validity,
+          semantics, accessibility, formatting, naming, and organization. Do not use for visual
+          design-system decisions.
+        tags: [language, html, css, style, accessibility]
+        layout: inline
+        inputs: [htmlcssguide.html]
+
+      - name: google-java-style
+        title: Google Java Style Guide
+        description: >-
+          Use when writing or reviewing Java source under Google's formatting, naming,
+          ordering, Javadoc, and programming-practice conventions. Do not use for Java API
+          design questions outside the guide's scope.
+        tags: [language, java, style, review]
+        layout: inline
+        inputs: [javaguide.html]
+
+      - name: google-javascript-style
+        title: Google JavaScript Style Guide
+        description: >-
+          Use when writing or reviewing JavaScript under Google's source formatting, naming,
+          module, language-feature, JSDoc, and policy conventions. Do not use for TypeScript;
+          use google-typescript-style instead.
+        tags: [language, javascript, style, review]
+        layout: inline
+        inputs: [jsguide.html]
+
+      - name: google-json-style
+        title: Google JSON Style Guide
+        description: >-
+          Use when designing or reviewing JSON APIs and JSON-formatted data under Google's
+          property naming, structure, value, date, and consistency conventions. Do not use for
+          arbitrary JavaScript object style.
+        tags: [language, json, api, style]
+        layout: inline
+        inputs: [jsoncstyleguide.xml]
+        license_note: >-
+          The source page states that page content is CC-BY-3.0 and embedded code samples are
+          Apache-2.0; both notices remain in the mechanically converted artifact.
+        supplemental_licenses:
+          - spdx: Apache-2.0
+            name: Apache License 2.0
+            url: https://www.apache.org/licenses/LICENSE-2.0
+            attribution: Google LLC and the Google JSON Style Guide contributors
+            scope: Embedded code samples in jsoncstyleguide.xml
+            license_file: LICENSE
+            evidence_contains: code samples are licensed under the
+            sha256: c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f
+
+      - name: google-common-lisp-style
+        title: Google Common Lisp Style Guide
+        description: >-
+          Use when writing or reviewing Common Lisp under Google's naming, formatting,
+          documentation, macro, error-handling, and language-usage conventions. Do not use for
+          other Lisp dialects without checking compatibility.
+        tags: [language, common-lisp, style, review]
+        layout: inline
+        inputs: [lispguide.xml]
+
+      - name: google-objective-c-style
+        title: Google Objective-C Style Guide
+        description: >-
+          Use when writing or reviewing Objective-C and Objective-C++ under Google's naming,
+          formatting, Cocoa-pattern, memory-management, and documentation conventions. Do not
+          use as a Swift style guide.
+        tags: [language, objective-c, style, review]
+        layout: inline
+        inputs: [objcguide.md]
+
+      - name: google-python-style
+        title: Google Python Style Guide
+        description: >-
+          Use when writing or reviewing Python under Google's conventions for language rules,
+          imports, exceptions, typing, naming, comments, tests, and formatting. Do not use as a
+          Python beginner tutorial.
+        tags: [language, python, style, review, testing]
+        layout: inline
+        inputs: [pyguide.md]
+
+      - name: google-shell-style
+        title: Google Shell Style Guide
+        description: >-
+          Use when writing or reviewing Bash and shell scripts under Google's conventions for
+          scope, features, naming, comments, quoting, command substitution, and error handling.
+          Do not use for non-Bourne-compatible shells without checking applicability.
+        tags: [language, shell, bash, style, review]
+        layout: inline
+        inputs: [shellguide.md]
+
+      - name: google-typescript-style
+        title: Google TypeScript Style Guide
+        description: >-
+          Use when writing or reviewing TypeScript under Google's source, type-system, naming,
+          module, documentation, and conformance conventions. Do not use for plain JavaScript;
+          use google-javascript-style instead.
+        tags: [language, typescript, style, review]
+        layout: inline
+        inputs: [tsguide.html]
+
+      - name: google-vimscript-style
+        title: Google Vimscript Style Guide
+        description: >-
+          Use when writing or reviewing Vimscript under Google's naming, formatting, command,
+          function, mapping, and plugin conventions. Do not use for Lua-based Neovim code.
+        tags: [language, vimscript, vim, style]
+        layout: inline
+        inputs: [vimscriptfull.xml]
+
+      - name: google-xml-style
+        title: Google XML Document Format Style Guide
+        description: >-
+          Use when designing or reviewing XML document formats under Google's naming,
+          structure, extensibility, namespace, validation, and schema conventions. Do not use
+          merely to pretty-print an existing XML file.
+        tags: [language, xml, schema, style]
+        layout: inline
+        inputs: [xmlstyle.html]
+
+  google-engineering-practices:
+    repository: eng-practices
+    distribution: committed
+    description: Google's public code-review guidance for authors and reviewers.
+    artifacts:
+      - name: google-code-review-author
+        title: Google's Code Review Guide for Authors
+        description: >-
+          Use when preparing a change for review, splitting changes, writing a change-list
+          description, responding to comments, or resolving review disagreement using Google's
+          engineering practices. Do not use when acting only as the reviewer.
+        tags: [engineering, code-review, author, changelist]
+        layout: inline
+        inputs:
+          - review/developer/index.md
+          - review/developer/small-cls.md
+          - review/developer/cl-descriptions.md
+          - review/developer/handling-comments.md
+          - review/emergencies.md
+
+      - name: google-code-review-reviewer
+        title: Google's Code Review Guide for Reviewers
+        description: >-
+          Use when reviewing a code change, deciding what to inspect, applying Google's review
+          standard, writing comments, reviewing quickly, navigating a change, or handling
+          pushback. Do not use when only preparing your own change for review.
+        tags: [engineering, code-review, reviewer, readability]
+        layout: inline
+        inputs:
+          - review/reviewer/index.md
+          - review/reviewer/standard.md
+          - review/reviewer/looking-for.md
+          - review/reviewer/navigate.md
+          - review/reviewer/comments.md
+          - review/reviewer/speed.md
+          - review/reviewer/pushback.md
+
+  abseil-documentation:
+    repository: abseil
+    distribution: committed
+    description: Apache-2.0 Abseil guides, design notes, and tips; excludes the SWE book.
+    artifacts:
+      - name: abseil-cpp-guides
+        title: Abseil C++ Guides
+        description: >-
+          Use when implementing or reviewing C++ that uses Abseil libraries, including strings,
+          status, time, flags, logging, containers, synchronization, hashing, formatting, and
+          random utilities. Do not use as the Google C++ style guide.
+        tags: [language, cpp, abseil, api]
+        layout: references
+        inputs:
+          - docs/cpp/atomic_danger.md
+          - docs/cpp/guides/*.md
+          - docs/cpp/platforms/*.md
+          - docs/cpp/tools/*.md
+          - docs/cpp/tools/upgrades/*.md
+          - docs/cpp/quickstart*.md
+
+      - name: abseil-cpp-design-notes
+        title: Abseil C++ Design Notes
+        description: >-
+          Use when evaluating C++ library design tradeoffs covered by Abseil design notes,
+          including Swiss tables, B-trees, mutexes, random APIs, formatting, char conversion,
+          and drop-in types. Do not use for unrelated application architecture.
+        tags: [language, cpp, abseil, design]
+        layout: references
+        inputs: [about/design/*.md]
+
+      - name: abseil-python-guides
+        title: Abseil Python Guides
+        description: >-
+          Use when building Python programs with Abseil's app, flags, logging, and testing
+          libraries or following Abseil's Python guidance. Do not use as a general Python style
+          guide when google-python-style is more relevant.
+        tags: [language, python, abseil, testing]
+        layout: references
+        inputs:
+          - docs/python/guides/*.md
+          - docs/python/quickstart.md
+          - docs/python/styleguide.md
+
+      - name: abseil-cpp-tips
+        title: Abseil C++ Tips of the Week
+        description: >-
+          Use when an advanced C++ design, API, readability, performance, ownership, type, or
+          language-feature question matches Google's Abseil C++ Tips of the Week. Search the
+          focused references before inventing a local rule.
+        tags: [language, cpp, abseil, readability, design]
+        layout: references
+        inputs: [_posts/*-totw-*.md]
+
+      - name: abseil-performance-tips
+        title: Abseil Performance Tips
+        description: >-
+          Use when diagnosing or reviewing C++ performance and optimization choices covered by
+          Abseil's FAST guidance. Do not use to justify optimization without measurement.
+        tags: [language, cpp, abseil, performance]
+        layout: references
+        inputs:
+          - fast/*.md
+          - _posts/*-fast-*.md
+
+  software-engineering-at-google:
+    repository: abseil
+    distribution: local-only
+    description: >-
+      Local generator recipes for Software Engineering at Google. The chapter files carry a
+      CC BY-NC-ND 4.0 notice and must never be committed or redistributed by this project.
+    license_override:
+      spdx: CC-BY-NC-ND-4.0
+      name: Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+      url: https://creativecommons.org/licenses/by-nc-nd/4.0/
+      evidence_glob: resources/swe-book/html/*.html
+      evidence_contains: creativecommons.org/licenses/by-nc-nd/4.0
+      attribution: >-
+        Google LLC; Titus Winters, Tom Manshreck, and Hyrum Wright; O'Reilly Media
+      audited: "2026-08-22"
+      allow_committed_output: false
+      warning: >-
+        Local generation does not change the upstream license. Generate and use adapted material
+        only for noncommercial purposes, do not share it, and verify your intended use against
+        the license and applicable law.
+    artifacts:
+      - name: google-swe-culture-and-leadership
+        title: "Software Engineering at Google: Culture and Leadership"
+        description: >-
+          Use locally for questions about software engineering over time, teamwork, knowledge
+          sharing, equity, leadership, and engineering productivity using the corresponding
+          chapters of Software Engineering at Google. Never redistribute this generated skill.
+        tags: [engineering, culture, leadership, productivity]
+        layout: references
+        inputs:
+          - resources/swe-book/html/ch01.html
+          - resources/swe-book/html/ch02.html
+          - resources/swe-book/html/ch03.html
+          - resources/swe-book/html/ch04.html
+          - resources/swe-book/html/ch05.html
+          - resources/swe-book/html/ch06.html
+          - resources/swe-book/html/ch07.html
+
+      - name: google-swe-style-and-readability
+        title: "Software Engineering at Google: Style Guides and Rules"
+        description: >-
+          Use locally for engineering-wide style-guide, consistency, rule, and readability
+          questions grounded in the style-guides chapter of Software Engineering at Google.
+          Never redistribute this generated skill.
+        tags: [engineering, style, readability]
+        layout: references
+        inputs: [resources/swe-book/html/ch08.html]
+
+      - name: google-swe-code-review
+        title: "Software Engineering at Google: Code Review"
+        description: >-
+          Use locally for code-review policy, process, tooling, reviewer, author, and readability
+          questions grounded in the code-review chapters of Software Engineering at Google.
+          Never redistribute this generated skill.
+        tags: [engineering, code-review, readability, tooling]
+        layout: references
+        inputs:
+          - resources/swe-book/html/ch09.html
+          - resources/swe-book/html/ch19.html
+
+      - name: google-swe-documentation
+        title: "Software Engineering at Google: Documentation"
+        description: >-
+          Use locally for documentation purpose, audience, quality, review, maintenance, and
+          documentation-as-code questions grounded in Software Engineering at Google. Never
+          redistribute this generated skill.
+        tags: [engineering, documentation, maintenance]
+        layout: references
+        inputs: [resources/swe-book/html/ch10.html]
+
+      - name: google-swe-testing
+        title: "Software Engineering at Google: Testing"
+        description: >-
+          Use locally for testing strategy, test size and scope, unit tests, test doubles, and
+          larger-test questions grounded in the testing chapters of Software Engineering at
+          Google. Never redistribute this generated skill.
+        tags: [engineering, testing, unit-testing, test-doubles]
+        layout: references
+        inputs:
+          - resources/swe-book/html/ch11.html
+          - resources/swe-book/html/ch12.html
+          - resources/swe-book/html/ch13.html
+          - resources/swe-book/html/ch14.html
+
+      - name: google-swe-maintenance-and-delivery
+        title: "Software Engineering at Google: Maintenance and Delivery"
+        description: >-
+          Use locally for deprecation, version control, code search, builds, static analysis,
+          dependencies, large changes, continuous integration, and continuous delivery grounded
+          in Software Engineering at Google. Never redistribute this generated skill.
+        tags: [engineering, maintenance, build, ci, cd, dependencies]
+        layout: references
+        inputs:
+          - resources/swe-book/html/ch15.html
+          - resources/swe-book/html/ch16.html
+          - resources/swe-book/html/ch17.html
+          - resources/swe-book/html/ch18.html
+          - resources/swe-book/html/ch20.html
+          - resources/swe-book/html/ch21.html
+          - resources/swe-book/html/ch22.html
+          - resources/swe-book/html/ch23.html
+          - resources/swe-book/html/ch24.html
+
+      - name: google-swe-infrastructure
+        title: "Software Engineering at Google: Compute as a Service"
+        description: >-
+          Use locally for questions about compute infrastructure, hosted services, deployment,
+          multitenancy, and infrastructure abstractions grounded in Software Engineering at
+          Google. Never redistribute this generated skill.
+        tags: [engineering, infrastructure, compute, deployment]
+        layout: references
+        inputs: [resources/swe-book/html/ch25.html]
+
+      - name: google-swe-book-front-matter
+        title: "Software Engineering at Google: Front Matter and Afterword"
+        description: >-
+          Use locally when book-level context, scope, authorship, publication, navigation, or the
+          afterword from Software Engineering at Google is specifically needed. Never
+          redistribute this generated skill.
+        tags: [engineering, book, context, attribution]
+        layout: references
+        inputs:
+          - resources/swe-book/html/author_bio.html
+          - resources/swe-book/html/ch26.html
+          - resources/swe-book/html/colo.html
+          - resources/swe-book/html/copyright.html
+          - resources/swe-book/html/cover.html
+          - resources/swe-book/html/foreword.html
+          - resources/swe-book/html/ix.html
+          - resources/swe-book/html/part1.html
+          - resources/swe-book/html/part2.html
+          - resources/swe-book/html/part3.html
+          - resources/swe-book/html/part4.html
+          - resources/swe-book/html/part5.html
+          - resources/swe-book/html/pr01.html
+          - resources/swe-book/html/titlepage.html
+          - resources/swe-book/html/toc.html
+
+catalog_only:
+  - id: google-r-style
+    title: Google's R Style Guide
+    url: https://google.github.io/styleguide/Rguide.html
+    license: NOASSERTION
+    status: license-review-pending
+    reason: >-
+      The canonical file says it forks the Tidyverse Style Guide under CC BY-SA 2.0 while the
+      repository uses CC BY 3.0. Keep cataloged without generated output until composite
+      attribution and ShareAlike obligations are modeled explicitly.
+    tags: [language, r, style, review]
+
+  - id: google-developer-documentation-style
+    title: Google Developer Documentation Style Guide
+    url: https://developers.google.com/style
+    license: CC-BY-4.0
+    status: web-snapshot-pending
+    reason: >-
+      Canonical licensed web guide. Keep cataloged until the web snapshotter has stable page
+      enumeration and content-hash locking; do not silently crawl a moving site.
+    tags: [documentation, style, accessibility]
+
+  - id: google-technical-writing
+    title: Google Technical Writing Courses
+    url: https://developers.google.com/tech-writing
+    license: CC-BY-4.0
+    status: web-snapshot-pending
+    reason: >-
+      Canonical licensed web course. Keep cataloged until web snapshots are reproducibly locked.
+    tags: [documentation, technical-writing, education]
+
+  - id: google-product-management-approach
+    title: Google's Product Management Approach
+    url: https://cloud.google.com/transform/how-to-apply-google-product-management-practices-to-your-business
+    license: NOASSERTION
+    status: license-review-pending
+    reason: >-
+      Official Google Cloud article, but no first-party open-content notice was found on the
+      page. Keep cataloged as metadata only until both licensing and reproducible snapshots are
+      resolved.
+    tags: [product-management, user-research, experimentation, collaboration]

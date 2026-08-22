@@ -1,0 +1,65 @@
+{
+  "artifact": "google-code-review-author",
+  "collection": "google-engineering-practices",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "identity",
+      "path": "review/developer/cl-descriptions.md",
+      "sha256": "f1231472e6769e01558d0d67c54291e5a5a66f0ee798297dd057e78439269675"
+    },
+    {
+      "conversion": "identity",
+      "path": "review/developer/handling-comments.md",
+      "sha256": "db3cab260f1778211ddb2405221157f27fb16a98acae7905101fa0bfe5126da9"
+    },
+    {
+      "conversion": "identity",
+      "path": "review/developer/index.md",
+      "sha256": "10421c370a34c711809c100d74e40792131c2da7caa138f1415dd8bf787cbefa"
+    },
+    {
+      "conversion": "identity",
+      "path": "review/developer/small-cls.md",
+      "sha256": "6bc55ce9a752bbb26df430a55cd12014beee684ed04e94841989ac86558817c9"
+    },
+    {
+      "conversion": "identity",
+      "path": "review/emergencies.md",
+      "sha256": "f6123a06a6a86b938fccdc45fc26c1e1cc28fa9efa5ac5223a7a1c490061acb6"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Google Engineering Practices contributors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 3.0 Unported",
+    "spdx": "CC-BY-3.0",
+    "url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  "license_note": null,
+  "repository": {
+    "id": "eng-practices",
+    "revision": "3bb3ec25b3b0199f4940b1aa75f0ac5c5753301c",
+    "url": "https://github.com/google/eng-practices.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored skill wrapper, metadata, navigation, and index content.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

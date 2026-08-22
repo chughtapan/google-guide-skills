@@ -1,0 +1,75 @@
+{
+  "artifact": "abseil-python-guides",
+  "collection": "abseil-documentation",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "identity",
+      "path": "docs/python/guides/app.md",
+      "sha256": "36f303c7c39e07b9c762ee4d06e80f4f72846d5865c717471347eda4f3b0cb6e"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/python/guides/flags.md",
+      "sha256": "e617919fe751606bcf23c3c0b8503383a2feae5ebd937a8bcabc50daf6c974ba"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/python/guides/index.md",
+      "sha256": "feda064c7068e7a5800b47e704a9d68dbb43c8a1f1710673e185aa0ad99eec3f"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/python/guides/logging.md",
+      "sha256": "a41719decd9a6fcf50975fe8be92317bdc0df6e0dd99d356d67a6a9d88456449"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/python/guides/testing.md",
+      "sha256": "af68c86575f2e390cd96df34c68e33793b5aaeefef930805061f077a52e2fbc8"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/python/quickstart.md",
+      "sha256": "b39895718dae840f304cb1082c365b5aecc985a1c0e72fb450def6267b777df0"
+    },
+    {
+      "conversion": "identity",
+      "path": "docs/python/styleguide.md",
+      "sha256": "0a6cceab2b63d004e7661a47f76a3338aecb9608c441c8398378492f9f794623"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "The Abseil Authors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Apache License 2.0",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  },
+  "license_note": null,
+  "repository": {
+    "id": "abseil",
+    "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
+    "url": "https://github.com/abseil/abseil.github.io.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored skill wrapper, metadata, navigation, and index content.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

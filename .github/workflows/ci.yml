@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UV_PYTHON: ${{ matrix.python }}
+    strategy:
+      matrix:
+        python: ["3.11", "3.13.7"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --frozen --all-groups
+      - run: uv run python -c "import platform; assert platform.python_version().startswith('${{ matrix.python }}')"
+      - run: uv run ruff check .
+      - run: uv run pytest --cov=google_guide_skills --cov-report=term-missing
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      UV_PYTHON: "3.13.7"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.7"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: uv sync --frozen --all-groups
+      - run: uv run google-guides all
+      - run: git diff --exit-code -- skills catalog
+      - run: test -z "$(git status --porcelain --untracked-files=all -- skills catalog)"
+      - run: test -z "$(git ls-files -- .generated/skills)"
+      - run: |
+          for skill in skills/*; do
+            uvx --from skills-ref==0.1.1 agentskills validate "$skill"
+          done
+      - run: npx --yes skills@1.5.23 add ./skills --list
+      - run: |
+          install_dir=$(mktemp -d)
+          git -C "$install_dir" init --quiet
+          uv run google-guides install --project "$install_dir" \
+            --agent codex --agent claude-code --skill google-csharp-style --copy
+          diff -r skills/google-csharp-style "$install_dir/.agents/skills/google-csharp-style"
+          diff -r skills/google-csharp-style "$install_dir/.claude/skills/google-csharp-style"
+          test -z "$(find "$install_dir/.agents/skills/google-csharp-style" \
+            "$install_dir/.claude/skills/google-csharp-style" -type l -print -quit)"
+      - run: uv build
+      - run: |
+          unzip -l dist/*.whl > wheel-files.txt
+          tar -tzf dist/*.tar.gz > sdist-files.txt
+          ! grep -Eq '(^|/)skills/|(^|/)\.generated/' wheel-files.txt
+          ! grep -Eq '(^|/)skills/|(^|/)\.generated/' sdist-files.txt
+          package_dir=$(mktemp -d)
+          uv venv "$package_dir/venv"
+          uv pip install --python "$package_dir/venv/bin/python" dist/*.whl
+          "$package_dir/venv/bin/google-guides" --help
