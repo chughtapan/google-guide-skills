@@ -10,7 +10,7 @@ corpus.yaml
     |
     +-- license evidence gate
     +-- input glob expansion and SHA-256 capture
-    +-- identity Markdown copy or mechanical HTML/XML conversion
+    +-- copy Markdown or convert HTML/XML without editing the source prose
     |
     +--> skills/             redistributable output, committed
     +--> .generated/skills/  restricted output, gitignored
@@ -21,7 +21,7 @@ corpus.yaml
 
 The manifest separates repositories from collections because a single repository can contain
 files with different licenses. `abseil` is the motivating case: the repository-level Apache-2.0
-license governs the selected Abseil docs, while the SWE-book collection has an explicit
+license governs the selected Abseil docs, while the SWE-book collection has a
 CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
 
 ## Reproducibility
@@ -30,10 +30,10 @@ CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
 - Source input patterns expand to a sorted, de-duplicated list.
 - Every input's SHA-256 digest and converter mode are written to `source.json`.
 - Generated files contain no wall-clock timestamp.
-- Catalog and JSON output use stable sorting.
+- Catalog and JSON output are sorted before writing.
 - CI rebuilds the committed outputs and fails on a diff.
 
-## Safety invariants
+## Output rules
 
 - Output roots are fixed by `corpus.yaml`; the CLI has no flag that can redirect local-only
   content into `skills/`.
@@ -41,7 +41,7 @@ CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
   provenance.
 - Cache checkouts with local edits or an unexpected remote fail instead of being reset.
 - File patterns cannot be absolute or contain `..`.
-- License evidence disappearing is a build failure.
+- A build fails when license evidence is missing.
 - Validation rejects local-only provenance inside the committed root and checks that
   `.generated/` is ignored and contains no tracked files, including force-added files.
 - User-level local-only installation is symlink-only: `install --include-swe-book` points an
@@ -49,11 +49,9 @@ CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
 
 ## Skill layout
 
-`inline` is the first-cut baseline: converted source appears in `SKILL.md`, even when it exceeds
-Agent Skills context recommendations. `references` is used for large collections such as Abseil
-tips and the locally generated SWE book. Both layouts preserve the source prose; the difference
-is when an agent loads it.
+In version 0.1, the `inline` layout puts converted source in `SKILL.md`, even when it exceeds Agent
+Skills context recommendations. The `references` layout is used for collections such as Abseil
+tips and the SWE book. Both preserve the source prose; the difference is when an agent loads it.
 
-This split creates measurable evidence for the next iteration instead of prematurely editing the
-guides. Token reports and trigger/quality evals can show which inline skills should move into
-focused references.
+Token reports and evaluations show which inline skills should move into references. Version 0.1
+does not edit the guides to reduce their size.

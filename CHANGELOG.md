@@ -8,27 +8,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Deterministic, pinned conversion of 23 redistributable Google and Abseil guide skills plus an
-  authored discovery index.
-- Generator-only recipes for eight Software Engineering at Google skill groups under an ignored
+- Conversion of 23 redistributable Google and Abseil guides from pinned revisions, plus a
+  discovery index.
+- Recipes for eight Software Engineering at Google skill groups that write only to the ignored
   local output root.
-- Machine-readable source/license provenance, input hashes, catalog, and exact `o200k_base` token
-  metrics.
-- Pinned cross-agent installation and isolated Codex/Claude Code discoverability and quality
-  evaluation plans.
-- Safe user-level self-installation that links optional local-only SWE-book skills from the ignored
-  generated root without copying or publishing their bytes.
+- Source and license records, input hashes, a catalog, and `o200k_base` token counts.
+- Cross-agent installation and Codex/Claude Code discovery and quality evaluations.
+- A user install command that links SWE-book skills from the ignored output root without copying
+  or publishing them.
 
 ### Security
 
-- Enforced canonical protected sources, immutable source-path distribution rules, pinned Git bytes,
-  license evidence, safe output roots, and restricted-output tracking checks.
-- Added temporary-workspace and Bubblewrap isolation, disposable-key requirements, minimal process
-  environments, installed-tree verification, and fail-closed live-evaluation status handling.
+- Checks for protected source identities, source-path distribution rules, pinned Git bytes,
+  license evidence, output paths, and tracked restricted output.
+- Evaluation isolation with temporary workspaces and Bubblewrap, one-use keys, reduced process
+  environments, installed-tree checks, and failure-status handling.
 
 ### Known limitations
 
-- Live-model release gates have not yet passed under the final hardened harness.
+- Live-model release gates have not yet passed under the current harness.
 - Version 0.1 is text-only; upstream images and some relative links are not bundled or rewritten.
-- The supported distribution is a source checkout; package archives intentionally omit the corpus
-  and generated skill trees and are marked private/do-not-upload.
+- Run the project from a source checkout. Package archives omit the corpus and generated skill
+  trees and are marked private/do-not-upload.

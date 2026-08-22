@@ -1,24 +1,23 @@
 # Google Guide Skills
 
-Turn Google's public engineering guides into installable, discoverable
-[Agent Skills](https://agentskills.io/) for Codex and Claude.
-The generator preserves Markdown source text and mechanically converts HTML/XML to Markdown. It
-adds only skill metadata, navigation, provenance, and license files around that source material.
-Version 0.1 is a deliberately text-only baseline: it does not bundle upstream images or rewrite
-source-relative links, so some diagrams and cross-document links require opening the pinned
-upstream repository recorded in `source.json`.
+Convert Google's public engineering guides into [Agent Skills](https://agentskills.io/) for Codex
+and Claude, install them, and test whether agents select them.
+The generator copies Markdown and converts HTML/XML to Markdown. It adds skill metadata,
+navigation, source records, and license files. Version 0.1 does not bundle images or rewrite
+relative links. Open the source repository named in `source.json` to view missing diagrams or
+follow those links.
 
-This repository has a hard distribution boundary:
+Generated files go to one of two places:
 
-- `skills/` contains generated material whose source license permits redistribution.
-- `.generated/skills/` contains optional local-only output and is ignored by git.
+- `skills/` contains material that can be redistributed and committed.
+- `.generated/skills/` contains SWE-book output for local use and is ignored by git.
 - `corpus.yaml` records every source, revision, license, file pattern, output policy, and skill
   description.
 
-The boundary matters for [`abseil/abseil.github.io`](https://github.com/abseil/abseil.github.io):
-most repository documentation is Apache-2.0, but `resources/swe-book/html/` carries file-level
-CC BY-NC-ND 4.0 notices. The pipeline can generate those chapters locally, but it refuses to put
-them in the committed skill tree.
+This split is required for
+[`abseil/abseil.github.io`](https://github.com/abseil/abseil.github.io). Most files used here are
+Apache-2.0, but `resources/swe-book/html/` has CC BY-NC-ND 4.0 notices. The generator writes those
+chapters only to `.generated/skills/`.
 
 ## Quick start
 
@@ -34,30 +33,29 @@ uv run google-guides all
 That command checks out the exact revisions in `corpus.yaml`, builds redistributable skills,
 regenerates the catalog and `o200k_base` token report, and validates the result.
 
-Generate the restricted SWE-book skills for private local evaluation:
+Generate the SWE-book skills on your machine:
 
 ```bash
 uv run google-guides all --include-swe-book
 ```
 
-The resulting `.generated/` files retain their upstream license restrictions. Generate and use
-the adapted material only for noncommercial purposes, and do not commit, share, or redistribute
-it merely because the conversion happened locally. Review the full recorded license before use.
+The files in `.generated/` remain subject to CC BY-NC-ND 4.0. Use them only for noncommercial
+purposes. Do not commit, share, or redistribute them. Read the recorded license before use.
 
 ## Commands
 
 ```text
 google-guides sync                         clone and checkout pinned repositories
 google-guides build [--collection ID]     build selected redistributable skills
-google-guides build --include-swe-book     also build the private SWE-book skills
+google-guides build --include-swe-book     also build the SWE-book skills locally
 google-guides catalog                      regenerate catalog and index
 google-guides metrics [--include-swe-book] count every generated text file with o200k_base
 google-guides validate [--include-swe-book] check skill, reference, and license boundaries
 google-guides install --agent codex        install for the current user
-google-guides install --include-swe-book   also generate and link the private SWE-book skills
-google-guides eval triggers                plan fresh-agent discoverability cases
-google-guides eval quality                 plan no-skill versus skill answer A/Bs
-google-guides all                           run the deterministic end-to-end pipeline
+google-guides install --include-swe-book   also generate and link the SWE-book skills
+google-guides eval triggers                plan skill-selection tests
+google-guides eval quality                 plan answers with and without skills
+google-guides all                           sync, build, catalog, measure, and validate
 ```
 
 Install the generated skills into a project for Codex and Claude Code:
@@ -70,50 +68,50 @@ uv run google-guides install \
   --copy
 ```
 
-The wrapper delegates to pinned [`npx skills@1.5.23`](https://github.com/vercel-labs/skills), so the same skill
-folders remain usable across supported agents. Use `--dry-run` to inspect commands first.
-With no `--project`, installation targets the current user. Include the private book skills with:
+The command uses pinned [`npx skills@1.5.23`](https://github.com/vercel-labs/skills). The same
+folders work with Codex and Claude Code. Use `--dry-run` to inspect commands first. Without
+`--project`, the command installs for the current user. To include the SWE-book skills, run:
 
 ```bash
 uv run google-guides install --agent codex --include-swe-book
 ```
 
 The flag generates all eight book skills and links them from `.generated/skills/`; it does not copy
-or publish them. Explicit `--project` installs continue to include only redistributable skills.
+or publish them. `--project` installs include only the 24 redistributable skills.
 
 The 24-skill pack uses 7,780 of Codex's 8,000 fallback startup-metadata characters at the recorded
 reference path. That leaves 220 characters and supports an install-root path of at most 54
 characters before truncation; deeper projects or unrelated host skills can exceed the budget.
-Prefer targeted installs for normal projects and reserve the full pack for discovery tests. Live
-evaluations are Linux-only in v0.1 and require Bubblewrap, explicit model IDs, dedicated disposable
-provider keys, `--live --accept-cost`, and `--accept-credential-risk`; they never run in CI. See
+Install only the skills a project needs. Use the full pack for discovery tests. Live evaluations
+are Linux-only in v0.1 and require Bubblewrap, model IDs, one-use provider keys,
+`--live --accept-cost`, and `--accept-credential-risk`; they do not run in CI. See
 [`docs/evaluation.md`](docs/evaluation.md) for profiles, evidence limitations, and gates.
 
 ## Outputs
 
-- [`catalog/catalog.md`](catalog/catalog.md): human-readable source and skill index.
-- [`catalog/catalog.json`](catalog/catalog.json): machine-readable discovery index.
+- [`catalog/catalog.md`](catalog/catalog.md): source and skill index in Markdown.
+- [`catalog/catalog.json`](catalog/catalog.json): source and skill index in JSON.
 - [`catalog/tokens.json`](catalog/tokens.json): per-file and per-skill token totals.
-- `skills/*/references/source.json`: exact source URL, commit, input hashes, converter mode, and
+- `skills/*/references/source.json`: source URL, commit, input hashes, converter mode, and
   license evidence.
 - [`reports/generator-comparison.md`](reports/generator-comparison.md): generator and plugin
-  comparison behind the architecture choice.
-- [`evals/cases.yaml`](evals/cases.yaml): staged cross-agent trigger and quality corpus.
+  comparison used to choose the pipeline.
+- [`evals/cases.yaml`](evals/cases.yaml): prompts and scoring rules for Codex and Claude tests.
 
-Large inline skills are intentional in the unedited baseline. Validation reports their context
-cost as a warning rather than rewriting them. Later iterations can compare inline files with
-progressive-disclosure reference layouts using the committed token and trigger results.
+Version 0.1 leaves source prose inline. Validation warns when a skill exceeds the context
+recommendations. Later tests can compare inline skills with reference-based layouts using token
+counts and trigger results.
 
-The four catalog-only entries (R style, Developer Documentation Style, Technical Writing, and a
-Google Cloud product-management article) are inventory leads, not generated skills. Their
-snapshot or composite-license work is intentionally deferred rather than guessed.
+The catalog lists four sources that the generator does not build: R style, Developer
+Documentation Style, Technical Writing, and a Google Cloud product-management article. Their
+snapshot or license work is unfinished.
 
 ## Licensing and attribution
 
-The generator code and the thin skill wrapper it authors are Apache-2.0. Generated source material
-stays under the upstream license recorded in each skill's `references/LICENSE.txt` and
-`references/source.json`; the wrapper license does not replace those terms. See
-[`docs/licensing.md`](docs/licensing.md) for the full policy.
+The generator code, skill metadata, and navigation it adds are Apache-2.0. Source material stays
+under the license recorded in each skill's `references/LICENSE.txt` and
+`references/source.json`; the project license does not replace those terms. See
+[`docs/licensing.md`](docs/licensing.md) for the policy.
 
 Google, Abseil, and related marks belong to their owners. This independent project is not
 affiliated with or endorsed by Google.
@@ -127,13 +125,13 @@ uv run google-guides all
 git diff --exit-code -- skills catalog
 ```
 
-Maintainers run `uv run google-guides all --include-swe-book` as an explicit local release check.
+Maintainers run `uv run google-guides all --include-swe-book` as a local release check.
 Hosted CI uses synthetic restricted-source fixtures and never materializes the real SWE-book
 derivatives.
 
 Contributions should update `corpus.yaml`, tests, generated outputs, and license evidence in one
 change. Never add a source whose distribution rights are unclear.
 
-The supported distribution is this source checkout. The Python build metadata exists for local
-tooling and CI smoke tests; the project is marked `Private :: Do Not Upload`, and wheels exclude
-generated guide trees and do not provide a standalone initialized corpus.
+Run the project from a source checkout. Python build metadata supports local tools and CI smoke
+tests. The project is marked `Private :: Do Not Upload`; wheels exclude generated guide trees and
+do not contain an initialized corpus.
