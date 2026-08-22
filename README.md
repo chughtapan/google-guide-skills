@@ -1,6 +1,7 @@
 # Google Guide Skills
 
-Turn pinned, licensed Google engineering guides into portable [Agent Skills](https://agentskills.io/).
+Turn Google's public engineering guides into installable, discoverable
+[Agent Skills](https://agentskills.io/) for Codex and Claude.
 The generator preserves Markdown source text and mechanically converts HTML/XML to Markdown. It
 adds only skill metadata, navigation, provenance, and license files around that source material.
 Version 0.1 is a deliberately text-only baseline: it does not bundle upstream images or rewrite
