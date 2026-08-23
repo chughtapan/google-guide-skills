@@ -16,7 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Cross-agent installation plus Codex and Claude Code evaluation cases and runners.
 - A user install command that links SWE-book skills from the ignored output root without copying
   or publishing them.
-- A skill-routed development lifecycle and issue and pull-request templates.
+- Agent skill routing and issue and pull-request templates.
 
 ### Changed
 

@@ -126,8 +126,7 @@ affiliated with or endorsed by Google.
 
 ## Development
 
-Follow [`docs/sdlc.md`](docs/sdlc.md) for change risk, planning records, skill routing, review,
-and release gates. Agent-specific instructions live in [`AGENTS.md`](AGENTS.md).
+[`AGENTS.md`](AGENTS.md) is the source of truth for skill routing and review.
 
 ```bash
 uv run ruff format --check src tests

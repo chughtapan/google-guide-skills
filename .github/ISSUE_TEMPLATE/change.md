@@ -8,7 +8,7 @@ assignees: ""
 
 ## Problem
 
-Who is affected, and what can they not do today?
+What is wrong or missing?
 
 ## Outcome
 
@@ -18,22 +18,10 @@ What should be possible after this change?
 
 - [ ]
 
-## Not in scope
+## Non-goals
 
 -
 
-## Risk
+## Risks and validation
 
-- [ ] Public behavior, CLI, or format
-- [ ] Source, licensing, or generated output
-- [ ] Installer, evaluator, sandbox, or credentials
-- [ ] Distribution or release
-- [ ] Documentation only
-
-## Validation
-
-List the tests, generation checks, evaluations, or manual checks that prove the outcome.
-
-## Design record
-
-Link a design document when the change needs one.
+What can fail, and how will the change be tested?
