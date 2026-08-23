@@ -70,10 +70,14 @@ uv run google-guides install \
 
 The command uses pinned [`npx skills@1.5.23`](https://github.com/vercel-labs/skills). The same
 folders work with Codex and Claude Code. Use `--dry-run` to inspect commands first. Without
-`--project`, the command installs for the current user. To include the SWE-book skills, run:
+`--project`, the command installs for the current user. To include the SWE-book skills for both
+supported agents, run:
 
 ```bash
-uv run google-guides install --agent codex --include-swe-book
+uv run google-guides install \
+  --agent codex \
+  --agent claude-code \
+  --include-swe-book
 ```
 
 The flag generates all eight book skills and links them from `.generated/skills/`; it does not copy
@@ -117,6 +121,9 @@ Google, Abseil, and related marks belong to their owners. This independent proje
 affiliated with or endorsed by Google.
 
 ## Development
+
+Follow [`docs/sdlc.md`](docs/sdlc.md) for change risk, planning records, skill routing, review,
+and release gates. Agent-specific instructions live in [`AGENTS.md`](AGENTS.md).
 
 ```bash
 uv run ruff format --check src tests
