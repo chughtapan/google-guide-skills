@@ -793,7 +793,8 @@ def test_run_agent_passes_minimal_env_and_deletes_temporary_home(
     assert "provider-key" not in str(result)
     assert "[REDACTED_EVAL_KEY]" in str(result)
     assert result["stderr_excerpt"] == "[REDACTED_EVAL_KEY]"
-    assert seen_home and not seen_home[0].exists()
+    assert seen_home
+    assert not seen_home[0].exists()
 
 
 @pytest.mark.parametrize(
@@ -1050,29 +1051,20 @@ def _fake_profile_installer(
         agents: list[str],
         *,
         skills: list[str] | None,
-        include_local: bool,
         copy: bool,
     ) -> list[list[str]]:
         captured.update(
             {
                 "agents": agents,
                 "skills": skills,
-                "include_local": include_local,
                 "copy": copy,
             }
         )
         available = ["alpha-style", "beta-review", "google-guides-index"]
-        if include_local:
-            available.append("local-testing")
         names = available if skills is None else skills
         install_root = project / (".agents/skills" if agents == ["codex"] else ".claude/skills")
         for name in names:
-            source_root = (
-                manifest.root_for("local-only")
-                if name == "local-testing"
-                else manifest.root_for("committed")
-            )
-            shutil.copytree(source_root / name, install_root / name)
+            shutil.copytree(manifest.root_for("committed") / name, install_root / name)
         if corrupt and names:
             (install_root / names[0] / "SKILL.md").write_text("corrupt", encoding="utf-8")
         if extra:
@@ -1084,29 +1076,16 @@ def _fake_profile_installer(
 
 
 @pytest.mark.parametrize(
-    ("profile", "include_local", "expected_selection", "expected_installed"),
+    ("profile", "expected_selection", "expected_installed"),
     [
         (
             "single",
-            False,
             ["alpha-style", "beta-review"],
             ["alpha-style", "beta-review"],
         ),
-        ("index", False, ["google-guides-index"], ["google-guides-index"]),
-        ("all-no-index", False, ["alpha-style", "beta-review"], ["alpha-style", "beta-review"]),
-        (
-            "all-no-index",
-            True,
-            ["alpha-style", "beta-review", "local-testing"],
-            ["alpha-style", "beta-review", "local-testing"],
-        ),
-        ("all", False, None, ["alpha-style", "beta-review", "google-guides-index"]),
-        (
-            "all",
-            True,
-            None,
-            ["alpha-style", "beta-review", "google-guides-index", "local-testing"],
-        ),
+        ("index", ["google-guides-index"], ["google-guides-index"]),
+        ("all-no-index", ["alpha-style", "beta-review"], ["alpha-style", "beta-review"]),
+        ("all", None, ["alpha-style", "beta-review", "google-guides-index"]),
     ],
 )
 def test_install_profile_selects_and_verifies_exact_skill_copies(
@@ -1114,11 +1093,10 @@ def test_install_profile_selects_and_verifies_exact_skill_copies(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     profile: str,
-    include_local: bool,
     expected_selection: list[str] | None,
     expected_installed: list[str],
 ) -> None:
-    project = tmp_path / f"project-{profile}-{include_local}"
+    project = tmp_path / f"project-{profile}"
     project.mkdir()
     captured: dict[str, object] = {}
     monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
@@ -1137,7 +1115,6 @@ def test_install_profile_selects_and_verifies_exact_skill_copies(
         "codex",
         profile,
         _case(forbidden=("beta-review",)),
-        include_local=include_local,
         timeout=10,
     )
 
@@ -1169,7 +1146,6 @@ def test_install_profile_baseline_never_checks_or_invokes_npx(
         "codex",
         "baseline",
         _case(),
-        include_local=False,
         timeout=1,
     ) == {
         "commands": [],
@@ -1191,7 +1167,6 @@ def test_install_profile_rejects_missing_npx_and_invalid_profiles(
             "codex",
             "all",
             _case(),
-            include_local=False,
             timeout=1,
         )
 
@@ -1203,7 +1178,6 @@ def test_install_profile_rejects_missing_npx_and_invalid_profiles(
             "codex",
             "bad",
             _case(),
-            include_local=False,
             timeout=1,
         )
     with pytest.raises(EvaluationError, match="no candidate skill"):
@@ -1213,7 +1187,6 @@ def test_install_profile_rejects_missing_npx_and_invalid_profiles(
             "codex",
             "single",
             _case(expected=(), rubric=()),
-            include_local=False,
             timeout=1,
         )
 
@@ -1239,7 +1212,6 @@ def test_install_profile_detects_failed_install_and_hash_mismatch(
             "codex",
             "index",
             _case(),
-            include_local=False,
             timeout=1,
         )
 
@@ -1263,7 +1235,6 @@ def test_install_profile_detects_failed_install_and_hash_mismatch(
             "codex",
             "index",
             _case(),
-            include_local=False,
             timeout=1,
         )
 
@@ -1281,7 +1252,6 @@ def test_install_profile_detects_failed_install_and_hash_mismatch(
             "codex",
             "index",
             _case(),
-            include_local=False,
             timeout=1,
         )
 
@@ -1321,7 +1291,6 @@ def test_install_profile_rejects_symlinks_and_project_configuration(
             "codex",
             "index",
             _case(),
-            include_local=False,
             timeout=1,
         )
 
@@ -1349,7 +1318,48 @@ def test_install_profile_rejects_symlinks_and_project_configuration(
             "codex",
             "index",
             _case(),
-            include_local=False,
+            timeout=1,
+        )
+
+
+def test_install_profile_rejects_empty_directory_git_drift(
+    manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    project = tmp_path / "git-drift"
+    (project / ".git").mkdir(parents=True)
+    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
+
+    def drift_installer(
+        _manifest: Manifest,
+        _target: Path,
+        agents: list[str],
+        *,
+        skills: list[str] | None,
+        copy: bool,
+    ) -> list[list[str]]:
+        assert agents == ["codex"]
+        assert skills == ["google-guides-index"]
+        assert copy is True
+        return [["npx", "fake-install"]]
+
+    def run_installer(command: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        shutil.copytree(
+            manifest.root_for("committed") / "google-guides-index",
+            project / ".agents/skills/google-guides-index",
+        )
+        (project / ".git/added-directory").mkdir()
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(eval_module, "install_commands", drift_installer)
+    monkeypatch.setattr(eval_module.subprocess, "run", run_installer)
+
+    with pytest.raises(EvaluationError, match="modified evaluation Git metadata"):
+        _install_profile(
+            manifest,
+            project,
+            "codex",
+            "index",
+            _case(),
             timeout=1,
         )
 
@@ -1371,7 +1381,6 @@ def test_install_profile_reports_timeout(
             "codex",
             "index",
             _case(),
-            include_local=False,
             timeout=1,
         )
 
@@ -1758,11 +1767,20 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
 
     def run_agent(
         _agent: str,
-        _workspace: Path,
+        workspace: Path,
         prompt: str,
         raw_dir: Path,
-        **_kwargs: object,
+        *,
+        timeout: int,
+        max_budget_usd: float,
+        model: str | None,
+        isolation_root: Path | None = None,
     ) -> dict[str, object]:
+        assert workspace.name == "w"
+        assert timeout == 180
+        assert max_budget_usd == 0.25
+        assert model == "test-model"
+        assert isolation_root == workspace.parent
         raw_dir.mkdir(parents=True)
         assert "Do not edit files" in prompt
         assert "EVAL_SKILL" in prompt
@@ -1784,15 +1802,29 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
         }
 
     monkeypatch.setattr(eval_module, "_prepare_workspace", prepare)
-    monkeypatch.setattr(
-        eval_module,
-        "_install_profile",
-        lambda *_args, **_kwargs: {
+
+    def install_profile(
+        _manifest: Manifest,
+        workspace: Path,
+        agent: str,
+        profile: str,
+        _case_value: EvalCase,
+        *,
+        timeout: int,
+        npx_home: Path | None = None,
+    ) -> dict[str, object]:
+        assert workspace.name == "w"
+        assert agent == "codex"
+        assert profile == "single"
+        assert timeout == 180
+        assert npx_home is not None
+        return {
             "commands": [["npx", "fake"]],
             "installed_skills": ["alpha-style"],
             "hashes_verified": True,
-        },
-    )
+        }
+
+    monkeypatch.setattr(eval_module, "_install_profile", install_profile)
     monkeypatch.setattr(eval_module, "_run_agent", run_agent)
     monkeypatch.setattr(eval_module, "_version", lambda command, **_kwargs: f"{command[0]} test")
 
@@ -1817,7 +1849,8 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
     assert record["trigger_correct"] is True
     assert record["rubric_earned"] == 1
     assert report["summary"]["trigger_accuracy"] == 1.0
-    assert prepared and not prepared[0].exists()
+    assert prepared
+    assert not prepared[0].exists()
     assert not (output / "raw" / record["id"]).exists()
 
 

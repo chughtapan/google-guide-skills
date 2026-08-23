@@ -213,9 +213,7 @@ def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
         args.project,
         agents,
         skills=args.skills,
-        include_local=False,
         copy=args.copy,
-        global_install=False,
         dry_run=args.dry_run,
     )
     if args.dry_run:

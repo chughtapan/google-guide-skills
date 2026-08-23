@@ -6,6 +6,7 @@ import copy
 import csv
 import hashlib
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -16,7 +17,16 @@ from types import SimpleNamespace
 import pytest
 import yaml
 
-from google_guide_skills import builder, catalog, installer, manifest, metrics, sources, validation
+from google_guide_skills import (
+    builder,
+    catalog,
+    installer,
+    manifest,
+    metrics,
+    path_policy,
+    sources,
+    validation,
+)
 from google_guide_skills.convert import markup_to_markdown, source_to_markdown
 from google_guide_skills.errors import (
     BuildError,
@@ -1201,24 +1211,20 @@ def test_sources_sync_validates_ids_and_preserves_requested_order(
         sources.sync(loaded, ["missing"])
 
 
-def test_install_commands_route_committed_and_local_skills(
-    tmp_path: Path,
-) -> None:
+def test_install_commands_route_committed_skills(tmp_path: Path) -> None:
     loaded = _write_manifest(tmp_path / "generator", _manifest_data())
     loaded.root_for("committed").mkdir(parents=True)
-    loaded.root_for("local-only").mkdir(parents=True)
     project = tmp_path / "consumer"
     project.mkdir()
 
-    committed = installer.install_commands(
+    commands = installer.install_commands(
         loaded,
         project,
         ["codex", "claude-code"],
         skills=["google-guides-index", "public-guide"],
         copy=True,
-        global_install=True,
     )
-    assert committed == [
+    assert commands == [
         [
             "npx",
             "--yes",
@@ -1235,44 +1241,77 @@ def test_install_commands_route_committed_and_local_skills(
             "public-guide",
             "--yes",
             "--copy",
-            "--global",
         ]
     ]
-
-    project = loaded.project_root / "evals" / "results" / "consumer"
-    project.mkdir(parents=True)
-    both = installer.install_commands(
-        loaded,
-        project,
-        ["codex"],
-        skills=["public-guide", "restricted-guide"],
-        include_local=True,
-    )
-    assert len(both) == 2
-    assert str(loaded.root_for("committed")) in both[0]
-    assert both[0][-3:-1] == ["--skill", "public-guide"]
-    assert str(loaded.root_for("local-only")) in both[1]
-    assert both[1][-3:-1] == ["--skill", "restricted-guide"]
 
 
 def test_install_commands_validate_inputs_and_missing_roots(tmp_path: Path) -> None:
     loaded = _write_manifest(tmp_path / "generator", _manifest_data())
-    loaded.root_for("committed").mkdir(parents=True)
     project = tmp_path / "consumer"
     project.mkdir()
 
+    with pytest.raises(GoogleGuideSkillsError, match="Generated skill root does not exist"):
+        installer.install_commands(loaded, project, ["codex"])
+
+    loaded.root_for("committed").mkdir(parents=True)
     with pytest.raises(GoogleGuideSkillsError, match="at least one target"):
         installer.install_commands(loaded, project, [])
     with pytest.raises(GoogleGuideSkillsError, match="does not exist"):
         installer.install_commands(loaded, tmp_path / "missing", ["codex"])
     with pytest.raises(GoogleGuideSkillsError, match="unavailable"):
-        installer.install_commands(
-            loaded, project, ["codex"], skills=["restricted-guide"], include_local=False
+        installer.install_commands(loaded, project, ["codex"], skills=["restricted-guide"])
+
+
+def test_checked_tree_hashes_tracks_directories_and_rejects_unsafe_paths(
+    tmp_path: Path,
+) -> None:
+    tree = tmp_path / "tree"
+    tree.mkdir()
+    (tree / "empty").mkdir()
+
+    assert path_policy.checked_tree_hashes(
+        tree,
+        context="Fixture tree",
+        error_type=GoogleGuideSkillsError,
+    ) == {"empty/": "directory"}
+
+    with pytest.raises(GoogleGuideSkillsError, match="real directory"):
+        path_policy.checked_tree_hashes(
+            tmp_path / "missing",
+            context="Fixture tree",
+            error_type=GoogleGuideSkillsError,
         )
-    safe_project = loaded.project_root / "evals" / "results" / "consumer"
-    safe_project.mkdir(parents=True)
-    with pytest.raises(GoogleGuideSkillsError, match="Generated skill root does not exist"):
-        installer.install_commands(loaded, safe_project, ["codex"], include_local=True)
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    nested_link = tree / "link"
+    nested_link.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(GoogleGuideSkillsError, match="contains a symlink"):
+        path_policy.checked_tree_hashes(
+            tree,
+            context="Fixture tree",
+            error_type=GoogleGuideSkillsError,
+        )
+    nested_link.unlink()
+
+    fifo = tree / "fifo"
+    os.mkfifo(fifo)
+    with pytest.raises(GoogleGuideSkillsError, match="non-regular path"):
+        path_policy.checked_tree_hashes(
+            tree,
+            context="Fixture tree",
+            error_type=GoogleGuideSkillsError,
+        )
+    fifo.unlink()
+
+    root_link = tmp_path / "tree-link"
+    root_link.symlink_to(tree, target_is_directory=True)
+    with pytest.raises(GoogleGuideSkillsError, match="real directory"):
+        path_policy.checked_tree_hashes(
+            root_link,
+            context="Fixture tree",
+            error_type=GoogleGuideSkillsError,
+        )
 
 
 def test_install_commands_enumerate_manifest_allowlist(tmp_path: Path) -> None:
@@ -1290,40 +1329,6 @@ def test_install_commands_enumerate_manifest_allowlist(tmp_path: Path) -> None:
         "public-guide",
         "--yes",
     ]
-
-
-def test_install_all_routes_local_only_to_separate_safe_root(tmp_path: Path) -> None:
-    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
-    loaded.root_for("committed").mkdir(parents=True)
-    loaded.root_for("local-only").mkdir(parents=True)
-    project = loaded.project_root / "evals" / "results" / "workspace"
-    project.mkdir(parents=True)
-
-    commands = installer.install_commands(
-        loaded, project, ["codex"], skills=None, include_local=True, copy=True
-    )
-
-    assert len(commands) == 2
-    assert commands[0][4] == str(loaded.root_for("committed"))
-    assert commands[1][4] == str(loaded.root_for("local-only"))
-    assert commands[0][-6:] == [
-        "--skill",
-        "google-guides-index",
-        "--skill",
-        "public-guide",
-        "--yes",
-        "--copy",
-    ]
-    assert commands[1][-4:] == ["--skill", "restricted-guide", "--yes", "--copy"]
-
-    external = tmp_path / "external"
-    external.mkdir()
-    with pytest.raises(GoogleGuideSkillsError, match="only into ignored evaluation"):
-        installer.install_commands(loaded, external, ["codex"], include_local=True)
-    with pytest.raises(GoogleGuideSkillsError, match="does not export local-only"):
-        installer.install(loaded, external, ["codex"], include_local=True, dry_run=True)
-    with pytest.raises(GoogleGuideSkillsError, match="Global installation is disabled"):
-        installer.install(loaded, external, ["codex"], global_install=True, dry_run=True)
 
 
 def test_install_dry_run_and_execution_use_npx_without_network_in_test(
@@ -1410,8 +1415,10 @@ def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Pa
     assert [action.status for action in actions] == ["linked", "linked"]
     public_link = user_home / ".codex/skills/public-guide"
     restricted_link = user_home / ".codex/skills/restricted-guide"
-    assert public_link.is_symlink() and public_link.resolve() == public.resolve()
-    assert restricted_link.is_symlink() and restricted_link.resolve() == restricted.resolve()
+    assert public_link.is_symlink()
+    assert public_link.resolve() == public.resolve()
+    assert restricted_link.is_symlink()
+    assert restricted_link.resolve() == restricted.resolve()
     assert ".generated/skills" in restricted_link.resolve().as_posix()
 
     repeated = installer.install_user_links(
@@ -1447,7 +1454,8 @@ def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Pa
         user_home=user_home,
     )
     assert planned[0].status == "would-relink"
-    assert destination.is_dir() and not destination.is_symlink()
+    assert destination.is_dir()
+    assert not destination.is_symlink()
 
     actions = installer.install_user_links(
         loaded,
@@ -1456,7 +1464,8 @@ def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Pa
         user_home=user_home,
     )
     assert actions[0].status == "relinked"
-    assert destination.is_symlink() and destination.resolve() == source.resolve()
+    assert destination.is_symlink()
+    assert destination.resolve() == source.resolve()
 
     (source / "SKILL.md").write_text("updated\n", encoding="utf-8")
     assert (destination / "SKILL.md").read_text(encoding="utf-8") == "updated\n"
@@ -1498,7 +1507,8 @@ def test_user_install_restores_identical_copy_when_relink_fails(
             user_home=user_home,
         )
 
-    assert destination.is_dir() and not destination.is_symlink()
+    assert destination.is_dir()
+    assert not destination.is_symlink()
     assert (destination / "SKILL.md").read_text(encoding="utf-8") == "same\n"
 
 

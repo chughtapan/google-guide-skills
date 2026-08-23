@@ -83,15 +83,30 @@ def test_install_uses_default_agents_for_project_install(
 ) -> None:
     captured: dict[str, object] = {}
 
-    def fake_install(manifest: object, project: Path, agents: list[str], **kwargs: object):
-        captured.update(manifest=manifest, project=project, agents=agents, **kwargs)
+    def fake_install(
+        manifest: object,
+        project: Path,
+        agents: list[str],
+        skills: list[str] | None = None,
+        copy: bool = False,
+        dry_run: bool = False,
+    ) -> list[list[str]]:
+        captured.update(
+            manifest=manifest,
+            project=project,
+            agents=agents,
+            skills=skills,
+            copy=copy,
+            dry_run=dry_run,
+        )
         return [["npx", "--yes", "skills@1.5.23", "add", "skills"]]
 
     monkeypatch.setattr(cli, "install", fake_install)
     assert cli.main(["install", "--project", str(tmp_path), "--dry-run"]) == 0
     assert captured["manifest"] is fake_manifest
     assert captured["agents"] == ["codex", "claude-code"]
-    assert captured["include_local"] is False
+    assert captured["skills"] is None
+    assert captured["copy"] is False
     assert captured["dry_run"] is True
     assert "skills@1.5.23" in capsys.readouterr().out
 
@@ -112,9 +127,20 @@ def test_self_install_routes_local_skills_to_user_links(
     monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
 
     def fake_user_install(
-        manifest: object, agents: list[str], **kwargs: object
+        manifest: object,
+        agents: list[str],
+        skills: list[str] | None = None,
+        *,
+        include_local: bool = False,
+        dry_run: bool = False,
     ) -> list[SimpleNamespace]:
-        captured.update(manifest=manifest, agents=agents, **kwargs)
+        captured.update(
+            manifest=manifest,
+            agents=agents,
+            skills=skills,
+            include_local=include_local,
+            dry_run=dry_run,
+        )
         return [action]
 
     monkeypatch.setattr(cli, "install_user_links", fake_user_install)

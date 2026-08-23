@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import os
 import shutil
 import subprocess
@@ -12,7 +11,7 @@ from pathlib import Path
 
 from .errors import GoogleGuideSkillsError
 from .models import Manifest
-from .path_policy import require_safe_project_path
+from .path_policy import checked_tree_hashes, require_safe_project_path
 
 DEFAULT_AGENTS = ("codex", "claude-code")
 SKILLS_CLI_PACKAGE = "skills@1.5.23"
@@ -57,32 +56,6 @@ def minimal_process_env(home: Path | None = None) -> dict[str, str]:
         env["npm_config_userconfig"] = os.devnull
         env["npm_config_update_notifier"] = "false"
     return env
-
-
-def _inside_local_eval_boundary(manifest: Manifest, project: Path) -> bool:
-    boundary = (manifest.project_root / "evals" / "results").resolve()
-    try:
-        project.resolve().relative_to(boundary)
-    except ValueError:
-        return False
-    return True
-
-
-def _checked_tree_hashes(path: Path, context: str) -> dict[str, str]:
-    if path.is_symlink() or not path.is_dir():
-        raise GoogleGuideSkillsError(f"{context} must be a real directory")
-    hashes: dict[str, str] = {}
-    for candidate in sorted(path.rglob("*")):
-        if candidate.is_symlink():
-            raise GoogleGuideSkillsError(f"{context} contains a symlink: {candidate}")
-        relative = candidate.relative_to(path).as_posix()
-        if candidate.is_dir():
-            hashes[f"{relative}/"] = "directory"
-            continue
-        if not candidate.is_file():
-            raise GoogleGuideSkillsError(f"{context} contains a non-regular path: {candidate}")
-        hashes[relative] = hashlib.sha256(candidate.read_bytes()).hexdigest()
-    return hashes
 
 
 def _user_skill_root(agent: str, user_home: Path | None) -> Path:
@@ -146,7 +119,11 @@ def _resolve_user_sources(
         if skill_file.is_symlink() or not skill_file.is_file():
             raise GoogleGuideSkillsError(f"Generated skill is missing SKILL.md: {source}")
         resolved[name] = source, distribution
-        hashes[name] = _checked_tree_hashes(source, f"Generated skill {name}")
+        hashes[name] = checked_tree_hashes(
+            source,
+            context=f"Generated skill {name}",
+            error_type=GoogleGuideSkillsError,
+        )
     return resolved, hashes
 
 
@@ -170,7 +147,12 @@ def _user_link_status(
     if destination.exists():
         if (
             not destination.is_dir()
-            or _checked_tree_hashes(destination, f"Installed skill {skill}") != source_hashes
+            or checked_tree_hashes(
+                destination,
+                context=f"Installed skill {skill}",
+                error_type=GoogleGuideSkillsError,
+            )
+            != source_hashes
         ):
             raise GoogleGuideSkillsError(
                 f"User skill destination already exists with different content: {destination}"
@@ -276,26 +258,10 @@ def install_user_links(
     return planned
 
 
-def _skills_by_distribution(manifest: Manifest) -> dict[str, set[str]]:
-    available = {"committed": {"google-guides-index"}, "local-only": set()}
-    for collection, artifact in manifest.artifacts(include_local=True):
-        available[collection.distribution].add(artifact.name)
-    return available
-
-
-def _install_roots(
-    manifest: Manifest, project: Path, include_local: bool, global_install: bool
-) -> list[tuple[Path, str]]:
-    roots = [(manifest.root_for("committed"), "committed")]
-    if not include_local:
-        return roots
-    if global_install or not _inside_local_eval_boundary(manifest, project):
-        raise GoogleGuideSkillsError(
-            "Local-only skills may be installed only into ignored evaluation workspaces "
-            "under evals/results and never globally"
-        )
-    roots.append((manifest.root_for("local-only"), "local-only"))
-    return roots
+def _committed_skills(manifest: Manifest) -> set[str]:
+    return {"google-guides-index"} | {
+        artifact.name for _collection, artifact in manifest.artifacts(include_local=False)
+    }
 
 
 def _install_command(
@@ -303,7 +269,6 @@ def _install_command(
     agents: list[str],
     selected: list[str],
     copy: bool,
-    global_install: bool,
 ) -> list[str]:
     command = ["npx", "--yes", SKILLS_CLI_PACKAGE, "add", str(source)]
     for agent in agents:
@@ -313,8 +278,6 @@ def _install_command(
     command.append("--yes")
     if copy:
         command.append("--copy")
-    if global_install:
-        command.append("--global")
     return command
 
 
@@ -323,21 +286,18 @@ def install_commands(
     project: Path,
     agents: list[str],
     skills: list[str] | None = None,
-    include_local: bool = False,
     copy: bool = False,
-    global_install: bool = False,
 ) -> list[list[str]]:
-    """Build allowlisted `skills` CLI commands for one target project."""
+    """Build a `skills` CLI command for committed skills in one project."""
     if not agents:
         raise GoogleGuideSkillsError("Select at least one target agent")
     if not project.is_dir():
         raise GoogleGuideSkillsError(f"Install project does not exist: {project}")
-    command_roots = _install_roots(manifest, project, include_local, global_install)
-    available_by_distribution = _skills_by_distribution(manifest)
+    source = manifest.root_for("committed")
+    if not source.is_dir():
+        raise GoogleGuideSkillsError(f"Generated skill root does not exist: {source}")
+    available = _committed_skills(manifest)
     requested = set(skills) if skills is not None else None
-    available = set().union(
-        *(available_by_distribution[distribution] for _root, distribution in command_roots)
-    )
     if requested is not None:
         unknown = sorted(requested - available)
         if unknown:
@@ -345,20 +305,8 @@ def install_commands(
                 "Selected skills are unavailable under the current distribution policy: "
                 + ", ".join(unknown)
             )
-
-    commands: list[list[str]] = []
-    for source, distribution in command_roots:
-        if not source.is_dir():
-            raise GoogleGuideSkillsError(f"Generated skill root does not exist: {source}")
-        selected = (
-            sorted(requested & available_by_distribution[distribution])
-            if requested is not None
-            else sorted(available_by_distribution[distribution])
-        )
-        if not selected:
-            continue
-        commands.append(_install_command(source, agents, selected, copy, global_install))
-    return commands
+    selected = sorted(requested if requested is not None else available)
+    return [_install_command(source, agents, selected, copy)] if selected else []
 
 
 def _execute_install_commands(project: Path, commands: list[list[str]]) -> None:
@@ -384,22 +332,10 @@ def install(
     project: Path,
     agents: list[str],
     skills: list[str] | None = None,
-    include_local: bool = False,
     copy: bool = False,
-    global_install: bool = False,
     dry_run: bool = False,
 ) -> list[list[str]]:
     """Install redistributable skills into an explicit project."""
-    if include_local:
-        raise GoogleGuideSkillsError(
-            "The public installer does not export local-only skills; use the isolated "
-            "evaluation command or inspect .generated/skills in place"
-        )
-    if global_install:
-        raise GoogleGuideSkillsError(
-            "Global installation is disabled because isolated npx execution cannot safely "
-            "write persistent user-agent directories; install into an explicit project"
-        )
     if shutil.which("npx") is None:
         raise GoogleGuideSkillsError("npx is required; install a current Node.js release")
     commands = install_commands(
@@ -407,9 +343,7 @@ def install(
         project.resolve(),
         agents,
         skills=skills,
-        include_local=include_local,
         copy=copy,
-        global_install=global_install,
     )
     if dry_run:
         return commands

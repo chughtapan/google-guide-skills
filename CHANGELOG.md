@@ -24,6 +24,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   reach both supported agents.
 - Project and command descriptions now state the repository's outcomes and use `local-only` for
   the SWE-book distribution class.
+- Removed unused local-only and global project-install modes; SWE-book installation uses the
+  user-link path.
+- Install and evaluation checks share one tree-hashing implementation.
 
 ### Removed
 

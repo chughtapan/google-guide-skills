@@ -26,6 +26,7 @@ from .git_safe import environment as git_environment
 from .installer import SKILLS_CLI_PACKAGE, install_commands, minimal_process_env
 from .metrics import CODEX_FALLBACK_METADATA_CHARS, metadata_budget
 from .models import Manifest
+from .path_policy import checked_tree_hashes
 from .strict_yaml import strict_safe_load
 
 SUPPORTED_AGENTS = ("codex", "claude-code")
@@ -1112,9 +1113,7 @@ def _prepare_workspace(path: Path) -> None:
         raise EvaluationError(f"Could not initialize evaluation workspace: {completed.stderr}")
 
 
-def _profile_selection(
-    manifest: Manifest, profile: str, case: EvalCase, include_local: bool
-) -> list[str] | None:
+def _profile_selection(manifest: Manifest, profile: str, case: EvalCase) -> list[str] | None:
     if profile == "single":
         selected = list(case.candidate_skills)
         if not selected:
@@ -1126,28 +1125,12 @@ def _profile_selection(
         return [
             artifact.name
             for collection in manifest.collections.values()
-            if include_local or collection.distribution == "committed"
+            if collection.distribution == "committed"
             for artifact in collection.artifacts
         ]
     if profile == "all":
         return None
     raise EvaluationError(f"Unsupported evaluation profile: {profile}")
-
-
-def _checked_tree_hashes(path: Path, context: str) -> dict[str, str]:
-    if path.is_symlink() or not path.is_dir():
-        raise EvaluationError(f"{context} must be a real directory, not a symlink")
-    candidates = sorted(path.rglob("*"))
-    for candidate in candidates:
-        if candidate.is_symlink():
-            raise EvaluationError(f"{context} contains a symlink: {candidate}")
-        if not candidate.is_dir() and not candidate.is_file():
-            raise EvaluationError(f"{context} contains a non-regular path: {candidate}")
-    return {
-        candidate.relative_to(path).as_posix(): hashlib.sha256(candidate.read_bytes()).hexdigest()
-        for candidate in candidates
-        if candidate.is_file()
-    }
 
 
 def _run_install_commands(
@@ -1208,27 +1191,19 @@ def _verify_installer_side_effects(project: Path, agent: str) -> None:
         raise EvaluationError("Skill installer created an unsafe skills-lock.json")
 
 
-def _skill_inventory(manifest: Manifest) -> tuple[set[str], set[str]]:
-    committed = {
+def _committed_skill_inventory(manifest: Manifest) -> set[str]:
+    return {
         artifact.name
         for collection in manifest.collections.values()
         if collection.distribution == "committed"
         for artifact in collection.artifacts
     } | {"google-guides-index"}
-    local = {
-        artifact.name
-        for collection in manifest.collections.values()
-        if collection.distribution == "local-only"
-        for artifact in collection.artifacts
-    }
-    return committed, local
 
 
 def _verify_installed_skills(
     manifest: Manifest,
     install_root: Path,
     expected: set[str],
-    committed: set[str],
 ) -> dict[str, str]:
     if install_root.is_symlink():
         raise EvaluationError("Skill installer created a symlinked skills root")
@@ -1246,11 +1221,16 @@ def _verify_installed_skills(
 
     digests: dict[str, str] = {}
     for name in sorted(expected):
-        distribution = "committed" if name in committed else "local-only"
-        source_hashes = _checked_tree_hashes(
-            manifest.root_for(distribution) / name, f"Generated skill {name}"
+        source_hashes = checked_tree_hashes(
+            manifest.root_for("committed") / name,
+            context=f"Generated skill {name}",
+            error_type=EvaluationError,
         )
-        installed_hashes = _checked_tree_hashes(install_root / name, f"Installed skill {name}")
+        installed_hashes = checked_tree_hashes(
+            install_root / name,
+            context=f"Installed skill {name}",
+            error_type=EvaluationError,
+        )
         if source_hashes != installed_hashes:
             raise EvaluationError(f"Installed copy does not match generated skill: {name}")
         digests[name] = _canonical_digest(installed_hashes)
@@ -1282,7 +1262,6 @@ def _install_profile(
     profile: str,
     case: EvalCase,
     *,
-    include_local: bool,
     timeout: int,
     npx_home: Path | None = None,
 ) -> dict[str, object]:
@@ -1296,33 +1275,39 @@ def _install_profile(
         }
     if shutil.which("npx") is None:
         raise EvaluationError("npx is required for evaluation installs")
-    selected = _profile_selection(manifest, profile, case, include_local)
+    selected = _profile_selection(manifest, profile, case)
     commands = install_commands(
         manifest,
         project,
         [agent],
         skills=selected,
-        include_local=include_local,
         copy=True,
     )
     git_dir = project / ".git"
     git_before = (
-        _checked_tree_hashes(git_dir, "Evaluation Git metadata") if git_dir.exists() else None
+        checked_tree_hashes(
+            git_dir,
+            context="Evaluation Git metadata",
+            error_type=EvaluationError,
+        )
+        if git_dir.exists()
+        else None
     )
     _run_install_commands(commands, project, timeout, npx_home)
     if (
         git_before is not None
-        and _checked_tree_hashes(git_dir, "Evaluation Git metadata") != git_before
+        and checked_tree_hashes(
+            git_dir,
+            context="Evaluation Git metadata",
+            error_type=EvaluationError,
+        )
+        != git_before
     ):
         raise EvaluationError("Skill installer modified evaluation Git metadata")
     _verify_installer_side_effects(project, agent)
-    committed, local = _skill_inventory(manifest)
-    if selected is None:
-        expected = committed | (local if include_local else set())
-    else:
-        expected = set(selected)
+    expected = _committed_skill_inventory(manifest) if selected is None else set(selected)
     install_root = project / (".agents/skills" if agent == "codex" else ".claude/skills")
-    installed_skill_sha256 = _verify_installed_skills(manifest, install_root, expected, committed)
+    installed_skill_sha256 = _verify_installed_skills(manifest, install_root, expected)
     visible_install_root, installed_budget = _installed_metadata(agent, install_root, expected)
     return {
         "commands": commands,
@@ -1809,7 +1794,6 @@ def _execute_record(
                 agent,
                 profile,
                 case,
-                include_local=context.settings.include_local,
                 timeout=context.settings.timeout,
                 npx_home=context.npx_home,
             )
