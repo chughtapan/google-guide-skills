@@ -105,6 +105,9 @@ are Linux-only in v0.1 and require Bubblewrap, model IDs, one-use provider keys,
 - [`reports/v0.1-plan-review.md`](reports/v0.1-plan-review.md): original goals, current status,
   deletions, and follow-up work.
 - [`evals/cases.yaml`](evals/cases.yaml): prompts and scoring rules for Codex and Claude tests.
+- [`docs/architecture.md`](docs/architecture.md): generation flow and output boundaries.
+- [`docs/agent-skills-research.md`](docs/agent-skills-research.md): format, installer, and creator
+  findings.
 
 Version 0.1 leaves source prose inline. Validation warns when a skill exceeds the context
 recommendations. Later tests can compare inline skills with reference-based layouts using token
