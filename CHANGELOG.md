@@ -13,7 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Recipes for eight Software Engineering at Google skill groups that write only to the ignored
   local output root.
 - Source and license records, input hashes, a catalog, and `o200k_base` token counts.
-- Cross-agent installation and Codex/Claude Code discovery and quality evaluations.
+- Cross-agent installation plus Codex and Claude Code evaluation cases and runners.
 - A user install command that links SWE-book skills from the ignored output root without copying
   or publishing them.
 

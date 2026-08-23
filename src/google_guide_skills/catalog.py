@@ -128,7 +128,7 @@ when they conflict with upstream guidance.
 Treat distribution labels as hard boundaries:
 
 - Use `committed` skills normally under their recorded source licenses.
-- Generate `local-only` skills only for private local use, keep them under `.generated/`, and do
+- Generate `local-only` skills for local use, keep them under `.generated/`, and do
   not redistribute them.
 - Treat `catalog-only` entries as discovery leads, not installed guidance.
 

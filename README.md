@@ -81,7 +81,9 @@ uv run google-guides install \
 ```
 
 The flag generates all eight book skills and links them from `.generated/skills/`; it does not copy
-or publish them. `--project` installs include only the 24 redistributable skills.
+or publish them. A byte-identical skill copy is replaced with a link so later source updates flow
+through it; a destination with different content stops the install. `--project` installs include
+only the 24 redistributable skills.
 
 The 24-skill pack uses 7,780 of Codex's 8,000 fallback startup-metadata characters at the recorded
 reference path. That leaves 220 characters and supports an install-root path of at most 54
@@ -100,6 +102,8 @@ are Linux-only in v0.1 and require Bubblewrap, model IDs, one-use provider keys,
   license evidence.
 - [`reports/generator-comparison.md`](reports/generator-comparison.md): generator and plugin
   comparison used to choose the pipeline.
+- [`reports/v0.1-plan-review.md`](reports/v0.1-plan-review.md): original goals, current status,
+  deletions, and follow-up work.
 - [`evals/cases.yaml`](evals/cases.yaml): prompts and scoring rules for Codex and Claude tests.
 
 Version 0.1 leaves source prose inline. Validation warns when a skill exceeds the context

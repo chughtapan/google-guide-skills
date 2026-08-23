@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "google-guide-skills"
 version = "0.1.0.0"
-description = "Deterministically turn licensed Google guides into portable Agent Skills."
+description = "Convert licensed Google guides into Agent Skills, install them, and test selection."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"

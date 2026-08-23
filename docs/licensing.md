@@ -42,7 +42,8 @@ SWE-book recipe is for noncommercial local use. Do not share its output.
 `google-guides install --include-swe-book` links generated book skills into the current user's
 agent directories. Each link points to `.generated/skills/`; the installer does not copy the files
 into agent homes, projects, packages, or Git history. This command rejects `--copy`, project
-destinations, and existing user skills with the same names.
+destinations, and existing user skills with different content. It replaces a byte-identical copy
+with a link.
 
 The R guide remains catalog-only because its source identifies a CC BY-SA 2.0 Tidyverse base in
 addition to the repository's CC BY 3.0 license. The pipeline will not generate it until composite

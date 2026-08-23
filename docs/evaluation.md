@@ -109,6 +109,6 @@ models, and bounded redacted diagnostics for failed processes.
 Three repetitions provide little statistical evidence. Reports keep the denominators; larger
 runs should add Wilson intervals before making claims about model behavior.
 
-Version 0.1 ships the harness and cases, but the live-model gates have not passed. Earlier runs
-used older isolation and status handling; see the
-[baseline report](../reports/eval-baseline.md) for the evidence and its limitations.
+Version 0.1 ships the harness and cases, but the live-model gates have not passed. Runs from older
+versions of the harness are not release evidence. The current status and next work are recorded in
+the [version 0.1 plan review](../reports/v0.1-plan-review.md).

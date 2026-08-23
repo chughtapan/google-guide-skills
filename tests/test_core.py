@@ -1427,7 +1427,55 @@ def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Pa
     ]
 
 
-def test_user_install_accepts_identical_copy_and_rejects_collisions(tmp_path: Path) -> None:
+def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    source = loaded.root_for("committed") / "public-guide"
+    source.mkdir(parents=True)
+    (source / "SKILL.md").write_text("same\n", encoding="utf-8")
+    user_home = tmp_path / "user"
+    destination = user_home / ".codex/skills/public-guide"
+    destination.mkdir(parents=True)
+    (destination / "SKILL.md").write_text("same\n", encoding="utf-8")
+    (source / "references").mkdir()
+    (destination / "references").mkdir()
+
+    planned = installer.install_user_links(
+        loaded,
+        ["codex"],
+        skills=["public-guide"],
+        dry_run=True,
+        user_home=user_home,
+    )
+    assert planned[0].status == "would-relink"
+    assert destination.is_dir() and not destination.is_symlink()
+
+    actions = installer.install_user_links(
+        loaded,
+        ["codex"],
+        skills=["public-guide"],
+        user_home=user_home,
+    )
+    assert actions[0].status == "relinked"
+    assert destination.is_symlink() and destination.resolve() == source.resolve()
+
+    (source / "SKILL.md").write_text("updated\n", encoding="utf-8")
+    assert (destination / "SKILL.md").read_text(encoding="utf-8") == "updated\n"
+
+    destination.unlink()
+    destination.mkdir()
+    (destination / "SKILL.md").write_text("different\n", encoding="utf-8")
+    with pytest.raises(GoogleGuideSkillsError, match="different content"):
+        installer.install_user_links(
+            loaded,
+            ["codex"],
+            skills=["public-guide"],
+            user_home=user_home,
+        )
+
+
+def test_user_install_restores_identical_copy_when_relink_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     loaded = _write_manifest(tmp_path / "generator", _manifest_data())
     source = loaded.root_for("committed") / "public-guide"
     source.mkdir(parents=True)
@@ -1437,22 +1485,21 @@ def test_user_install_accepts_identical_copy_and_rejects_collisions(tmp_path: Pa
     destination.mkdir(parents=True)
     (destination / "SKILL.md").write_text("same\n", encoding="utf-8")
 
-    actions = installer.install_user_links(
-        loaded,
-        ["codex"],
-        skills=["public-guide"],
-        user_home=user_home,
-    )
-    assert actions[0].status == "already-identical"
+    def fail_to_link(_path: Path, _target: Path, target_is_directory: bool = False) -> None:
+        del target_is_directory
+        raise OSError("fixture link failure")
 
-    (destination / "SKILL.md").write_text("different\n", encoding="utf-8")
-    with pytest.raises(GoogleGuideSkillsError, match="different content"):
+    monkeypatch.setattr(Path, "symlink_to", fail_to_link)
+    with pytest.raises(GoogleGuideSkillsError, match="fixture link failure"):
         installer.install_user_links(
             loaded,
             ["codex"],
             skills=["public-guide"],
             user_home=user_home,
         )
+
+    assert destination.is_dir() and not destination.is_symlink()
+    assert (destination / "SKILL.md").read_text(encoding="utf-8") == "same\n"
 
 
 def test_user_install_requires_local_generation_and_explicit_opt_in(tmp_path: Path) -> None:

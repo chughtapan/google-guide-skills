@@ -30,7 +30,7 @@ from .validation import has_errors, validate
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="google-guides",
-        description="Generate portable Agent Skills from pinned, licensed Google guides.",
+        description="Convert pinned, licensed Google guides into Agent Skills.",
     )
     parser.add_argument(
         "--manifest",
@@ -65,7 +65,7 @@ def _parser() -> argparse.ArgumentParser:
     install_parser.add_argument(
         "--include-swe-book",
         action="store_true",
-        help="Generate and link the private Software Engineering at Google skills",
+        help="Generate and link the local-only SWE-book skills",
     )
     install_parser.add_argument("--dry-run", action="store_true")
 
@@ -181,7 +181,7 @@ def _install_for_user(args: argparse.Namespace, manifest: Manifest, agents: list
             include_local=True,
         )
         write_metrics(manifest, include_local=True)
-        print(f"Generated {len(built)} private SWE-book skill(s).")
+        print(f"Generated {len(built)} local-only SWE-book skill(s).")
     issues = validate(manifest, include_local=args.include_swe_book)
     if has_errors(issues):
         option = " --include-swe-book" if args.include_swe_book else ""
@@ -206,8 +206,7 @@ def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
         return _install_for_user(args, manifest, agents)
     if args.include_swe_book:
         raise GoogleGuideSkillsError(
-            "--include-swe-book is for private user installation and cannot be combined "
-            "with --project"
+            "--include-swe-book is only for user installation and cannot be combined with --project"
         )
     commands = install(
         manifest,

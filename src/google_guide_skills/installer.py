@@ -75,13 +75,13 @@ def _checked_tree_hashes(path: Path, context: str) -> dict[str, str]:
     for candidate in sorted(path.rglob("*")):
         if candidate.is_symlink():
             raise GoogleGuideSkillsError(f"{context} contains a symlink: {candidate}")
+        relative = candidate.relative_to(path).as_posix()
         if candidate.is_dir():
+            hashes[f"{relative}/"] = "directory"
             continue
         if not candidate.is_file():
             raise GoogleGuideSkillsError(f"{context} contains a non-regular path: {candidate}")
-        hashes[candidate.relative_to(path).as_posix()] = hashlib.sha256(
-            candidate.read_bytes()
-        ).hexdigest()
+        hashes[relative] = hashlib.sha256(candidate.read_bytes()).hexdigest()
     return hashes
 
 
@@ -175,8 +175,30 @@ def _user_link_status(
             raise GoogleGuideSkillsError(
                 f"User skill destination already exists with different content: {destination}"
             )
-        return "already-identical"
+        return "would-relink" if dry_run else "relinked"
     return "would-link" if dry_run else "linked"
+
+
+def _replace_identical_copy_with_link(action: UserInstallAction) -> None:
+    """Replace a verified identical copy and restore it if link creation fails."""
+    with tempfile.TemporaryDirectory(
+        prefix=f".{action.skill}-backup-", dir=action.destination.parent
+    ) as temporary:
+        backup = Path(temporary) / action.skill
+        action.destination.replace(backup)
+        try:
+            action.destination.symlink_to(action.source, target_is_directory=True)
+        except OSError:
+            backup.replace(action.destination)
+            raise
+
+
+def _apply_user_link(action: UserInstallAction) -> None:
+    action.destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if action.status == "relinked":
+        _replace_identical_copy_with_link(action)
+    else:
+        action.destination.symlink_to(action.source, target_is_directory=True)
 
 
 def _plan_user_links(
@@ -243,11 +265,10 @@ def install_user_links(
     if dry_run:
         return planned
     for action in planned:
-        if action.status != "linked":
+        if action.status not in {"linked", "relinked"}:
             continue
-        action.destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         try:
-            action.destination.symlink_to(action.source, target_is_directory=True)
+            _apply_user_link(action)
         except OSError as exc:
             raise GoogleGuideSkillsError(
                 f"Could not create user skill link {action.destination}: {exc}"
