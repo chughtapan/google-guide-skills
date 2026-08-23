@@ -57,16 +57,8 @@ generating it.
 Decide whether to mirror permitted upstream image assets or mechanically rewrite relative image
 and cross-document links to pinned upstream URLs. Version 0.1 omits them.
 
-## Code structure
-
-### Split the evaluation module after the report schema settles
-
-**Priority:** P2
-
-`evals.py` currently owns case loading, agent adapters, sandbox setup, installation, execution,
-scoring, and reports. Separate those responsibilities while preserving the CLI and report schema.
-Split `tests/test_evals.py` along the same boundaries so failures point to one subsystem.
-
 ## Completed
 
-No deferred items were completed in this pass.
+- Removed unsupported local-only and global project-install branches.
+- Shared one checked tree-hashing implementation between user installs and evaluations.
+- Replaced tests for unreachable branches with install and tree-boundary tests.
