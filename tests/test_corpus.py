@@ -27,8 +27,7 @@ def test_real_corpus_and_eval_matrix_cannot_drift_silently() -> None:
     manifest = load_manifest(ROOT / "corpus.yaml")
     cases = load_cases(manifest)
     committed = {
-        artifact.name
-        for collection, artifact in manifest.artifacts(include_local=False)
+        artifact.name for collection, artifact in manifest.artifacts(include_local=False)
     } | {"google-guides-index"}
     local = {
         artifact.name
@@ -57,10 +56,7 @@ def test_real_corpus_and_eval_matrix_cannot_drift_silently() -> None:
         for case in index_experiment
     )
     direct_smoke = [case for case in smoke if case.expected_skills != ("google-guides-index",)]
-    assert all(
-        "google-guides-index" in case.expectations_for("all")[1]
-        for case in direct_smoke
-    )
+    assert all("google-guides-index" in case.expectations_for("all")[1] for case in direct_smoke)
 
     representative = [case for case in cases if case.stage == "representative"]
     counts: dict[str, dict[str, dict[str, int]]] = defaultdict(

@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -48,7 +49,6 @@ EVAL_SANDBOX_STATE = Path("/h")
 
 def _preflight_live(agents: list[str]) -> None:
     """Fail once, before paid work, when live-run prerequisites are unavailable."""
-
     if shutil.which("npx") is None:
         raise EvaluationError("npx is required for evaluation installs")
     bwrap = shutil.which("bwrap")
@@ -89,9 +89,7 @@ def _preflight_live(agents: list[str]) -> None:
             raise EvaluationError(f"Required agent CLI is not installed: {binary}")
         source_key, _provider_key = EVAL_KEY_ENV[agent]
         if not os.environ.get(source_key):
-            raise EvaluationError(
-                f"{agent} evaluation requires a disposable key in {source_key}"
-            )
+            raise EvaluationError(f"{agent} evaluation requires a disposable key in {source_key}")
 
 
 def _is_under(path: Path, parent: Path) -> bool:
@@ -102,67 +100,57 @@ def _is_under(path: Path, parent: Path) -> bool:
     return True
 
 
-def _filesystem_sandbox_command(
-    agent: str,
-    command: list[str],
+def _sandbox_bindings(
     project: Path,
     isolation_root: Path,
-    *,
-    writable_mounts: tuple[tuple[Path, Path], ...] = (),
-) -> list[str]:
-    """Wrap an agent CLI so only one ephemeral run root is visible from user storage."""
-
-    bwrap = shutil.which("bwrap")
-    executable = shutil.which(command[0])
-    if bwrap is None or executable is None:
-        missing = "bwrap" if bwrap is None else command[0]
-        raise EvaluationError(f"Required isolation executable is not installed: {missing}")
-    isolation_root = isolation_root.resolve()
-    project = project.resolve()
-    if not _is_under(project, isolation_root):
-        raise EvaluationError("Agent workspace must be inside its isolated run root")
-    bindings = ((project, EVAL_SANDBOX_PROJECT), *writable_mounts)
-    for source, destination in bindings:
+    writable_mounts: tuple[tuple[Path, Path], ...],
+) -> tuple[tuple[Path, Path], ...]:
+    checked: list[tuple[Path, Path]] = []
+    for source, destination in ((project.resolve(), EVAL_SANDBOX_PROJECT), *writable_mounts):
         source = source.resolve()
         if not _is_under(source, isolation_root):
             raise EvaluationError("Agent writable mount must be inside its isolated run root")
         if not destination.is_absolute() or destination == Path("/"):
             raise EvaluationError("Agent-visible mount destinations must be absolute and narrow")
+        checked.append((source, destination))
+    return tuple(checked)
 
-    system_roots = [
+
+def _sandbox_system_roots() -> list[Path]:
+    return [
         path
         for path in map(Path, ("/usr", "/bin", "/lib", "/lib64", "/nix/store", "/sys"))
         if path.exists()
     ]
-    resolved = Path(executable).resolve()
-    launch = [str(resolved), *command[1:]]
+
+
+def _sandbox_launch(
+    agent: str,
+    command: list[str],
+    executable: Path,
+    system_roots: list[Path],
+) -> tuple[list[str], list[Path]]:
+    launch = [str(executable), *command[1:]]
     mounts: list[Path] = []
-    if agent == "codex" and resolved.suffix == ".js":
+    if agent == "codex" and executable.suffix == ".js":
         node = shutil.which("node")
         if node is None:
             raise EvaluationError("Codex isolation requires the Node.js executable")
         node_path = Path(node).resolve()
-        package_root = resolved.parents[1]
-        for candidate in (node_path, package_root):
-            if not any(_is_under(candidate, root) for root in system_roots):
-                mounts.append(candidate)
-        launch = [str(node_path), str(resolved), *command[1:]]
-    elif not any(_is_under(resolved, root) for root in system_roots):
-        mounts.append(resolved)
+        package_root = executable.parents[1]
+        mounts.extend(
+            candidate
+            for candidate in (node_path, package_root)
+            if not any(_is_under(candidate, root) for root in system_roots)
+        )
+        return [str(node_path), str(executable), *command[1:]], mounts
+    if not any(_is_under(executable, root) for root in system_roots):
+        mounts.append(executable)
+    return launch, mounts
 
-    args = [
-        bwrap,
-        "--die-with-parent",
-        "--new-session",
-        "--unshare-pid",
-        "--tmpfs",
-        "/",
-    ]
-    directories: set[Path] = {Path("/tmp")}
-    for root in system_roots:
-        directories.add(root)
-    directories.add(Path("/etc"))
-    etc_sources = [
+
+def _sandbox_etc_sources() -> list[Path]:
+    return [
         path
         for path in map(
             Path,
@@ -180,6 +168,15 @@ def _filesystem_sandbox_command(
         )
         if path.exists()
     ]
+
+
+def _sandbox_directories(
+    system_roots: list[Path],
+    bindings: tuple[tuple[Path, Path], ...],
+    mounts: list[Path],
+    etc_sources: list[Path],
+) -> list[Path]:
+    directories: set[Path] = {Path("/tmp"), Path("/etc"), *system_roots}
     for _source, destination in bindings:
         directories.add(destination)
         current = destination.parent
@@ -191,7 +188,42 @@ def _filesystem_sandbox_command(
         while current != Path("/"):
             directories.add(current)
             current = current.parent
-    for directory in sorted(directories, key=lambda path: len(path.parts)):
+    return sorted(directories, key=lambda path: len(path.parts))
+
+
+def _filesystem_sandbox_command(
+    agent: str,
+    command: list[str],
+    project: Path,
+    isolation_root: Path,
+    *,
+    writable_mounts: tuple[tuple[Path, Path], ...] = (),
+) -> list[str]:
+    """Wrap an agent CLI so only one ephemeral run root is visible from user storage."""
+    bwrap = shutil.which("bwrap")
+    executable = shutil.which(command[0])
+    if bwrap is None or executable is None:
+        missing = "bwrap" if bwrap is None else command[0]
+        raise EvaluationError(f"Required isolation executable is not installed: {missing}")
+    isolation_root = isolation_root.resolve()
+    project = project.resolve()
+    if not _is_under(project, isolation_root):
+        raise EvaluationError("Agent workspace must be inside its isolated run root")
+    bindings = _sandbox_bindings(project, isolation_root, writable_mounts)
+    system_roots = _sandbox_system_roots()
+    resolved = Path(executable).resolve()
+    launch, mounts = _sandbox_launch(agent, command, resolved, system_roots)
+
+    args = [
+        bwrap,
+        "--die-with-parent",
+        "--new-session",
+        "--unshare-pid",
+        "--tmpfs",
+        "/",
+    ]
+    etc_sources = _sandbox_etc_sources()
+    for directory in _sandbox_directories(system_roots, bindings, mounts, etc_sources):
         args.extend(("--dir", str(directory)))
     for root in system_roots:
         args.extend(("--ro-bind", str(root), str(root)))
@@ -217,21 +249,66 @@ class EvalCase:
     expected_skills: tuple[str, ...]
     forbidden_skills: tuple[str, ...]
     polarity: str = "positive"
-    profile_expectations: tuple[
-        tuple[str, tuple[str, ...], tuple[str, ...]], ...
-    ] = ()
+    profile_expectations: tuple[tuple[str, tuple[str, ...], tuple[str, ...]], ...] = ()
     rubric: tuple[tuple[str, ...], ...] = ()
     forbidden_claims: tuple[str, ...] = ()
 
     @property
     def candidate_skills(self) -> tuple[str, ...]:
+        """Return each skill named by the case once, in declaration order."""
         return tuple(dict.fromkeys((*self.expected_skills, *self.forbidden_skills)))
 
     def expectations_for(self, profile: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        """Return a profile override or the case's default expectations."""
         for selected, expected, forbidden in self.profile_expectations:
             if selected == profile:
                 return expected, forbidden
         return self.expected_skills, self.forbidden_skills
+
+
+@dataclass(frozen=True)
+class _EvaluationSettings:
+    mode: str
+    agents: tuple[str, ...]
+    profile: str
+    repeat: int
+    include_local: bool
+    timeout: int
+    max_budget_usd: float
+    models: dict[str, str]
+    dry_run: bool
+    keep_raw: bool
+    results_root: Path | None
+    accept_credential_risk: bool
+
+
+@dataclass(frozen=True)
+class _EvaluationContext:
+    manifest: Manifest
+    settings: _EvaluationSettings
+    results_dir: Path
+    npx_home: Path | None
+    known_skills: frozenset[str]
+    corpus_identity: dict[str, object]
+
+
+@dataclass(frozen=True)
+class _AgentRunSettings:
+    agent: str
+    prompt: str
+    timeout: int
+    max_budget_usd: float
+    model: str | None
+
+
+@dataclass(frozen=True)
+class _AgentProcessResult:
+    command: list[str]
+    duration_seconds: float
+    exit_code: int
+    trace: str
+    stderr: str
+    provider_secret: str
 
 
 def _strings(value: object, context: str) -> tuple[str, ...]:
@@ -299,9 +376,7 @@ def _case(
         if selected_profile not in {"single", "all", "all-no-index", "index"}:
             raise EvaluationError(f"{context}.profiles has unknown profile {selected_profile!r}")
         if not isinstance(expectation_raw, dict):
-            raise EvaluationError(
-                f"{context}.profiles.{selected_profile} must be a mapping"
-            )
+            raise EvaluationError(f"{context}.profiles.{selected_profile} must be a mapping")
         expected = _strings(
             expectation_raw.get("expected"),
             f"{context}.profiles.{selected_profile}.expected",
@@ -330,67 +405,70 @@ def _case(
     )
 
 
-def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
-    """Load smoke cases and expand representative positive/negative suites."""
-
-    cases_path = path or manifest.project_root / "evals" / "cases.yaml"
+def _case_data(path: Path) -> dict[str, object]:
     try:
-        data = strict_safe_load(cases_path.read_text(encoding="utf-8"))
+        data = strict_safe_load(path.read_text(encoding="utf-8"))
     except OSError as exc:
         raise EvaluationError(f"Cannot read evaluation cases: {exc}") from exc
     except yaml.YAMLError as exc:
         raise EvaluationError(f"Invalid evaluation YAML: {exc}") from exc
     if not isinstance(data, dict) or data.get("schema_version") != 1:
         raise EvaluationError("Evaluation cases require schema_version: 1")
+    return data
 
-    values: list[EvalCase] = []
-    smoke = data.get("smoke")
-    if not isinstance(smoke, list) or not smoke:
+
+def _smoke_cases(data: dict[str, object]) -> list[EvalCase]:
+    raw_cases = data.get("smoke")
+    if not isinstance(raw_cases, list) or not raw_cases:
         raise EvaluationError("Evaluation cases require a non-empty smoke list")
-    values.extend(
-        _case(raw, context=f"smoke[{index}]", stage="smoke") for index, raw in enumerate(smoke)
-    )
+    return [
+        _case(raw, context=f"smoke[{index}]", stage="smoke") for index, raw in enumerate(raw_cases)
+    ]
 
+
+def _control_cases(data: dict[str, object], smoke_cases: list[EvalCase]) -> list[EvalCase]:
     controls = data.get("explicit_controls")
-    if controls is not None:
-        if not isinstance(controls, dict):
-            raise EvaluationError("explicit_controls must be a mapping")
-        template = controls.get("prompt_template")
-        if not isinstance(template, str) or "{invocation}" not in template:
-            raise EvaluationError(
-                "explicit_controls.prompt_template must contain the {invocation} placeholder"
-            )
-        if not template.startswith("{invocation}"):
-            raise EvaluationError(
-                "explicit_controls.prompt_template must begin with {invocation}"
-            )
-        for smoke_case in tuple(values):
-            if smoke_case.stage != "smoke" or len(smoke_case.expected_skills) != 1:
-                continue
-            skill = smoke_case.expected_skills[0]
-            values.append(
-                EvalCase(
-                    id=f"control-{skill}",
-                    stage="controls",
-                    split="validation",
-                    prompt=template,
-                    expected_skills=(skill,),
-                    forbidden_skills=(),
-                    polarity="control",
-                )
-            )
+    if controls is None:
+        return []
+    if not isinstance(controls, dict):
+        raise EvaluationError("explicit_controls must be a mapping")
+    template = controls.get("prompt_template")
+    if not isinstance(template, str) or "{invocation}" not in template:
+        raise EvaluationError(
+            "explicit_controls.prompt_template must contain the {invocation} placeholder"
+        )
+    if not template.startswith("{invocation}"):
+        raise EvaluationError("explicit_controls.prompt_template must begin with {invocation}")
+    return [
+        EvalCase(
+            id=f"control-{case.expected_skills[0]}",
+            stage="controls",
+            split="validation",
+            prompt=template,
+            expected_skills=(case.expected_skills[0],),
+            forbidden_skills=(),
+            polarity="control",
+        )
+        for case in smoke_cases
+        if len(case.expected_skills) == 1
+    ]
 
-    local_smoke = data.get("local_smoke", [])
-    if not isinstance(local_smoke, list):
+
+def _local_smoke_cases(data: dict[str, object]) -> list[EvalCase]:
+    raw_cases = data.get("local_smoke", [])
+    if not isinstance(raw_cases, list):
         raise EvaluationError("local_smoke must be a list")
-    values.extend(
+    return [
         _case(raw, context=f"local_smoke[{index}]", stage="local-smoke")
-        for index, raw in enumerate(local_smoke)
-    )
+        for index, raw in enumerate(raw_cases)
+    ]
 
+
+def _representative_cases(data: dict[str, object]) -> list[EvalCase]:
     suites = data.get("representative", [])
     if not isinstance(suites, list):
         raise EvaluationError("representative must be a list")
+    cases: list[EvalCase] = []
     for suite_index, suite in enumerate(suites):
         context = f"representative[{suite_index}]"
         if not isinstance(suite, dict):
@@ -405,7 +483,7 @@ def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
             raw_cases = suite.get(polarity)
             if not isinstance(raw_cases, list) or not raw_cases:
                 raise EvaluationError(f"{context}.{polarity} must be a non-empty list")
-            values.extend(
+            cases.extend(
                 _case(
                     raw,
                     context=f"{context}.{polarity}[{index}]",
@@ -416,53 +494,51 @@ def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
                 )
                 for index, raw in enumerate(raw_cases)
             )
+    return cases
 
-    index_experiment = data.get("index_experiment")
-    if index_experiment is not None:
-        if not isinstance(index_experiment, dict):
-            raise EvaluationError("index_experiment must be a mapping")
-        cases_raw = index_experiment.get("cases")
-        if not isinstance(cases_raw, list) or not cases_raw:
-            raise EvaluationError("index_experiment.cases must be a non-empty list")
-        values.extend(
-            _case(
-                raw,
-                context=f"index_experiment.cases[{index}]",
-                stage="index-experiment",
+
+def _index_experiment_cases(data: dict[str, object]) -> tuple[list[EvalCase], bool]:
+    experiment = data.get("index_experiment")
+    if experiment is None:
+        return [], False
+    if not isinstance(experiment, dict):
+        raise EvaluationError("index_experiment must be a mapping")
+    raw_cases = experiment.get("cases")
+    if not isinstance(raw_cases, list) or not raw_cases:
+        raise EvaluationError("index_experiment.cases must be a non-empty list")
+    return (
+        [
+            _case(raw, context=f"index_experiment.cases[{index}]", stage="index-experiment")
+            for index, raw in enumerate(raw_cases)
+        ],
+        experiment.get("forbid_index_on_direct_smoke") is True,
+    )
+
+
+def _forbid_index_on_direct_smoke(cases: list[EvalCase]) -> list[EvalCase]:
+    adjusted: list[EvalCase] = []
+    for case in cases:
+        if case.stage == "smoke" and case.expected_skills != ("google-guides-index",):
+            overrides = tuple(item for item in case.profile_expectations if item[0] != "all") + (
+                (
+                    "all",
+                    case.expected_skills,
+                    tuple(dict.fromkeys((*case.forbidden_skills, "google-guides-index"))),
+                ),
             )
-            for index, raw in enumerate(cases_raw)
-        )
-        if index_experiment.get("forbid_index_on_direct_smoke") is True:
-            adjusted: list[EvalCase] = []
-            for case in values:
-                if (
-                    case.stage == "smoke"
-                    and case.expected_skills != ("google-guides-index",)
-                ):
-                    overrides = tuple(
-                        item for item in case.profile_expectations if item[0] != "all"
-                    ) + (
-                        (
-                            "all",
-                            case.expected_skills,
-                            tuple(
-                                dict.fromkeys(
-                                    (*case.forbidden_skills, "google-guides-index")
-                                )
-                            ),
-                        ),
-                    )
-                    case = replace(case, profile_expectations=overrides)
-                adjusted.append(case)
-            values = adjusted
+            case = replace(case, profile_expectations=overrides)
+        adjusted.append(case)
+    return adjusted
 
+
+def _validate_cases(manifest: Manifest, cases: list[EvalCase]) -> None:
     known = {
         artifact.name
         for collection in manifest.collections.values()
         for artifact in collection.artifacts
     } | {"google-guides-index"}
     seen: set[str] = set()
-    for case in values:
+    for case in cases:
         if case.id in seen:
             raise EvaluationError(f"Duplicate evaluation case id: {case.id}")
         seen.add(case.id)
@@ -471,14 +547,30 @@ def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
             raise EvaluationError(f"{case.id} references unknown skills: {', '.join(unknown)}")
         if set(case.expected_skills) & set(case.forbidden_skills):
             raise EvaluationError(f"{case.id} both expects and forbids the same skill")
-        for selected_profile, expected, forbidden in case.profile_expectations:
+        for profile, expected, forbidden in case.profile_expectations:
             unknown = sorted(set((*expected, *forbidden)) - known)
             if unknown:
                 raise EvaluationError(
-                    f"{case.id} profile {selected_profile} references unknown skills: "
-                    + ", ".join(unknown)
+                    f"{case.id} profile {profile} references unknown skills: " + ", ".join(unknown)
                 )
-    return values
+
+
+def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
+    """Load and validate the discoverability and quality case set."""
+    data = _case_data(path or manifest.project_root / "evals" / "cases.yaml")
+    smoke = _smoke_cases(data)
+    cases = [
+        *smoke,
+        *_control_cases(data, smoke),
+        *_local_smoke_cases(data),
+        *_representative_cases(data),
+    ]
+    index_cases, forbid_direct_index = _index_experiment_cases(data)
+    cases.extend(index_cases)
+    if forbid_direct_index:
+        cases = _forbid_index_on_direct_smoke(cases)
+    _validate_cases(manifest, cases)
+    return cases
 
 
 def select_cases(
@@ -490,6 +582,7 @@ def select_cases(
     require_rubric: bool = False,
     limit: int | None = None,
 ) -> list[EvalCase]:
+    """Filter cases and reject an empty or partly unknown selection."""
     selected = cases
     if stages:
         selected = [case for case in selected if case.stage in set(stages)]
@@ -513,7 +606,7 @@ def select_cases(
     return selected
 
 
-def _walk(value: object):
+def _walk(value: object) -> Iterator[object]:
     yield value
     if isinstance(value, dict):
         for child in value.values():
@@ -523,77 +616,109 @@ def _walk(value: object):
             yield from _walk(child)
 
 
-def parse_trace(
-    trace: str, final_output: str, known_skills: set[str]
-) -> tuple[set[str], str | None, set[str]]:
-    """Find observable skill loads separately from the agent's self-reported marker."""
-
-    escaped = "|".join(re.escape(name) for name in sorted(known_skills, key=len, reverse=True))
-    path_re = re.compile(rf"(?:\.agents|\.claude)[/\\]skills[/\\]({escaped})[/\\]SKILL\.md")
-    loaded: set[str] = set()
-    visible: set[str] = set()
-    pending_tool_loads: dict[str, set[str]] = {}
-
+def _trace_events(trace: str) -> Iterator[dict[str, object]]:
     for line in trace.splitlines():
         try:
             event = json.loads(line)
         except json.JSONDecodeError:
             continue
-        if event.get("type") == "system" and event.get("subtype") == "init":
-            inventory = event.get("skills", [])
-            if isinstance(inventory, list):
-                for item in inventory:
-                    candidate = item.get("name") if isinstance(item, dict) else item
-                    if candidate in known_skills:
-                        visible.add(str(candidate))
-        item = event.get("item")
-        if (
-            event.get("type") == "item.completed"
-            and isinstance(item, dict)
-            and item.get("type") == "command_execution"
-        ):
-            command = item.get("command")
-            if isinstance(command, str):
-                command_skills = set(path_re.findall(command))
-                if item.get("exit_code") == 0:
-                    loaded.update(command_skills)
-                else:
-                    output = str(item.get("aggregated_output", ""))
-                    loaded.update(
-                        skill
-                        for skill in command_skills
-                        if re.search(rf"(?m)^name:\s*{re.escape(skill)}\s*$", output)
-                    )
+        if isinstance(event, dict):
+            yield event
+
+
+def _skill_path_pattern(known_skills: set[str]) -> re.Pattern[str]:
+    escaped = "|".join(re.escape(name) for name in sorted(known_skills, key=len, reverse=True))
+    return re.compile(rf"(?:\.agents|\.claude)[/\\]skills[/\\]({escaped})[/\\]SKILL\.md")
+
+
+def _visible_skills(event: dict[str, object], known_skills: set[str]) -> set[str]:
+    if event.get("type") != "system" or event.get("subtype") != "init":
+        return set()
+    inventory = event.get("skills", [])
+    if not isinstance(inventory, list):
+        return set()
+    visible: set[str] = set()
+    for item in inventory:
+        candidate = item.get("name") if isinstance(item, dict) else item
+        if candidate in known_skills:
+            visible.add(str(candidate))
+    return visible
+
+
+def _completed_command_loads(event: dict[str, object], path_pattern: re.Pattern[str]) -> set[str]:
+    item = event.get("item")
+    if (
+        event.get("type") != "item.completed"
+        or not isinstance(item, dict)
+        or item.get("type") != "command_execution"
+    ):
+        return set()
+    command = item.get("command")
+    if not isinstance(command, str):
+        return set()
+    candidates = set(path_pattern.findall(command))
+    if item.get("exit_code") == 0:
+        return candidates
+    output = str(item.get("aggregated_output", ""))
+    return {
+        skill for skill in candidates if re.search(rf"(?m)^name:\s*{re.escape(skill)}\s*$", output)
+    }
+
+
+def _tool_use_load(
+    item: dict[str, object],
+    path_pattern: re.Pattern[str],
+    known_skills: set[str],
+) -> tuple[str, set[str]] | None:
+    if item.get("type") != "tool_use" or not isinstance(item.get("id"), str):
+        return None
+    tool_name = str(item.get("name", "")).lower()
+    tool_input = item.get("input")
+    if not isinstance(tool_input, dict):
+        return None
+    candidates: set[str] = set()
+    if tool_name == "skill":
+        candidate = tool_input.get("skill") or tool_input.get("name")
+        if candidate in known_skills:
+            candidates.add(str(candidate))
+    elif tool_name == "read":
+        file_path = tool_input.get("file_path")
+        if isinstance(file_path, str):
+            candidates.update(path_pattern.findall(file_path))
+    return (str(item["id"]), candidates) if candidates else None
+
+
+def _completed_tool_loads(items: list[dict[str, object]], pending: dict[str, set[str]]) -> set[str]:
+    loaded: set[str] = set()
+    for item in items:
+        tool_use_id = item.get("tool_use_id")
+        if item.get("type") != "tool_result" or not isinstance(tool_use_id, str):
+            continue
+        candidates = pending.pop(tool_use_id, set())
+        if item.get("is_error") is not True:
+            loaded.update(candidates)
+    return loaded
+
+
+def parse_trace(
+    trace: str, final_output: str, known_skills: set[str]
+) -> tuple[set[str], str | None, set[str]]:
+    """Find observable skill loads separately from the agent's self-reported marker."""
+    path_pattern = _skill_path_pattern(known_skills)
+    loaded: set[str] = set()
+    visible: set[str] = set()
+    pending_tool_loads: dict[str, set[str]] = {}
+
+    for event in _trace_events(trace):
+        visible.update(_visible_skills(event, known_skills))
+        loaded.update(_completed_command_loads(event, path_pattern))
         event_items = [item for item in _walk(event) if isinstance(item, dict)]
         for item in event_items:
-            if item.get("type") != "tool_use" or not isinstance(item.get("id"), str):
-                continue
-            tool_name = str(item.get("name", "")).lower()
-            candidates: set[str] = set()
-            if tool_name != "skill":
-                if tool_name == "read":
-                    tool_input = item.get("input")
-                    if isinstance(tool_input, dict):
-                        file_path = tool_input.get("file_path")
-                        if isinstance(file_path, str):
-                            candidates.update(path_re.findall(file_path))
-                if candidates:
-                    pending_tool_loads[str(item["id"])] = candidates
-                continue
-            tool_input = item.get("input")
-            if isinstance(tool_input, dict):
-                candidate = tool_input.get("skill") or tool_input.get("name")
-                if candidate in known_skills:
-                    candidates.add(str(candidate))
-            if candidates:
-                pending_tool_loads[str(item["id"])] = candidates
-        for item in event_items:
-            tool_use_id = item.get("tool_use_id")
-            if item.get("type") != "tool_result" or not isinstance(tool_use_id, str):
-                continue
-            candidates = pending_tool_loads.pop(tool_use_id, set())
-            if item.get("is_error") is not True:
-                loaded.update(candidates)
+            pending = _tool_use_load(item, path_pattern, known_skills)
+            if pending is not None:
+                tool_use_id, candidates = pending
+                pending_tool_loads[tool_use_id] = candidates
+        loaded.update(_completed_tool_loads(event_items, pending_tool_loads))
 
     marker = MARKER_RE.findall(final_output)
     claimed = marker[-1].lower() if marker else None
@@ -604,7 +729,6 @@ def parse_trace(
 
 def score_output(output: str, rubric: tuple[tuple[str, ...], ...]) -> tuple[int, int]:
     """Score one point per criterion when any accepted regex alternative matches."""
-
     earned = sum(
         any(re.search(pattern, output, flags=re.IGNORECASE | re.DOTALL) for pattern in group)
         for group in rubric
@@ -613,6 +737,7 @@ def score_output(output: str, rubric: tuple[tuple[str, ...], ...]) -> tuple[int,
 
 
 def forbidden_claims(output: str, patterns: tuple[str, ...]) -> list[str]:
+    """Return forbidden-claim patterns matched by an answer."""
     return [
         pattern
         for pattern in patterns
@@ -622,7 +747,6 @@ def forbidden_claims(output: str, patterns: tuple[str, ...]) -> list[str]:
 
 def trace_metadata(trace: str) -> dict[str, object]:
     """Normalize usage, cost, terminal state, and metadata-budget warnings."""
-
     metadata: dict[str, object] = {
         "usage": None,
         "cost_usd": None,
@@ -665,7 +789,6 @@ def trace_metadata(trace: str) -> dict[str, object]:
 
 def _bounded_excerpt(value: str, limit: int = 4000) -> str:
     """Keep a diagnostic tail without allowing one provider error to dominate a report."""
-
     normalized = value.strip()
     if len(normalized) <= limit:
         return normalized
@@ -679,7 +802,6 @@ def _canonical_digest(value: object) -> str:
 
 def _project_git_state(project_root: Path) -> dict[str, object]:
     """Record the release checkout without consulting ambient Git configuration."""
-
     revision = subprocess.run(
         git_command("rev-parse", "HEAD"),
         cwd=project_root,
@@ -713,6 +835,7 @@ def build_agent_command(
     max_budget_usd: float,
     model: str | None = None,
 ) -> list[str]:
+    """Build a non-interactive command for one supported agent CLI."""
     if agent == "codex":
         command = [
             "codex",
@@ -792,9 +915,7 @@ def _isolated_agent_env(
     source_key, provider_key = EVAL_KEY_ENV[agent]
     value = os.environ.get(source_key)
     if not value:
-        raise EvaluationError(
-            f"{agent} evaluation requires a disposable key in {source_key}"
-        )
+        raise EvaluationError(f"{agent} evaluation requires a disposable key in {source_key}")
     env[provider_key] = value
     if agent == "codex":
         codex_home = temporary / "codex"
@@ -819,41 +940,32 @@ def _final_from_claude_trace(trace: str) -> str:
     return result
 
 
-def _run_agent(
-    agent: str,
+def _timeout_text(value: str | bytes | None) -> str:
+    if isinstance(value, bytes):
+        return value.decode(errors="replace")
+    return value or ""
+
+
+def _invoke_agent_process(
+    settings: _AgentRunSettings,
     project: Path,
-    prompt: str,
     raw_dir: Path,
-    *,
-    timeout: int,
-    max_budget_usd: float,
-    model: str | None,
-    isolation_root: Path | None = None,
-) -> dict[str, object]:
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    output_path = raw_dir / "final.txt"
-    binary = "codex" if agent == "codex" else "claude"
-    if shutil.which(binary) is None:
-        raise EvaluationError(f"Required agent CLI is not installed: {binary}")
-    sandbox_root = (isolation_root or project.parent).resolve()
+    sandbox_root: Path,
+) -> _AgentProcessResult:
     started = time.monotonic()
-    with tempfile.TemporaryDirectory(
-        prefix=".agent-home-", dir=sandbox_root
-    ) as temp:
+    with tempfile.TemporaryDirectory(prefix=".agent-home-", dir=sandbox_root) as temp:
         state_root = Path(temp)
-        env = _isolated_agent_env(
-            agent, state_root, visible_root=EVAL_SANDBOX_STATE
-        )
+        env = _isolated_agent_env(settings.agent, state_root, visible_root=EVAL_SANDBOX_STATE)
         command = build_agent_command(
-            agent,
+            settings.agent,
             EVAL_SANDBOX_PROJECT,
-            prompt,
+            settings.prompt,
             EVAL_SANDBOX_OUTPUT / "final.txt",
-            max_budget_usd=max_budget_usd,
-            model=model,
+            max_budget_usd=settings.max_budget_usd,
+            model=settings.model,
         )
         command = _filesystem_sandbox_command(
-            agent,
+            settings.agent,
             command,
             project,
             sandbox_root,
@@ -870,48 +982,79 @@ def _run_agent(
                 stdin=subprocess.DEVNULL,
                 text=True,
                 capture_output=True,
-                timeout=timeout,
+                timeout=settings.timeout,
                 check=False,
             )
+            trace = completed.stdout
+            stderr = completed.stderr
+            exit_code = completed.returncode
         except subprocess.TimeoutExpired as exc:
-            trace = exc.stdout or ""
-            stderr = exc.stderr or ""
-            if isinstance(trace, bytes):
-                trace = trace.decode(errors="replace")
-            if isinstance(stderr, bytes):
-                stderr = stderr.decode(errors="replace")
-            completed = None
-    duration = time.monotonic() - started
-    if completed is None:
-        exit_code = 124
-    else:
-        trace = completed.stdout
-        stderr = completed.stderr
-        exit_code = completed.returncode
-    provider_secret = env.get(EVAL_KEY_ENV[agent][1], "")
-    if provider_secret:
-        trace = trace.replace(provider_secret, "[REDACTED_EVAL_KEY]")
-        stderr = stderr.replace(provider_secret, "[REDACTED_EVAL_KEY]")
-    (raw_dir / "trace.jsonl").write_text(trace, encoding="utf-8")
-    (raw_dir / "stderr.txt").write_text(stderr, encoding="utf-8")
+            trace = _timeout_text(exc.stdout)
+            stderr = _timeout_text(exc.stderr)
+            exit_code = 124
+    return _AgentProcessResult(
+        command=command,
+        duration_seconds=time.monotonic() - started,
+        exit_code=exit_code,
+        trace=trace,
+        stderr=stderr,
+        provider_secret=env.get(EVAL_KEY_ENV[settings.agent][1], ""),
+    )
+
+
+def _redact_process_result(result: _AgentProcessResult) -> _AgentProcessResult:
+    if not result.provider_secret:
+        return result
+    return replace(
+        result,
+        trace=result.trace.replace(result.provider_secret, "[REDACTED_EVAL_KEY]"),
+        stderr=result.stderr.replace(result.provider_secret, "[REDACTED_EVAL_KEY]"),
+    )
+
+
+def _agent_final_output(agent: str, output_path: Path, trace: str, provider_secret: str) -> str:
     if output_path.is_file():
-        final_output = output_path.read_text(encoding="utf-8")
+        output = output_path.read_text(encoding="utf-8")
     elif agent == "claude-code":
-        final_output = _final_from_claude_trace(trace)
-        output_path.write_text(final_output, encoding="utf-8")
+        output = _final_from_claude_trace(trace)
     else:
-        final_output = ""
-        output_path.write_text("", encoding="utf-8")
-    if provider_secret and provider_secret in final_output:
-        final_output = final_output.replace(provider_secret, "[REDACTED_EVAL_KEY]")
-        output_path.write_text(final_output, encoding="utf-8")
+        output = ""
+    if provider_secret:
+        output = output.replace(provider_secret, "[REDACTED_EVAL_KEY]")
+    output_path.write_text(output, encoding="utf-8")
+    return output
+
+
+def _run_agent(
+    agent: str,
+    project: Path,
+    prompt: str,
+    raw_dir: Path,
+    *,
+    timeout: int,
+    max_budget_usd: float,
+    model: str | None,
+    isolation_root: Path | None = None,
+) -> dict[str, object]:
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    binary = "codex" if agent == "codex" else "claude"
+    if shutil.which(binary) is None:
+        raise EvaluationError(f"Required agent CLI is not installed: {binary}")
+    sandbox_root = (isolation_root or project.parent).resolve()
+    settings = _AgentRunSettings(agent, prompt, timeout, max_budget_usd, model)
+    result = _redact_process_result(_invoke_agent_process(settings, project, raw_dir, sandbox_root))
+    (raw_dir / "trace.jsonl").write_text(result.trace, encoding="utf-8")
+    (raw_dir / "stderr.txt").write_text(result.stderr, encoding="utf-8")
+    final_output = _agent_final_output(
+        agent, raw_dir / "final.txt", result.trace, result.provider_secret
+    )
     return {
-        "command": command,
-        "duration_seconds": round(duration, 3),
-        "exit_code": exit_code,
-        "stderr_excerpt": _bounded_excerpt(stderr),
+        "command": result.command,
+        "duration_seconds": round(result.duration_seconds, 3),
+        "exit_code": result.exit_code,
+        "stderr_excerpt": _bounded_excerpt(result.stderr),
         "final_output": final_output,
-        "trace": trace,
+        "trace": result.trace,
     }
 
 
@@ -969,6 +1112,169 @@ def _prepare_workspace(path: Path) -> None:
         raise EvaluationError(f"Could not initialize evaluation workspace: {completed.stderr}")
 
 
+def _profile_selection(
+    manifest: Manifest, profile: str, case: EvalCase, include_local: bool
+) -> list[str] | None:
+    if profile == "single":
+        selected = list(case.candidate_skills)
+        if not selected:
+            raise EvaluationError(f"{case.id} has no candidate skill for the single profile")
+        return selected
+    if profile == "index":
+        return ["google-guides-index"]
+    if profile == "all-no-index":
+        return [
+            artifact.name
+            for collection in manifest.collections.values()
+            if include_local or collection.distribution == "committed"
+            for artifact in collection.artifacts
+        ]
+    if profile == "all":
+        return None
+    raise EvaluationError(f"Unsupported evaluation profile: {profile}")
+
+
+def _checked_tree_hashes(path: Path, context: str) -> dict[str, str]:
+    if path.is_symlink() or not path.is_dir():
+        raise EvaluationError(f"{context} must be a real directory, not a symlink")
+    candidates = sorted(path.rglob("*"))
+    for candidate in candidates:
+        if candidate.is_symlink():
+            raise EvaluationError(f"{context} contains a symlink: {candidate}")
+        if not candidate.is_dir() and not candidate.is_file():
+            raise EvaluationError(f"{context} contains a non-regular path: {candidate}")
+    return {
+        candidate.relative_to(path).as_posix(): hashlib.sha256(candidate.read_bytes()).hexdigest()
+        for candidate in candidates
+        if candidate.is_file()
+    }
+
+
+def _run_install_commands(
+    commands: list[list[str]], project: Path, timeout: int, npx_home: Path | None
+) -> None:
+    def run(home: Path) -> None:
+        home.mkdir(mode=0o700, parents=True, exist_ok=True)
+        for command in commands:
+            try:
+                completed = subprocess.run(
+                    command,
+                    cwd=project,
+                    env=minimal_process_env(home),
+                    stdin=subprocess.DEVNULL,
+                    text=True,
+                    capture_output=True,
+                    timeout=timeout,
+                    check=False,
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise EvaluationError(f"Skill installation timed out: {' '.join(command)}") from exc
+            if completed.returncode:
+                raise EvaluationError(
+                    f"Skill installation failed: {' '.join(command)}\n"
+                    f"{completed.stdout}\n{completed.stderr}".rstrip()
+                )
+
+    if npx_home is not None:
+        run(npx_home)
+        return
+    with tempfile.TemporaryDirectory(prefix="google-guides-npx-home-") as temporary:
+        run(Path(temporary))
+
+
+def _verify_installer_side_effects(project: Path, agent: str) -> None:
+    namespace_name = ".agents" if agent == "codex" else ".claude"
+    allowed_top_level = {".git", namespace_name, "skills-lock.json"}
+    unexpected = sorted(
+        candidate.name for candidate in project.iterdir() if candidate.name not in allowed_top_level
+    )
+    if unexpected:
+        raise EvaluationError(
+            "Skill installer added unexpected project files: " + ", ".join(unexpected)
+        )
+    namespace = project / namespace_name
+    if namespace.is_symlink():
+        raise EvaluationError("Skill installer created a symlinked agent namespace")
+    if namespace.is_dir():
+        extras = sorted(
+            candidate.name for candidate in namespace.iterdir() if candidate.name != "skills"
+        )
+        if extras:
+            raise EvaluationError(
+                "Skill installer added unexpected agent configuration: " + ", ".join(extras)
+            )
+    lock_path = project / "skills-lock.json"
+    if lock_path.exists() and (lock_path.is_symlink() or not lock_path.is_file()):
+        raise EvaluationError("Skill installer created an unsafe skills-lock.json")
+
+
+def _skill_inventory(manifest: Manifest) -> tuple[set[str], set[str]]:
+    committed = {
+        artifact.name
+        for collection in manifest.collections.values()
+        if collection.distribution == "committed"
+        for artifact in collection.artifacts
+    } | {"google-guides-index"}
+    local = {
+        artifact.name
+        for collection in manifest.collections.values()
+        if collection.distribution == "local-only"
+        for artifact in collection.artifacts
+    }
+    return committed, local
+
+
+def _verify_installed_skills(
+    manifest: Manifest,
+    install_root: Path,
+    expected: set[str],
+    committed: set[str],
+) -> dict[str, str]:
+    if install_root.is_symlink():
+        raise EvaluationError("Skill installer created a symlinked skills root")
+    entries = list(install_root.iterdir()) if install_root.is_dir() else []
+    unsafe = sorted(path.name for path in entries if path.is_symlink() or not path.is_dir())
+    if unsafe:
+        raise EvaluationError("Skill installer created unsafe skill entries: " + ", ".join(unsafe))
+    actual = {path.name for path in entries}
+    missing = sorted(name for name in expected if not (install_root / name / "SKILL.md").is_file())
+    if missing:
+        raise EvaluationError(f"Installer omitted expected skills: {', '.join(missing)}")
+    extras = sorted(actual - expected)
+    if extras:
+        raise EvaluationError(f"Installer added undeclared skills: {', '.join(extras)}")
+
+    digests: dict[str, str] = {}
+    for name in sorted(expected):
+        distribution = "committed" if name in committed else "local-only"
+        source_hashes = _checked_tree_hashes(
+            manifest.root_for(distribution) / name, f"Generated skill {name}"
+        )
+        installed_hashes = _checked_tree_hashes(install_root / name, f"Installed skill {name}")
+        if source_hashes != installed_hashes:
+            raise EvaluationError(f"Installed copy does not match generated skill: {name}")
+        digests[name] = _canonical_digest(installed_hashes)
+    return digests
+
+
+def _installed_metadata(
+    agent: str, install_root: Path, expected: set[str]
+) -> tuple[Path, dict[str, object]]:
+    relative = ".agents/skills" if agent == "codex" else ".claude/skills"
+    visible_root = EVAL_SANDBOX_PROJECT / relative
+    budget = metadata_budget(
+        [install_root / name for name in sorted(expected)],
+        install_root=visible_root.as_posix(),
+    )
+    if agent == "codex" and int(budget["codex_list_chars"]) > CODEX_FALLBACK_METADATA_CHARS:
+        raise EvaluationError(
+            "Installed Codex skill metadata exceeds the fallback budget at the "
+            f"agent-visible root {visible_root}: "
+            f"{budget['codex_list_chars']} > {CODEX_FALLBACK_METADATA_CHARS}"
+        )
+    return visible_root, budget
+
+
 def _install_profile(
     manifest: Manifest,
     project: Path,
@@ -990,24 +1296,7 @@ def _install_profile(
         }
     if shutil.which("npx") is None:
         raise EvaluationError("npx is required for evaluation installs")
-    selected: list[str] | None
-    if profile == "single":
-        selected = list(case.candidate_skills)
-        if not selected:
-            raise EvaluationError(f"{case.id} has no candidate skill for the single profile")
-    elif profile == "index":
-        selected = ["google-guides-index"]
-    elif profile == "all-no-index":
-        selected = [
-            artifact.name
-            for collection in manifest.collections.values()
-            if include_local or collection.distribution == "committed"
-            for artifact in collection.artifacts
-        ]
-    elif profile == "all":
-        selected = None
-    else:
-        raise EvaluationError(f"Unsupported evaluation profile: {profile}")
+    selected = _profile_selection(manifest, profile, case, include_local)
     commands = install_commands(
         manifest,
         project,
@@ -1016,160 +1305,25 @@ def _install_profile(
         include_local=include_local,
         copy=True,
     )
-
-    def checked_tree_hashes(path: Path, context: str) -> dict[str, str]:
-        if path.is_symlink() or not path.is_dir():
-            raise EvaluationError(f"{context} must be a real directory, not a symlink")
-        candidates = sorted(path.rglob("*"))
-        for candidate in candidates:
-            if candidate.is_symlink():
-                raise EvaluationError(f"{context} contains a symlink: {candidate}")
-            if not candidate.is_dir() and not candidate.is_file():
-                raise EvaluationError(f"{context} contains a non-regular path: {candidate}")
-        return {
-            candidate.relative_to(path).as_posix(): hashlib.sha256(
-                candidate.read_bytes()
-            ).hexdigest()
-            for candidate in candidates
-            if candidate.is_file()
-        }
-
     git_dir = project / ".git"
     git_before = (
-        checked_tree_hashes(git_dir, "Evaluation Git metadata")
-        if git_dir.exists()
-        else None
+        _checked_tree_hashes(git_dir, "Evaluation Git metadata") if git_dir.exists() else None
     )
-
-    def run_installs(home: Path) -> None:
-        home.mkdir(mode=0o700, parents=True, exist_ok=True)
-        npx_env = minimal_process_env(home)
-        for command in commands:
-            try:
-                completed = subprocess.run(
-                    command,
-                    cwd=project,
-                    env=npx_env,
-                    stdin=subprocess.DEVNULL,
-                    text=True,
-                    capture_output=True,
-                    timeout=timeout,
-                    check=False,
-                )
-            except subprocess.TimeoutExpired as exc:
-                raise EvaluationError(
-                    f"Skill installation timed out: {' '.join(command)}"
-                ) from exc
-            if completed.returncode:
-                raise EvaluationError(
-                    f"Skill installation failed: {' '.join(command)}\n"
-                    f"{completed.stdout}\n{completed.stderr}".rstrip()
-                )
-
-    if npx_home is None:
-        with tempfile.TemporaryDirectory(prefix="google-guides-npx-home-") as temporary:
-            run_installs(Path(temporary))
-    else:
-        run_installs(npx_home)
-
-    if git_before is not None and checked_tree_hashes(
-        git_dir, "Evaluation Git metadata"
-    ) != git_before:
+    _run_install_commands(commands, project, timeout, npx_home)
+    if (
+        git_before is not None
+        and _checked_tree_hashes(git_dir, "Evaluation Git metadata") != git_before
+    ):
         raise EvaluationError("Skill installer modified evaluation Git metadata")
-
-    namespace_name = ".agents" if agent == "codex" else ".claude"
-    allowed_top_level = {".git", namespace_name, "skills-lock.json"}
-    unexpected_top_level = sorted(
-        candidate.name
-        for candidate in project.iterdir()
-        if candidate.name not in allowed_top_level
-    )
-    if unexpected_top_level:
-        raise EvaluationError(
-            "Skill installer added unexpected project files: "
-            + ", ".join(unexpected_top_level)
-        )
-    namespace = project / namespace_name
-    if namespace.is_symlink():
-        raise EvaluationError("Skill installer created a symlinked agent namespace")
-    if namespace.is_dir():
-        namespace_extras = sorted(
-            candidate.name for candidate in namespace.iterdir() if candidate.name != "skills"
-        )
-        if namespace_extras:
-            raise EvaluationError(
-                "Skill installer added unexpected agent configuration: "
-                + ", ".join(namespace_extras)
-            )
-    lock_path = project / "skills-lock.json"
-    if lock_path.exists() and (lock_path.is_symlink() or not lock_path.is_file()):
-        raise EvaluationError("Skill installer created an unsafe skills-lock.json")
-
-    committed = {
-        artifact.name
-        for collection in manifest.collections.values()
-        if collection.distribution == "committed"
-        for artifact in collection.artifacts
-    } | {"google-guides-index"}
-    local = {
-        artifact.name
-        for collection in manifest.collections.values()
-        if collection.distribution == "local-only"
-        for artifact in collection.artifacts
-    }
+    _verify_installer_side_effects(project, agent)
+    committed, local = _skill_inventory(manifest)
     if selected is None:
         expected = committed | (local if include_local else set())
     else:
         expected = set(selected)
     install_root = project / (".agents/skills" if agent == "codex" else ".claude/skills")
-    if install_root.is_symlink():
-        raise EvaluationError("Skill installer created a symlinked skills root")
-    install_entries = list(install_root.iterdir()) if install_root.is_dir() else []
-    unsafe_entries = sorted(
-        path.name for path in install_entries if path.is_symlink() or not path.is_dir()
-    )
-    if unsafe_entries:
-        raise EvaluationError(
-            "Skill installer created unsafe skill entries: " + ", ".join(unsafe_entries)
-        )
-    actual = {
-        path.name for path in install_entries if (path / "SKILL.md").is_file()
-    }
-    missing = sorted(name for name in expected if not (install_root / name / "SKILL.md").is_file())
-    if missing:
-        raise EvaluationError(f"Installer omitted expected skills: {', '.join(missing)}")
-    extras = sorted(actual - expected)
-    if extras:
-        raise EvaluationError(f"Installer added undeclared skills: {', '.join(extras)}")
-
-    installed_skill_sha256: dict[str, str] = {}
-    for name in sorted(expected):
-        source_root = (
-            manifest.root_for("committed") if name in committed else manifest.root_for("local-only")
-        )
-        source_hashes = checked_tree_hashes(source_root / name, f"Generated skill {name}")
-        installed_hashes = checked_tree_hashes(
-            install_root / name, f"Installed skill {name}"
-        )
-        if source_hashes != installed_hashes:
-            raise EvaluationError(f"Installed copy does not match generated skill: {name}")
-        installed_skill_sha256[name] = _canonical_digest(installed_hashes)
-    visible_install_root = EVAL_SANDBOX_PROJECT / (
-        ".agents/skills" if agent == "codex" else ".claude/skills"
-    )
-    installed_budget = metadata_budget(
-        [install_root / name for name in sorted(expected)],
-        install_root=visible_install_root.as_posix(),
-    )
-    if (
-        agent == "codex"
-        and int(installed_budget["codex_list_chars"]) > CODEX_FALLBACK_METADATA_CHARS
-    ):
-        raise EvaluationError(
-            "Installed Codex skill metadata exceeds the fallback budget at the "
-            f"agent-visible root {visible_install_root}: "
-            f"{installed_budget['codex_list_chars']} > {CODEX_FALLBACK_METADATA_CHARS}"
-        )
+    installed_skill_sha256 = _verify_installed_skills(manifest, install_root, expected, committed)
+    visible_install_root, installed_budget = _installed_metadata(agent, install_root, expected)
     return {
         "commands": commands,
         "installed_skills": sorted(expected),
@@ -1181,38 +1335,44 @@ def _install_profile(
     }
 
 
-def _summary(records: list[dict[str, object]]) -> dict[str, object]:
-    completed = [record for record in records if record.get("status") == "completed"]
-    correct = sum(record.get("trigger_correct") is True for record in completed)
-    rubric_earned = sum(int(record.get("rubric_earned", 0)) for record in completed)
-    rubric_total = sum(int(record.get("rubric_total", 0)) for record in completed)
-    claim_violations = sum(len(record.get("forbidden_claims_found", [])) for record in completed)
-    positives = [
-        record
-        for record in completed
-        if record.get("polarity") == "positive" and record.get("expected_skills")
-    ]
-    negatives = [record for record in completed if record.get("polarity") == "negative"]
-    controls = [record for record in completed if record.get("stage") == "controls"]
-    direct = [
-        record
-        for record in completed
-        if record.get("stage") == "smoke"
-        and record.get("profile") == "all"
-        and record.get("expected_skills") != ["google-guides-index"]
-    ]
-    broad = [
-        record
-        for record in completed
-        if record.get("stage") == "index-experiment" and record.get("profile") == "all"
-    ]
+def _ratio(numerator: int, denominator: int) -> float | None:
+    return round(numerator / denominator, 4) if denominator else None
 
-    def ratio(numerator: int, denominator: int) -> float | None:
-        return round(numerator / denominator, 4) if denominator else None
 
+def _routing_groups(
+    completed: list[dict[str, object]],
+) -> dict[str, list[dict[str, object]]]:
+    return {
+        "positives": [
+            record
+            for record in completed
+            if record.get("polarity") == "positive" and record.get("expected_skills")
+        ],
+        "negatives": [record for record in completed if record.get("polarity") == "negative"],
+        "controls": [record for record in completed if record.get("stage") == "controls"],
+        "direct": [
+            record
+            for record in completed
+            if record.get("stage") == "smoke"
+            and record.get("profile") == "all"
+            and record.get("expected_skills") != ["google-guides-index"]
+        ],
+        "broad": [
+            record
+            for record in completed
+            if record.get("stage") == "index-experiment" and record.get("profile") == "all"
+        ],
+    }
+
+
+def _routing_metrics(groups: dict[str, list[dict[str, object]]]) -> dict[str, object]:
+    positives = groups["positives"]
+    negatives = groups["negatives"]
+    controls = groups["controls"]
+    direct = groups["direct"]
+    broad = groups["broad"]
     positive_correct = sum(
-        record.get("expected_loaded", record.get("trigger_correct")) is True
-        for record in positives
+        record.get("expected_loaded", record.get("trigger_correct")) is True for record in positives
     )
     negative_correct = sum(
         record.get("forbidden_avoided", record.get("trigger_correct")) is True
@@ -1233,6 +1393,34 @@ def _summary(records: list[dict[str, object]]) -> dict[str, object]:
         "google-guides-index" in record.get("observed_skills", []) for record in broad
     )
     return {
+        "positive_runs": len(positives),
+        "positive_correct": positive_correct,
+        "positive_recall": _ratio(positive_correct, len(positives)),
+        "negative_runs": len(negatives),
+        "negative_correct": negative_correct,
+        "near_miss_specificity": _ratio(negative_correct, len(negatives)),
+        "explicit_control_runs": len(controls),
+        "explicit_control_correct": control_correct,
+        "explicit_control_accuracy": _ratio(control_correct, len(controls)),
+        "direct_prompt_runs": len(direct),
+        "direct_prompt_exact": direct_exact,
+        "direct_prompt_exact_rate": _ratio(direct_exact, len(direct)),
+        "direct_index_steals": direct_steals,
+        "direct_index_steal_rate": _ratio(direct_steals, len(direct)),
+        "direct_prompts_with_unexpected": direct_with_unexpected,
+        "direct_unexpected_skill_loads": direct_unexpected_loads,
+        "index_broad_runs": len(broad),
+        "index_broad_loaded": broad_loaded,
+        "index_broad_recall": _ratio(broad_loaded, len(broad)),
+    }
+
+
+def _summary(records: list[dict[str, object]]) -> dict[str, object]:
+    completed = [record for record in records if record.get("status") == "completed"]
+    correct = sum(record.get("trigger_correct") is True for record in completed)
+    rubric_earned = sum(int(record.get("rubric_earned", 0)) for record in completed)
+    rubric_total = sum(int(record.get("rubric_total", 0)) for record in completed)
+    summary = {
         "runs": len(records),
         "completed": len(completed),
         "failed_processes": sum(record.get("status") == "failed" for record in records),
@@ -1241,31 +1429,16 @@ def _summary(records: list[dict[str, object]]) -> dict[str, object]:
         ),
         "successful_processes": sum(record.get("exit_code") == 0 for record in completed),
         "trigger_correct": correct,
-        "trigger_accuracy": round(correct / len(completed), 4) if completed else None,
+        "trigger_accuracy": _ratio(correct, len(completed)),
         "rubric_earned": rubric_earned,
         "rubric_total": rubric_total,
-        "rubric_score": round(rubric_earned / rubric_total, 4) if rubric_total else None,
-        "forbidden_claim_violations": claim_violations,
-        "positive_runs": len(positives),
-        "positive_correct": positive_correct,
-        "positive_recall": ratio(positive_correct, len(positives)),
-        "negative_runs": len(negatives),
-        "negative_correct": negative_correct,
-        "near_miss_specificity": ratio(negative_correct, len(negatives)),
-        "explicit_control_runs": len(controls),
-        "explicit_control_correct": control_correct,
-        "explicit_control_accuracy": ratio(control_correct, len(controls)),
-        "direct_prompt_runs": len(direct),
-        "direct_prompt_exact": direct_exact,
-        "direct_prompt_exact_rate": ratio(direct_exact, len(direct)),
-        "direct_index_steals": direct_steals,
-        "direct_index_steal_rate": ratio(direct_steals, len(direct)),
-        "direct_prompts_with_unexpected": direct_with_unexpected,
-        "direct_unexpected_skill_loads": direct_unexpected_loads,
-        "index_broad_runs": len(broad),
-        "index_broad_loaded": broad_loaded,
-        "index_broad_recall": ratio(broad_loaded, len(broad)),
+        "rubric_score": _ratio(rubric_earned, rubric_total),
+        "forbidden_claim_violations": sum(
+            len(record.get("forbidden_claims_found", [])) for record in completed
+        ),
     }
+    summary.update(_routing_metrics(_routing_groups(completed)))
+    return summary
 
 
 def _index_comparisons(records: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -1286,8 +1459,7 @@ def _index_comparisons(records: list[dict[str, object]]) -> list[dict[str, objec
                 "agent": agent,
                 "case_id": case_id,
                 "repeat": repeat,
-                "index_loaded": "google-guides-index"
-                in with_index.get("observed_skills", []),
+                "index_loaded": "google-guides-index" in with_index.get("observed_skills", []),
                 "without_index_rubric": int(without_index.get("rubric_earned", 0)),
                 "with_index_rubric": int(with_index.get("rubric_earned", 0)),
                 "rubric_total": int(with_index.get("rubric_total", 0)),
@@ -1372,6 +1544,366 @@ def _markdown_report(report: dict[str, object]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _validate_evaluation_request(
+    manifest: Manifest, cases: list[EvalCase], settings: _EvaluationSettings
+) -> None:
+    if settings.mode not in {"triggers", "quality"}:
+        raise EvaluationError("Evaluation mode must be triggers or quality")
+    if not settings.agents or set(settings.agents) - set(SUPPORTED_AGENTS):
+        raise EvaluationError(f"Agents must be selected from {SUPPORTED_AGENTS}")
+    if settings.profile not in SUPPORTED_PROFILES:
+        raise EvaluationError(f"Profile must be selected from {SUPPORTED_PROFILES}")
+    if settings.repeat < 1:
+        raise EvaluationError("Repeat must be positive")
+    if settings.timeout < 1:
+        raise EvaluationError("Timeout must be positive")
+    if not math.isfinite(settings.max_budget_usd) or settings.max_budget_usd <= 0:
+        raise EvaluationError("Claude budget must be finite and positive")
+    _validate_live_settings(settings)
+    _validate_case_distribution(manifest, cases, settings)
+    if not settings.dry_run:
+        _preflight_live(list(settings.agents))
+
+
+def _validate_live_settings(settings: _EvaluationSettings) -> None:
+    if settings.dry_run:
+        return
+    if not settings.accept_credential_risk:
+        raise EvaluationError(
+            "Live evaluations require explicit acceptance of disposable credential risk"
+        )
+    missing_models = sorted(set(settings.agents) - set(settings.models))
+    if missing_models:
+        raise EvaluationError(
+            "Live evaluations require an explicit model for every agent: "
+            + ", ".join(missing_models)
+        )
+
+
+def _validate_case_distribution(
+    manifest: Manifest, cases: list[EvalCase], settings: _EvaluationSettings
+) -> None:
+    if settings.include_local and not settings.dry_run:
+        raise EvaluationError(
+            "Live hosted-agent evaluation of local-only derived material is disabled; "
+            "use plan mode and offline boundary tests"
+        )
+    local_skills = {
+        artifact.name
+        for collection in manifest.collections.values()
+        if collection.distribution == "local-only"
+        for artifact in collection.artifacts
+    }
+    requested_local = sorted(
+        local_skills.intersection(skill for case in cases for skill in case.candidate_skills)
+    )
+    if requested_local and not settings.include_local:
+        raise EvaluationError(
+            "SWE-book evaluation cases require --include-swe-book: " + ", ".join(requested_local)
+        )
+
+
+def _corpus_identity(manifest: Manifest, cases: list[EvalCase]) -> dict[str, object]:
+    serialized = [asdict(case) for case in cases]
+    return {
+        "generator_version": __version__,
+        "manifest_sha256": hashlib.sha256(manifest.path.read_bytes()).hexdigest(),
+        "case_set_sha256": _canonical_digest(serialized),
+        "project_git": _project_git_state(manifest.project_root),
+    }
+
+
+def _require_ignored_local_results(manifest: Manifest, results_base: Path) -> None:
+    safe_results = (manifest.project_root / "evals" / "results").resolve()
+    try:
+        results_base.resolve().relative_to(safe_results)
+    except ValueError as exc:
+        raise EvaluationError(
+            "Local-only evaluations must remain under the ignored evals/results directory"
+        ) from exc
+    ignored_probe = safe_results / ".google-guides-local-boundary"
+    ignored = subprocess.run(
+        git_command("check-ignore", "--quiet", "--", str(ignored_probe)),
+        cwd=manifest.project_root,
+        env=git_environment(),
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        check=False,
+    )
+    if ignored.returncode:
+        raise EvaluationError(
+            "Local-only evaluation output is not covered by the repository ignore policy"
+        )
+
+
+def _create_results_directory(manifest: Manifest, settings: _EvaluationSettings) -> Path:
+    results_base = settings.results_root or manifest.project_root / "evals" / "results"
+    if not results_base.is_absolute():
+        results_base = manifest.project_root / results_base
+    if settings.include_local:
+        _require_ignored_local_results(manifest, results_base)
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    root = results_base.resolve() / timestamp
+    suffix = 1
+    while root.exists():
+        root = root.with_name(f"{timestamp}-{suffix}")
+        suffix += 1
+    root.mkdir(parents=True, mode=0o700)
+    (root / "records.jsonl").touch(mode=0o600)
+    return root
+
+
+def _evaluation_profiles(mode: str, profile: str) -> tuple[str, ...]:
+    if profile == "index-ab":
+        return "all-no-index", "all"
+    if mode == "quality":
+        return "baseline", profile
+    return (profile,)
+
+
+def _case_expectations(
+    case: EvalCase, profile: str, known_skills: frozenset[str]
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if profile == "baseline":
+        return (), case.candidate_skills
+    expected, forbidden = case.expectations_for(profile)
+    if profile == "all" and case.stage == "smoke" and expected != ("google-guides-index",):
+        # Direct smoke prompts are exact-routing probes. Any unrelated load is a miss.
+        forbidden = tuple(sorted(known_skills - set(expected)))
+    return expected, forbidden
+
+
+def _base_record(
+    context: _EvaluationContext,
+    case: EvalCase,
+    agent: str,
+    profile: str,
+    run_number: int,
+) -> dict[str, object]:
+    expected, forbidden = _case_expectations(case, profile, context.known_skills)
+    return {
+        "id": f"{agent}-{profile}-{case.id}-{run_number}",
+        "agent": agent,
+        "profile": profile,
+        "case_id": case.id,
+        "stage": case.stage,
+        "split": case.split,
+        "polarity": case.polarity,
+        "repeat": run_number,
+        "case_expected_skills": list(case.expected_skills),
+        "case_forbidden_skills": list(case.forbidden_skills),
+        "expected_skills": list(expected),
+        "forbidden_skills": list(forbidden),
+        "requested_model": context.settings.models.get(agent),
+        **context.corpus_identity,
+    }
+
+
+def _persist_raw_output(raw_dir: Path, context: _EvaluationContext, record_id: str) -> str | None:
+    if not context.settings.keep_raw or not raw_dir.is_dir():
+        return None
+    destination = context.results_dir / "raw" / record_id
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(raw_dir, destination)
+    return destination.relative_to(context.results_dir).as_posix()
+
+
+def _observed_skills(
+    agent: str,
+    loaded: set[str],
+    claimed: str | None,
+    installed: set[str],
+) -> tuple[set[str], str]:
+    """Add Codex's proxy marker only when it names an installed skill."""
+    observed = set(loaded)
+    evidence = "trace"
+    if agent != "codex" or not claimed:
+        return observed, evidence
+    if claimed in installed:
+        observed.add(claimed)
+        if claimed not in loaded:
+            evidence = "self-report-proxy"
+    else:
+        evidence = "unverified-self-report"
+    return observed, evidence
+
+
+def _run_succeeded(invocation: dict[str, object], metadata: dict[str, object]) -> bool:
+    terminal_status = str(metadata.get("terminal_status") or "").lower()
+    terminal_failed = terminal_status in {"failed", "error"} or terminal_status.startswith("error_")
+    return invocation["exit_code"] == 0 and not terminal_failed
+
+
+def _completed_record(
+    context: _EvaluationContext,
+    case: EvalCase,
+    agent: str,
+    record: dict[str, object],
+    install_run: dict[str, object],
+    invocation: dict[str, object],
+    raw_path: str | None,
+) -> dict[str, object]:
+    trace = str(invocation.pop("trace"))
+    final_output = str(invocation.pop("final_output"))
+    metadata = trace_metadata(trace)
+    loaded, claimed, visible = parse_trace(trace, final_output, set(context.known_skills))
+    earned, total = score_output(final_output, case.rubric)
+    installed = set(install_run["installed_skills"])
+    observed, evidence = _observed_skills(agent, loaded, claimed, installed)
+    expected = set(record["expected_skills"])
+    forbidden = set(record["forbidden_skills"])
+    expected_loaded = expected.issubset(observed)
+    forbidden_avoided = not forbidden.intersection(observed)
+    record.update(
+        {
+            "status": "completed" if _run_succeeded(invocation, metadata) else "failed",
+            "install_commands": install_run["commands"],
+            "installed_skills": install_run["installed_skills"],
+            "install_hashes_verified": install_run["hashes_verified"],
+            "installed_skill_sha256": install_run.get("installed_skill_sha256", {}),
+            "installed_pack_sha256": install_run.get("installed_pack_sha256"),
+            "agent_visible_install_root": install_run.get("agent_visible_install_root"),
+            "installed_metadata_budget": install_run.get("installed_metadata_budget"),
+            "loaded_skills": sorted(loaded),
+            "visible_skills": sorted(visible),
+            "observed_skills": sorted(observed),
+            "observation_evidence": evidence,
+            "claimed_skill": claimed,
+            "expected_loaded": expected_loaded,
+            "forbidden_avoided": forbidden_avoided,
+            "unexpected_loaded_skills": sorted(observed - expected),
+            "trigger_correct": expected_loaded and forbidden_avoided,
+            "rubric_earned": earned,
+            "rubric_total": total,
+            "forbidden_claims_found": forbidden_claims(final_output, case.forbidden_claims),
+            "final_output": final_output,
+            "raw_path": raw_path,
+            **metadata,
+            **invocation,
+        }
+    )
+    return record
+
+
+def _execute_record(
+    context: _EvaluationContext,
+    case: EvalCase,
+    agent: str,
+    profile: str,
+    run_number: int,
+) -> dict[str, object]:
+    record = _base_record(context, case, agent, profile, run_number)
+    if context.settings.dry_run:
+        record.update({"status": "planned", "trigger_correct": None})
+        return record
+    record_id = str(record["id"])
+    with tempfile.TemporaryDirectory(prefix=f"google-guides-eval-{record_id}-") as temporary:
+        isolation_root = Path(temporary)
+        workspace = isolation_root / "w"
+        raw_dir = isolation_root / "o"
+        try:
+            _prepare_workspace(workspace)
+            install_run = _install_profile(
+                context.manifest,
+                workspace,
+                agent,
+                profile,
+                case,
+                include_local=context.settings.include_local,
+                timeout=context.settings.timeout,
+                npx_home=context.npx_home,
+            )
+            (workspace / "skills-lock.json").unlink(missing_ok=True)
+            invocation = _run_agent(
+                agent,
+                workspace,
+                _evaluation_prompt(case, agent),
+                raw_dir,
+                timeout=context.settings.timeout,
+                max_budget_usd=context.settings.max_budget_usd,
+                model=context.settings.models.get(agent),
+                isolation_root=isolation_root,
+            )
+        except (EvaluationError, OSError) as exc:
+            record.update(
+                {
+                    "status": "infrastructure-error",
+                    "trigger_correct": None,
+                    "error": str(exc),
+                    "raw_path": _persist_raw_output(raw_dir, context, record_id),
+                }
+            )
+            return record
+        raw_path = _persist_raw_output(raw_dir, context, record_id)
+        return _completed_record(context, case, agent, record, install_run, invocation, raw_path)
+
+
+def _tool_versions(dry_run: bool, npx_home: Path | None) -> dict[str, str | None]:
+    if dry_run:
+        return {"codex": None, "claude-code": None, "skills": None}
+    return {
+        "codex": _version(["codex", "--version"], home=npx_home),
+        "claude-code": _version(["claude", "--version"], home=npx_home),
+        "skills": _version(
+            ["npx", "--yes", SKILLS_CLI_PACKAGE, "--version"],
+            home=npx_home,
+        ),
+    }
+
+
+def _evaluation_report(
+    context: _EvaluationContext,
+    cases: list[EvalCase],
+    profiles: tuple[str, ...],
+    records: list[dict[str, object]],
+) -> dict[str, Any]:
+    settings = context.settings
+    profile_runs = len(cases) * settings.repeat * len(profiles)
+    report: dict[str, Any] = {
+        "schema_version": 1,
+        "mode": settings.mode,
+        "created_at": datetime.now(UTC).isoformat(),
+        "dry_run": settings.dry_run,
+        "agents": list(settings.agents),
+        "profile": settings.profile,
+        "repeat": settings.repeat,
+        "execution_plan": {
+            "processes": profile_runs * len(settings.agents),
+            "claude_calls": profile_runs if "claude-code" in settings.agents else 0,
+            "claude_soft_cap_sum_usd": round(
+                profile_runs
+                * settings.max_budget_usd
+                * (1 if "claude-code" in settings.agents else 0),
+                4,
+            ),
+        },
+        "raw_traces_kept": settings.keep_raw,
+        "corpus_identity": context.corpus_identity,
+        "requested_models": settings.models,
+        "tool_versions": _tool_versions(settings.dry_run, context.npx_home),
+        "cases": [asdict(case) for case in cases],
+        "records": records,
+        "summary": _summary(records),
+    }
+    if settings.mode == "quality":
+        report["quality_comparisons"] = (
+            []
+            if settings.profile == "index-ab"
+            else _quality_comparisons(records, settings.profile)
+        )
+    if settings.profile == "index-ab":
+        report["index_comparisons"] = _index_comparisons(records)
+    return report
+
+
+def _write_report(report: dict[str, object], root: Path) -> None:
+    (root / "report.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (root / "report.md").write_text(_markdown_report(report), encoding="utf-8")
+
+
 def run_evaluation(
     manifest: Manifest,
     cases: list[EvalCase],
@@ -1390,108 +1922,41 @@ def run_evaluation(
     accept_credential_risk: bool = False,
 ) -> tuple[dict[str, object], Path]:
     """Run each case in a new project and each agent in a fresh process/home."""
-
-    if mode not in {"triggers", "quality"}:
-        raise EvaluationError("Evaluation mode must be triggers or quality")
-    if not agents or set(agents) - set(SUPPORTED_AGENTS):
-        raise EvaluationError(f"Agents must be selected from {SUPPORTED_AGENTS}")
-    if profile not in SUPPORTED_PROFILES:
-        raise EvaluationError(f"Profile must be selected from {SUPPORTED_PROFILES}")
-    if repeat < 1:
-        raise EvaluationError("Repeat must be positive")
-    if timeout < 1:
-        raise EvaluationError("Timeout must be positive")
-    if not math.isfinite(max_budget_usd) or max_budget_usd <= 0:
-        raise EvaluationError("Claude budget must be finite and positive")
-    if not dry_run:
-        if not accept_credential_risk:
-            raise EvaluationError(
-                "Live evaluations require explicit acceptance of disposable credential risk"
-            )
-        missing_models = sorted(set(agents) - set(models or {}))
-        if missing_models:
-            raise EvaluationError(
-                "Live evaluations require an explicit model for every agent: "
-                + ", ".join(missing_models)
-            )
-    if include_local and not dry_run:
-        raise EvaluationError(
-            "Live hosted-agent evaluation of local-only derived material is disabled; "
-            "use plan mode and offline boundary tests"
-        )
-    if not dry_run:
-        _preflight_live(agents)
-
-    local_skills = {
-        artifact.name
-        for collection in manifest.collections.values()
-        if collection.distribution == "local-only"
-        for artifact in collection.artifacts
-    }
-    requested_local = sorted(
-        local_skills.intersection(
-            skill for case in cases for skill in case.candidate_skills
-        )
+    settings = _EvaluationSettings(
+        mode=mode,
+        agents=tuple(agents),
+        profile=profile,
+        repeat=repeat,
+        include_local=include_local,
+        timeout=timeout,
+        max_budget_usd=max_budget_usd,
+        models=dict(models or {}),
+        dry_run=dry_run,
+        keep_raw=keep_raw,
+        results_root=results_root,
+        accept_credential_risk=accept_credential_risk,
     )
-    if requested_local and not include_local:
-        raise EvaluationError(
-            "SWE-book evaluation cases require --include-swe-book: "
-            + ", ".join(requested_local)
-        )
-
-    serialized_cases = [asdict(case) for case in cases]
-    corpus_identity = {
-        "generator_version": __version__,
-        "manifest_sha256": hashlib.sha256(manifest.path.read_bytes()).hexdigest(),
-        "case_set_sha256": _canonical_digest(serialized_cases),
-        "project_git": _project_git_state(manifest.project_root),
-    }
-
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    results_base = results_root or manifest.project_root / "evals" / "results"
-    if not results_base.is_absolute():
-        results_base = manifest.project_root / results_base
-    if include_local:
-        safe_results = (manifest.project_root / "evals" / "results").resolve()
-        resolved_results = results_base.resolve()
-        try:
-            resolved_results.relative_to(safe_results)
-        except ValueError as exc:
-            raise EvaluationError(
-                "Local-only evaluations must remain under the ignored evals/results directory"
-            ) from exc
-        ignored_probe = safe_results / ".google-guides-local-boundary"
-        ignored = subprocess.run(
-            git_command("check-ignore", "--quiet", "--", str(ignored_probe)),
-            cwd=manifest.project_root,
-            env=git_environment(),
-            stdin=subprocess.DEVNULL,
-            capture_output=True,
-            check=False,
-        )
-        if ignored.returncode:
-            raise EvaluationError(
-                "Local-only evaluation output is not covered by the repository ignore policy"
-            )
-    root = results_base.resolve() / timestamp
-    suffix = 1
-    while root.exists():
-        root = root.with_name(f"{timestamp}-{suffix}")
-        suffix += 1
-    root.mkdir(parents=True, mode=0o700)
-    npx_home = None if dry_run else root / ".npx-home"
+    _validate_evaluation_request(manifest, cases, settings)
+    corpus_identity = _corpus_identity(manifest, cases)
+    root = _create_results_directory(manifest, settings)
     records_path = root / "records.jsonl"
-    records_path.touch(mode=0o600)
-
-    known_skills = {
-        artifact.name
-        for collection in manifest.collections.values()
-        for artifact in collection.artifacts
-    } | {"google-guides-index"}
-    if profile == "index-ab":
-        profiles = ("all-no-index", "all")
-    else:
-        profiles = ("baseline", profile) if mode == "quality" else (profile,)
+    known_skills = frozenset(
+        {
+            artifact.name
+            for collection in manifest.collections.values()
+            for artifact in collection.artifacts
+        }
+        | {"google-guides-index"}
+    )
+    context = _EvaluationContext(
+        manifest=manifest,
+        settings=settings,
+        results_dir=root,
+        npx_home=None if dry_run else root / ".npx-home",
+        known_skills=known_skills,
+        corpus_identity=corpus_identity,
+    )
+    profiles = _evaluation_profiles(mode, profile)
     records: list[dict[str, object]] = []
 
     def checkpoint(record: dict[str, object]) -> None:
@@ -1503,226 +1968,10 @@ def run_evaluation(
         for agent in agents:
             for run_number in range(1, repeat + 1):
                 for current_profile in profiles:
-                    record_id = f"{agent}-{current_profile}-{case.id}-{run_number}"
-                    if current_profile == "baseline":
-                        evaluated_expected: tuple[str, ...] = ()
-                        evaluated_forbidden = case.candidate_skills
-                    else:
-                        evaluated_expected, evaluated_forbidden = case.expectations_for(
-                            current_profile
-                        )
-                    if (
-                        current_profile == "all"
-                        and case.stage == "smoke"
-                        and evaluated_expected != ("google-guides-index",)
-                    ):
-                        # Direct smoke prompts are exact-routing probes. Loading a broad router or
-                        # an unrelated guide alongside the intended skill is a specificity miss.
-                        evaluated_forbidden = tuple(
-                            sorted(known_skills - set(evaluated_expected))
-                        )
-                    record: dict[str, object] = {
-                        "id": record_id,
-                        "agent": agent,
-                        "profile": current_profile,
-                        "case_id": case.id,
-                        "stage": case.stage,
-                        "split": case.split,
-                        "polarity": case.polarity,
-                        "repeat": run_number,
-                        "case_expected_skills": list(case.expected_skills),
-                        "case_forbidden_skills": list(case.forbidden_skills),
-                        "expected_skills": list(evaluated_expected),
-                        "forbidden_skills": list(evaluated_forbidden),
-                        "requested_model": (models or {}).get(agent),
-                        **corpus_identity,
-                    }
-                    if dry_run:
-                        record.update({"status": "planned", "trigger_correct": None})
-                        checkpoint(record)
-                        continue
-                    run_home = tempfile.TemporaryDirectory(
-                        prefix=f"google-guides-eval-{record_id}-"
-                    )
-                    isolation_root = Path(run_home.name)
-                    workspace = isolation_root / "w"
-                    raw_dir = isolation_root / "o"
-                    persistent_raw = root / "raw" / record_id
-                    try:
-                        _prepare_workspace(workspace)
-                        install_run = _install_profile(
-                            manifest,
-                            workspace,
-                            agent,
-                            current_profile,
-                            case,
-                            include_local=include_local,
-                            timeout=timeout,
-                            npx_home=npx_home,
-                        )
-                        (workspace / "skills-lock.json").unlink(missing_ok=True)
-                        invocation = _run_agent(
-                            agent,
-                            workspace,
-                            _evaluation_prompt(case, agent),
-                            raw_dir,
-                            timeout=timeout,
-                            max_budget_usd=max_budget_usd,
-                            model=(models or {}).get(agent),
-                            isolation_root=isolation_root,
-                        )
-                    except (EvaluationError, OSError) as exc:
-                        raw_path = None
-                        if keep_raw and raw_dir.is_dir():
-                            persistent_raw.parent.mkdir(parents=True, exist_ok=True)
-                            shutil.copytree(raw_dir, persistent_raw)
-                            raw_path = persistent_raw.relative_to(root).as_posix()
-                        record.update(
-                            {
-                                "status": "infrastructure-error",
-                                "trigger_correct": None,
-                                "error": str(exc),
-                                "raw_path": raw_path,
-                            }
-                        )
-                        checkpoint(record)
-                        run_home.cleanup()
-                        continue
-                    metadata = trace_metadata(str(invocation["trace"]))
-                    loaded, claimed, visible = parse_trace(
-                        str(invocation.pop("trace")),
-                        str(invocation["final_output"]),
-                        known_skills,
-                    )
-                    final_output = str(invocation.pop("final_output"))
-                    earned, total = score_output(final_output, case.rubric)
-                    claim_violations = forbidden_claims(final_output, case.forbidden_claims)
-                    observed = set(loaded)
-                    evidence = "trace"
-                    installed_skills = set(install_run["installed_skills"])
-                    if agent == "codex" and claimed and claimed in installed_skills:
-                        # Codex 0.147 has no stable Skill tool event in JSONL. A path read is
-                        # authoritative when present; otherwise the requested terminal marker is
-                        # an explicit proxy that quality rubrics can cross-check.
-                        observed.add(claimed)
-                        if claimed not in loaded:
-                            evidence = "self-report-proxy"
-                    elif agent == "codex" and claimed:
-                        evidence = "unverified-self-report"
-                    effective_expected = set(evaluated_expected)
-                    effective_forbidden = set(evaluated_forbidden)
-                    expected_loaded = effective_expected.issubset(observed)
-                    forbidden_avoided = not effective_forbidden.intersection(observed)
-                    trigger_correct = expected_loaded and forbidden_avoided
-                    terminal_status = str(metadata.get("terminal_status") or "").lower()
-                    run_succeeded = invocation["exit_code"] == 0 and not (
-                        terminal_status == "failed"
-                        or terminal_status == "error"
-                        or terminal_status.startswith("error_")
-                    )
-                    raw_path = None
-                    if keep_raw:
-                        raw_dir.mkdir(parents=True, exist_ok=True)
-                        persistent_raw.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copytree(raw_dir, persistent_raw)
-                        raw_path = persistent_raw.relative_to(root).as_posix()
-                    run_home.cleanup()
-                    record.update(
-                        {
-                            "status": "completed" if run_succeeded else "failed",
-                            "install_commands": install_run["commands"],
-                            "installed_skills": install_run["installed_skills"],
-                            "install_hashes_verified": install_run["hashes_verified"],
-                            "installed_skill_sha256": install_run.get(
-                                "installed_skill_sha256", {}
-                            ),
-                            "installed_pack_sha256": install_run.get(
-                                "installed_pack_sha256"
-                            ),
-                            "agent_visible_install_root": install_run.get(
-                                "agent_visible_install_root"
-                            ),
-                            "installed_metadata_budget": install_run.get(
-                                "installed_metadata_budget"
-                            ),
-                            "loaded_skills": sorted(loaded),
-                            "visible_skills": sorted(visible),
-                            "observed_skills": sorted(observed),
-                            "observation_evidence": evidence,
-                            "claimed_skill": claimed,
-                            "expected_loaded": expected_loaded,
-                            "forbidden_avoided": forbidden_avoided,
-                            "unexpected_loaded_skills": sorted(
-                                observed - effective_expected
-                            ),
-                            "trigger_correct": trigger_correct,
-                            "rubric_earned": earned,
-                            "rubric_total": total,
-                            "forbidden_claims_found": claim_violations,
-                            "final_output": final_output,
-                            "raw_path": raw_path,
-                            **metadata,
-                            **invocation,
-                        }
-                    )
-                    checkpoint(record)
+                    checkpoint(_execute_record(context, case, agent, current_profile, run_number))
 
-    tool_versions = {
-        "codex": None
-        if dry_run
-        else _version(["codex", "--version"], home=npx_home),
-        "claude-code": None
-        if dry_run
-        else _version(["claude", "--version"], home=npx_home),
-        "skills": None
-        if dry_run
-        else _version(
-            ["npx", "--yes", SKILLS_CLI_PACKAGE, "--version"],
-            home=npx_home,
-        ),
-    }
-    if npx_home is not None:
-        shutil.rmtree(npx_home, ignore_errors=True)
-
-    report: dict[str, Any] = {
-        "schema_version": 1,
-        "mode": mode,
-        "created_at": datetime.now(UTC).isoformat(),
-        "dry_run": dry_run,
-        "agents": agents,
-        "profile": profile,
-        "repeat": repeat,
-        "execution_plan": {
-            "processes": len(cases) * len(agents) * repeat * len(profiles),
-            "claude_calls": (
-                len(cases) * repeat * len(profiles) if "claude-code" in agents else 0
-            ),
-            "claude_soft_cap_sum_usd": round(
-                len(cases)
-                * repeat
-                * len(profiles)
-                * max_budget_usd
-                * (1 if "claude-code" in agents else 0),
-                4,
-            ),
-        },
-        "raw_traces_kept": keep_raw,
-        "corpus_identity": corpus_identity,
-        "requested_models": models or {},
-        "tool_versions": tool_versions,
-        "cases": serialized_cases,
-        "records": records,
-        "summary": _summary(records),
-    }
-    if mode == "quality":
-        report["quality_comparisons"] = (
-            [] if profile == "index-ab" else _quality_comparisons(records, profile)
-        )
-    if profile == "index-ab":
-        report["index_comparisons"] = _index_comparisons(records)
-    (root / "report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-    (root / "report.md").write_text(_markdown_report(report), encoding="utf-8")
+    report = _evaluation_report(context, cases, profiles, records)
+    if context.npx_home is not None:
+        shutil.rmtree(context.npx_home, ignore_errors=True)
+    _write_report(report, root)
     return report, root

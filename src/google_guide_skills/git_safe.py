@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 def command(*args: str) -> list[str]:
+    """Build a Git command with hooks and filesystem monitoring disabled."""
     return [
         "git",
         "-c",
@@ -19,6 +20,7 @@ def command(*args: str) -> list[str]:
 
 
 def environment(checkout: Path | None = None) -> dict[str, str]:
+    """Build a minimal Git environment isolated from user configuration."""
     allowed = {
         "PATH",
         "LANG",
@@ -49,6 +51,7 @@ def environment(checkout: Path | None = None) -> dict[str, str]:
 
 
 def git_dir_is_safe(checkout: Path) -> bool:
+    """Return whether the checkout has a real, symlink-free .git directory."""
     git_dir = checkout / ".git"
     return (
         git_dir.is_dir()
@@ -57,11 +60,68 @@ def git_dir_is_safe(checkout: Path) -> bool:
     )
 
 
-def repository_config_problem(
-    checkout: Path, expected_url: str, default_branch: str
-) -> str | None:
-    """Return why an untrusted checkout's local config is unsafe, if anything."""
+def _config_policy(
+    section: str, expected_url: str, default_branch: str
+) -> tuple[dict[str, set[str]], set[str]] | None:
+    if section == "core":
+        return (
+            {
+                "repositoryformatversion": {"0", "1"},
+                "filemode": {"true", "false"},
+                "bare": {"false"},
+                "logallrefupdates": {"true"},
+                "ignorecase": {"true", "false"},
+                "precomposeunicode": {"true", "false"},
+            },
+            {"repositoryformatversion", "bare"},
+        )
+    if section == 'remote "origin"':
+        return (
+            {
+                "url": {expected_url, expected_url.removesuffix(".git")},
+                "fetch": {
+                    "+refs/heads/*:refs/remotes/origin/*",
+                    f"+refs/heads/{default_branch}:refs/remotes/origin/{default_branch}",
+                },
+                "promisor": {"true"},
+                "partialclonefilter": {"blob:none"},
+            },
+            {"url", "fetch"},
+        )
+    if section == f'branch "{default_branch.lower()}"':
+        return (
+            {"remote": {"origin"}, "merge": {f"refs/heads/{default_branch}"}},
+            {"remote", "merge"},
+        )
+    return None
 
+
+def _section_problem(
+    parser: configparser.ConfigParser,
+    section: str,
+    expected_url: str,
+    default_branch: str,
+) -> str | None:
+    normalized = section.lower()
+    policy = _config_policy(normalized, expected_url, default_branch)
+    if policy is None:
+        return f"forbidden section [{section}] in .git/config"
+    allowed, required = policy
+    values = {key.lower(): value.strip() for key, value in parser.items(section)}
+    unknown = sorted(set(values) - set(allowed))
+    if unknown:
+        return f"forbidden key {normalized}.{unknown[0]} in .git/config"
+    missing = sorted(required - set(values))
+    if missing:
+        return f"missing key {normalized}.{missing[0]} in .git/config"
+    for key, value in values.items():
+        if value not in allowed[key]:
+            return f"unsafe value for {normalized}.{key} in .git/config"
+    return None
+
+
+def repository_config_problem(checkout: Path, expected_url: str, default_branch: str) -> str | None:
+    """Return why an untrusted checkout's local config is unsafe, if anything."""
     config_path = checkout / ".git" / "config"
     if config_path.is_symlink() or not config_path.is_file():
         return "missing or symlinked .git/config"
@@ -73,54 +133,10 @@ def repository_config_problem(
         return f"unreadable .git/config: {exc}"
     if parser.defaults():
         return "DEFAULT entries are forbidden in .git/config"
-
-    expected_sections = {
-        "core",
-        'remote "origin"',
-        f'branch "{default_branch.lower()}"',
-    }
     for section in parser.sections():
-        normalized_section = section.lower()
-        if normalized_section not in expected_sections:
-            return f"forbidden section [{section}] in .git/config"
-        values = {key.lower(): value.strip() for key, value in parser.items(section)}
-        if normalized_section == "core":
-            allowed = {
-                "repositoryformatversion": {"0", "1"},
-                "filemode": {"true", "false"},
-                "bare": {"false"},
-                "logallrefupdates": {"true"},
-                "ignorecase": {"true", "false"},
-                "precomposeunicode": {"true", "false"},
-            }
-            required = {"repositoryformatversion", "bare"}
-        elif normalized_section == 'remote "origin"':
-            accepted_urls = {expected_url, expected_url.removesuffix(".git")}
-            allowed = {
-                "url": accepted_urls,
-                "fetch": {
-                    "+refs/heads/*:refs/remotes/origin/*",
-                    f"+refs/heads/{default_branch}:refs/remotes/origin/{default_branch}",
-                },
-                "promisor": {"true"},
-                "partialclonefilter": {"blob:none"},
-            }
-            required = {"url", "fetch"}
-        else:
-            allowed = {
-                "remote": {"origin"},
-                "merge": {f"refs/heads/{default_branch}"},
-            }
-            required = {"remote", "merge"}
-        unknown = sorted(set(values) - set(allowed))
-        if unknown:
-            return f"forbidden key {normalized_section}.{unknown[0]} in .git/config"
-        missing = sorted(required - set(values))
-        if missing:
-            return f"missing key {normalized_section}.{missing[0]} in .git/config"
-        for key, value in values.items():
-            if value not in allowed[key]:
-                return f"unsafe value for {normalized_section}.{key} in .git/config"
+        problem = _section_problem(parser, section, expected_url, default_branch)
+        if problem:
+            return problem
     if "core" not in {section.lower() for section in parser.sections()}:
         return "missing [core] section in .git/config"
     return None

@@ -17,9 +17,5 @@ class BuildError(GoogleGuideSkillsError):
     """Raised when source material cannot be converted into a skill."""
 
 
-class ValidationError(GoogleGuideSkillsError):
-    """Raised when generated artifacts violate a required invariant."""
-
-
 class EvaluationError(GoogleGuideSkillsError):
     """Raised when an evaluation corpus or fresh-agent run is invalid."""

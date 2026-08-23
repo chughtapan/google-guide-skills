@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import tempfile
 import textwrap
+from dataclasses import dataclass
 from pathlib import Path
 
 from . import __version__
@@ -20,7 +21,7 @@ from .errors import BuildError
 from .git_safe import command as git_command
 from .git_safe import environment as git_environment
 from .git_safe import git_dir_is_safe, repository_config_problem
-from .models import Artifact, BuiltSkill, Collection, LicenseInfo, Manifest
+from .models import Artifact, BuiltSkill, Collection, LicenseInfo, Manifest, Repository
 from .path_policy import require_safe_project_path
 from .project_license import (
     PROJECT_LICENSE_SHA256,
@@ -31,9 +32,7 @@ from .project_license import (
 from .sources import checkout_path, sync
 
 GLOB_CHARS = frozenset("*?[")
-ALLOWED_SUPPLEMENTAL_LICENSES = {
-    ("Apache-2.0", "LICENSE"): PROJECT_LICENSE_SHA256
-}
+ALLOWED_SUPPLEMENTAL_LICENSES = {("Apache-2.0", "LICENSE"): PROJECT_LICENSE_SHA256}
 MANDATORY_SOURCE_PATH_RULES = {
     "resources/swe-book/html/**": (
         "local-only",
@@ -46,9 +45,18 @@ MANDATORY_SOURCE_PATH_RULES = {
 }
 
 
+@dataclass(frozen=True)
+class _PreparedSources:
+    running_python: str
+    repository: Repository
+    checkout: Path
+    inputs: tuple[Path, ...]
+    license_info: LicenseInfo
+    matched_path_policies: tuple[dict[str, str], ...]
+
+
 def assert_canonical_runtime(manifest: Manifest) -> str:
     """Reject non-canonical generation before source sync or output mutation."""
-
     running_python = platform.python_version()
     if running_python != manifest.canonical_python:
         raise BuildError(
@@ -87,7 +95,6 @@ def _is_within(path: Path, parent: Path) -> bool:
 
 def _assert_safe_output_root(manifest: Manifest, distribution: str) -> Path:
     """Reject symlinked or physically overlapping generated roots before writing."""
-
     output_root = require_safe_project_path(
         manifest.project_root,
         manifest.root_for(distribution),
@@ -109,11 +116,8 @@ def _evidence_file(path: Path, checkout: Path, context: str) -> Path:
     return path
 
 
-def _assert_matches_revision(
-    path: Path, checkout: Path, revision: str, context: str
-) -> None:
+def _assert_matches_revision(path: Path, checkout: Path, revision: str, context: str) -> None:
     """Require bytes to come from a tracked regular file at the pinned commit."""
-
     try:
         relative = path.relative_to(checkout).as_posix()
     except ValueError as exc:
@@ -233,9 +237,7 @@ def _license_notice(license_info: LicenseInfo, checkout: Path) -> str:
     if license_info.warning:
         header.extend(["", f"WARNING: {license_info.warning}"])
     if license_info.evidence_path:
-        evidence = _evidence_file(
-            checkout / license_info.evidence_path, checkout, "license notice"
-        )
+        evidence = _evidence_file(checkout / license_info.evidence_path, checkout, "license notice")
         header.extend(
             [
                 "",
@@ -259,7 +261,6 @@ def verify_license_evidence(
     manifest: Manifest, collection: Collection, checkout: Path
 ) -> LicenseInfo:
     """Fail closed if required repository or file-level license evidence disappears."""
-
     license_info = manifest.license_for(collection)
     if collection.distribution == "committed" and not license_info.allow_committed_output:
         raise BuildError(
@@ -370,15 +371,7 @@ def _replace_generated_directory(staged: Path, target: Path, output_root: Path) 
     staged.replace(target)
 
 
-def build_skill(
-    manifest: Manifest,
-    collection: Collection,
-    artifact: Artifact,
-) -> BuiltSkill:
-    """Build one artifact into its policy-selected root."""
-
-    running_python = assert_canonical_runtime(manifest)
-
+def _verified_checkout(manifest: Manifest, collection: Collection) -> tuple[Repository, Path]:
     repository = manifest.repositories[collection.repository]
     checkout = require_safe_project_path(
         manifest.project_root,
@@ -388,131 +381,193 @@ def build_skill(
     )
     if not git_dir_is_safe(checkout):
         raise BuildError(f"Missing checkout for {repository.id}; run `google-guides sync` first")
-    config_problem = repository_config_problem(
-        checkout, repository.url, repository.default_branch
-    )
+    config_problem = repository_config_problem(checkout, repository.url, repository.default_branch)
     if config_problem:
-        raise BuildError(
-            f"Checkout {repository.id} has unsafe local Git config: {config_problem}"
-        )
+        raise BuildError(f"Checkout {repository.id} has unsafe local Git config: {config_problem}")
     revision = subprocess_revision(checkout)
     if revision != repository.revision:
         raise BuildError(
             f"Checkout {repository.id} is at {revision}, expected pinned {repository.revision}"
         )
+    return repository, checkout
+
+
+def _prepare_sources(
+    manifest: Manifest,
+    collection: Collection,
+    artifact: Artifact,
+    running_python: str,
+) -> _PreparedSources:
+    repository, checkout = _verified_checkout(manifest, collection)
     license_info = verify_license_evidence(manifest, collection, checkout)
     inputs = _expand_inputs(checkout, artifact)
-    matched_path_policies = _enforce_source_path_policies(
-        manifest, collection, inputs, checkout
-    )
+    matched_policies = _enforce_source_path_policies(manifest, collection, inputs, checkout)
     for source_path in inputs:
-        _assert_matches_revision(
-            source_path,
-            checkout,
-            repository.revision,
-            artifact.name,
-        )
+        _assert_matches_revision(source_path, checkout, repository.revision, artifact.name)
     for supplemental in artifact.supplemental_licenses:
-        if not any(
+        has_evidence = any(
             supplemental.evidence_contains.lower()
             in source_path.read_text(encoding="utf-8").lower()
             for source_path in inputs
-        ):
+        )
+        if not has_evidence:
             raise BuildError(
                 f"{artifact.name}: supplemental {supplemental.spdx} evidence disappeared"
             )
+    return _PreparedSources(
+        running_python=running_python,
+        repository=repository,
+        checkout=checkout,
+        inputs=tuple(inputs),
+        license_info=license_info,
+        matched_path_policies=tuple(matched_policies),
+    )
+
+
+def _convert_inputs(
+    artifact: Artifact,
+    inputs: tuple[Path, ...],
+    checkout: Path,
+    references_dir: Path,
+) -> tuple[list[tuple[str, str, str]], list[dict[str, str]], list[tuple[str, str]]]:
+    converted: list[tuple[str, str, str]] = []
+    provenance_inputs: list[dict[str, str]] = []
+    reference_links: list[tuple[str, str]] = []
+    used_reference_names: set[str] = set()
+    for source_path in inputs:
+        relative = source_path.relative_to(checkout).as_posix()
+        markdown, mode = source_to_markdown(source_path)
+        converted.append((relative, markdown, mode))
+        provenance_inputs.append(
+            {"path": relative, "sha256": _sha256(source_path), "conversion": mode}
+        )
+        if artifact.layout != "references":
+            continue
+        reference_name = _reference_name(relative)
+        if reference_name in used_reference_names:
+            raise BuildError(f"{artifact.name}: reference filename collision for {relative}")
+        used_reference_names.add(reference_name)
+        (references_dir / reference_name).write_text(markdown, encoding="utf-8")
+        reference_links.append((relative, reference_name))
+    return converted, provenance_inputs, reference_links
+
+
+def _write_licenses(
+    manifest: Manifest,
+    artifact: Artifact,
+    prepared: _PreparedSources,
+    references_dir: Path,
+) -> None:
+    license_notice = _license_notice(prepared.license_info, prepared.checkout)
+    if artifact.license_note:
+        license_notice = (
+            f"{license_notice.rstrip()}\n\n"
+            f"Artifact-specific license note: {artifact.license_note}\n"
+        )
+    (references_dir / "LICENSE.txt").write_text(license_notice, encoding="utf-8")
+    shutil.copyfile(
+        verified_project_license(manifest.project_root, error_type=BuildError),
+        references_dir / WRAPPER_LICENSE_FILENAME,
+    )
+    for supplemental in artifact.supplemental_licenses:
+        source = _project_license_file(
+            manifest,
+            supplemental.spdx,
+            supplemental.license_file,
+            supplemental.sha256,
+            artifact.name,
+        )
+        shutil.copyfile(source, references_dir / f"LICENSE-{supplemental.spdx}.txt")
+
+
+def _source_metadata(
+    collection: Collection,
+    artifact: Artifact,
+    prepared: _PreparedSources,
+    provenance_inputs: list[dict[str, str]],
+) -> dict[str, object]:
+    return {
+        "artifact": artifact.name,
+        "collection": collection.id,
+        "distribution": collection.distribution,
+        "generated_by": f"google-guide-skills/{__version__}",
+        "generator_runtime": {
+            "python": prepared.running_python,
+            "beautifulsoup4": importlib.metadata.version("beautifulsoup4"),
+            "lxml": importlib.metadata.version("lxml"),
+            "markdownify": importlib.metadata.version("markdownify"),
+        },
+        "inputs": provenance_inputs,
+        "license": prepared.license_info.to_dict(),
+        "license_note": artifact.license_note,
+        "wrapper_license": wrapper_license_metadata(),
+        "supplemental_licenses": [
+            supplemental.to_dict() for supplemental in artifact.supplemental_licenses
+        ],
+        "repository": {
+            "id": prepared.repository.id,
+            "url": prepared.repository.url,
+            "revision": prepared.repository.revision,
+        },
+        "source_path_policies": list(prepared.matched_path_policies),
+    }
+
+
+def _stage_skill(
+    manifest: Manifest,
+    collection: Collection,
+    artifact: Artifact,
+    prepared: _PreparedSources,
+    staged: Path,
+) -> list[dict[str, str]]:
+    references_dir = staged / "references"
+    references_dir.mkdir(parents=True)
+    converted, provenance_inputs, reference_links = _convert_inputs(
+        artifact, prepared.inputs, prepared.checkout, references_dir
+    )
+    skill_text = (
+        _render_inline(artifact, converted)
+        if artifact.layout == "inline"
+        else _render_references(artifact, reference_links)
+    )
+    (staged / "SKILL.md").write_text(skill_text, encoding="utf-8")
+    _write_licenses(
+        manifest,
+        artifact,
+        prepared,
+        references_dir,
+    )
+    _write_json(
+        references_dir / "source.json",
+        _source_metadata(
+            collection,
+            artifact,
+            prepared,
+            provenance_inputs,
+        ),
+    )
+    return provenance_inputs
+
+
+def build_skill(
+    manifest: Manifest,
+    collection: Collection,
+    artifact: Artifact,
+) -> BuiltSkill:
+    """Build one artifact into its policy-selected root."""
+    running_python = assert_canonical_runtime(manifest)
+    prepared = _prepare_sources(manifest, collection, artifact, running_python)
     output_root = _assert_safe_output_root(manifest, collection.distribution)
     output_root.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix=f".{artifact.name}-", dir=output_root) as temporary:
         staged = Path(temporary) / artifact.name
-        references_dir = staged / "references"
-        references_dir.mkdir(parents=True)
-        converted: list[tuple[str, str, str]] = []
-        provenance_inputs: list[dict[str, str]] = []
-        reference_links: list[tuple[str, str]] = []
-        used_reference_names: set[str] = set()
-
-        for source_path in inputs:
-            relative = source_path.relative_to(checkout).as_posix()
-            markdown, mode = source_to_markdown(source_path)
-            converted.append((relative, markdown, mode))
-            provenance_inputs.append(
-                {
-                    "path": relative,
-                    "sha256": _sha256(source_path),
-                    "conversion": mode,
-                }
-            )
-            if artifact.layout == "references":
-                reference_name = _reference_name(relative)
-                if reference_name in used_reference_names:
-                    raise BuildError(
-                        f"{artifact.name}: reference filename collision for {relative}"
-                    )
-                used_reference_names.add(reference_name)
-                (references_dir / reference_name).write_text(markdown, encoding="utf-8")
-                reference_links.append((relative, reference_name))
-
-        skill_text = (
-            _render_inline(artifact, converted)
-            if artifact.layout == "inline"
-            else _render_references(artifact, reference_links)
-        )
-        (staged / "SKILL.md").write_text(skill_text, encoding="utf-8")
-        license_notice = _license_notice(license_info, checkout)
-        if artifact.license_note:
-            license_notice = (
-                license_notice.rstrip()
-                + "\n\nArtifact-specific license note: "
-                + artifact.license_note
-                + "\n"
-            )
-        (references_dir / "LICENSE.txt").write_text(license_notice, encoding="utf-8")
-        shutil.copyfile(
-            verified_project_license(manifest.project_root, error_type=BuildError),
-            references_dir / WRAPPER_LICENSE_FILENAME,
-        )
-        for supplemental in artifact.supplemental_licenses:
-            license_source = _project_license_file(
-                manifest,
-                supplemental.spdx,
-                supplemental.license_file,
-                supplemental.sha256,
-                artifact.name,
-            )
-            shutil.copyfile(
-                license_source,
-                references_dir / f"LICENSE-{supplemental.spdx}.txt",
-            )
-        _write_json(
-            references_dir / "source.json",
-            {
-                "artifact": artifact.name,
-                "collection": collection.id,
-                "distribution": collection.distribution,
-                "generated_by": f"google-guide-skills/{__version__}",
-                "generator_runtime": {
-                    "python": running_python,
-                    "beautifulsoup4": importlib.metadata.version("beautifulsoup4"),
-                    "lxml": importlib.metadata.version("lxml"),
-                    "markdownify": importlib.metadata.version("markdownify"),
-                },
-                "inputs": provenance_inputs,
-                "license": license_info.to_dict(),
-                "license_note": artifact.license_note,
-                "wrapper_license": wrapper_license_metadata(),
-                "supplemental_licenses": [
-                    supplemental.to_dict()
-                    for supplemental in artifact.supplemental_licenses
-                ],
-                "repository": {
-                    "id": repository.id,
-                    "url": repository.url,
-                    "revision": repository.revision,
-                },
-                "source_path_policies": matched_path_policies,
-            },
+        provenance_inputs = _stage_skill(
+            manifest,
+            collection,
+            artifact,
+            prepared,
+            staged,
         )
         target = output_root / artifact.name
         _replace_generated_directory(staged, target, output_root)
@@ -527,6 +582,7 @@ def build_skill(
 
 
 def subprocess_revision(checkout: Path) -> str:
+    """Return the checkout's current commit SHA."""
     completed = subprocess.run(
         git_command("rev-parse", "HEAD"),
         cwd=checkout,
@@ -538,6 +594,63 @@ def subprocess_revision(checkout: Path) -> str:
     return completed.stdout.strip()
 
 
+def _selected_collections(
+    manifest: Manifest, collection_ids: list[str] | None, include_local: bool
+) -> list[str]:
+    selected = collection_ids or list(manifest.collections)
+    unknown = sorted(set(selected) - set(manifest.collections))
+    if unknown:
+        raise BuildError(f"Unknown collections: {', '.join(unknown)}")
+    blocked = sorted(
+        collection_id
+        for collection_id in selected
+        if manifest.collections[collection_id].distribution == "local-only" and not include_local
+    )
+    if collection_ids and blocked:
+        raise BuildError(
+            "Explicit local-only collections require --include-swe-book: " + ", ".join(blocked)
+        )
+    return selected
+
+
+def _selected_artifacts(manifest: Manifest, artifact_names: list[str] | None) -> set[str]:
+    selected = set(artifact_names or [])
+    known = {
+        artifact.name
+        for collection in manifest.collections.values()
+        for artifact in collection.artifacts
+    }
+    unknown = sorted(selected - known)
+    if unknown:
+        raise BuildError(f"Unknown artifacts: {', '.join(unknown)}")
+    return selected
+
+
+def _build_pairs(
+    manifest: Manifest,
+    collection_ids: list[str],
+    artifact_names: set[str],
+    include_local: bool,
+) -> list[tuple[Collection, Artifact]]:
+    pairs: list[tuple[Collection, Artifact]] = []
+    for collection_id in collection_ids:
+        collection = manifest.collections[collection_id]
+        if collection.distribution == "local-only" and not include_local:
+            continue
+        pairs.extend(
+            (collection, artifact)
+            for artifact in collection.artifacts
+            if not artifact_names or artifact.name in artifact_names
+        )
+    omitted = sorted(artifact_names - {artifact.name for _collection, artifact in pairs})
+    if omitted:
+        raise BuildError(
+            "Selected artifacts are outside the selected collections or local-only policy: "
+            + ", ".join(omitted)
+        )
+    return pairs
+
+
 def build(
     manifest: Manifest,
     collection_ids: list[str] | None = None,
@@ -546,51 +659,10 @@ def build(
     sync_first: bool = True,
 ) -> list[BuiltSkill]:
     """Build selected skills; local-only material remains in its ignored root."""
-
     assert_canonical_runtime(manifest)
-
-    selected_collections = collection_ids or list(manifest.collections)
-    unknown_collections = sorted(set(selected_collections) - set(manifest.collections))
-    if unknown_collections:
-        raise BuildError(f"Unknown collections: {', '.join(unknown_collections)}")
-    blocked_collections = sorted(
-        collection_id
-        for collection_id in selected_collections
-        if manifest.collections[collection_id].distribution == "local-only" and not include_local
-    )
-    if collection_ids and blocked_collections:
-        raise BuildError(
-            "Explicit local-only collections require --include-swe-book: "
-            + ", ".join(blocked_collections)
-        )
-    selected_artifacts = set(artifact_names or [])
-    all_artifact_names = {
-        artifact.name
-        for collection in manifest.collections.values()
-        for artifact in collection.artifacts
-    }
-    unknown_artifacts = sorted(selected_artifacts - all_artifact_names)
-    if unknown_artifacts:
-        raise BuildError(f"Unknown artifacts: {', '.join(unknown_artifacts)}")
-
-    build_pairs: list[tuple[Collection, Artifact]] = []
-    for collection_id in selected_collections:
-        collection = manifest.collections[collection_id]
-        if collection.distribution == "local-only" and not include_local:
-            continue
-        for artifact in collection.artifacts:
-            if selected_artifacts and artifact.name not in selected_artifacts:
-                continue
-            build_pairs.append((collection, artifact))
-    if artifact_names:
-        built_names = {artifact.name for _collection, artifact in build_pairs}
-        omitted = sorted(selected_artifacts - built_names)
-        if omitted:
-            raise BuildError(
-                "Selected artifacts are outside the selected collections or local-only policy: "
-                + ", ".join(omitted)
-            )
-
+    selected_collections = _selected_collections(manifest, collection_ids, include_local)
+    selected_artifacts = _selected_artifacts(manifest, artifact_names)
+    build_pairs = _build_pairs(manifest, selected_collections, selected_artifacts, include_local)
     if sync_first:
         repository_ids = list(dict.fromkeys(pair[0].repository for pair in build_pairs))
         sync(manifest, repository_ids)

@@ -24,7 +24,7 @@ from google_guide_skills.errors import (
     ManifestError,
     SourceError,
 )
-from google_guide_skills.models import Artifact, Manifest, SourcePathPolicy
+from google_guide_skills.models import Artifact, Manifest, SourcePathPolicy, SupplementalLicense
 
 
 def _license(
@@ -125,9 +125,7 @@ def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
 
 def _write_manifest(project: Path, data: dict[str, object]) -> Manifest:
     project.mkdir(parents=True, exist_ok=True)
-    (project / "LICENSE").write_bytes(
-        (Path(__file__).parents[1] / "LICENSE").read_bytes()
-    )
+    (project / "LICENSE").write_bytes((Path(__file__).parents[1] / "LICENSE").read_bytes())
     path = project / "corpus.yaml"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     return manifest.load_manifest(path)
@@ -471,9 +469,9 @@ def test_build_skill_writes_content_license_and_exact_provenance(
     assert provenance["generator_runtime"]["python"] == loaded.canonical_python
     assert provenance["wrapper_license"]["spdx"] == "Apache-2.0"
     wrapper = result.path / provenance["wrapper_license"]["path"]
-    assert hashlib.sha256(wrapper.read_bytes()).hexdigest() == provenance[
-        "wrapper_license"
-    ]["sha256"]
+    assert (
+        hashlib.sha256(wrapper.read_bytes()).hexdigest() == provenance["wrapper_license"]["sha256"]
+    )
 
 
 def test_build_skill_keeps_restricted_material_in_local_root(
@@ -509,6 +507,46 @@ def test_validation_requires_generated_provenance_and_license(
     issues = validation.validate(generated_project)
 
     assert any(issue.severity == "error" and issue.path.endswith(missing_name) for issue in issues)
+
+
+def test_validation_rejects_a_stale_supplemental_license(
+    generated_project: Manifest,
+) -> None:
+    project_license = generated_project.project_root / "LICENSE"
+    supplemental = SupplementalLicense(
+        spdx="Apache-2.0",
+        name="Apache License 2.0",
+        url="https://www.apache.org/licenses/LICENSE-2.0",
+        attribution="Test project contributors",
+        scope="Code samples",
+        license_file="LICENSE",
+        evidence_contains="Keep this text verbatim.",
+        sha256=hashlib.sha256(project_license.read_bytes()).hexdigest(),
+    )
+    collection = generated_project.collections["public-guides"]
+    artifact = replace(collection.artifacts[0], supplemental_licenses=(supplemental,))
+    collection = replace(collection, artifacts=(artifact,))
+    loaded = replace(
+        generated_project,
+        collections={**generated_project.collections, collection.id: collection},
+    )
+    references = loaded.root_for("committed") / artifact.name / "references"
+    supplemental_path = references / "LICENSE-Apache-2.0.txt"
+    shutil.copyfile(project_license, supplemental_path)
+    source_path = references / "source.json"
+    provenance = json.loads(source_path.read_text(encoding="utf-8"))
+    provenance["supplemental_licenses"] = [supplemental.to_dict()]
+    source_path.write_text(json.dumps(provenance), encoding="utf-8")
+
+    assert not any(
+        "Supplemental source license" in issue.message for issue in validation.validate(loaded)
+    )
+    supplemental_path.write_text("changed\n", encoding="utf-8")
+
+    assert any(
+        issue.severity == "error" and "Supplemental source license" in issue.message
+        for issue in validation.validate(loaded)
+    )
 
 
 def test_build_skill_is_deterministic_and_protects_unmanaged_directories(
@@ -595,7 +633,7 @@ def test_build_rejects_a_symlinked_source_checkout(
 
 
 def test_build_enforces_source_path_distribution_policies(
-    built_project: tuple[Manifest, Path]
+    built_project: tuple[Manifest, Path],
 ) -> None:
     loaded, checkout = built_project
     guarded = replace(
@@ -789,12 +827,11 @@ def test_write_catalog_links_only_generated_committed_skills(
         loaded.project_root / "skills" / "google-guides-index" / "SKILL.md"
     ).read_text(encoding="utf-8")
     index_references = loaded.project_root / "skills/google-guides-index/references"
-    index_provenance = json.loads(
-        (index_references / "source.json").read_text(encoding="utf-8")
-    )
+    index_provenance = json.loads((index_references / "source.json").read_text(encoding="utf-8"))
     assert index_provenance["collection"] == "authored-index"
-    assert hashlib.sha256((index_references / "LICENSE.txt").read_bytes()).hexdigest() == (
-        index_provenance["license"]["sha256"]
+    assert (
+        hashlib.sha256((index_references / "LICENSE.txt").read_bytes()).hexdigest()
+        == (index_provenance["license"]["sha256"])
     )
 
 
@@ -900,9 +937,7 @@ def test_validation_does_not_trust_a_global_git_excludes_file(
     excludes = tmp_path / "global-excludes"
     excludes.write_text(".generated/\n", encoding="utf-8")
     global_config = tmp_path / "global-gitconfig"
-    global_config.write_text(
-        f"[core]\n\texcludesFile = {excludes.as_posix()}\n", encoding="utf-8"
-    )
+    global_config.write_text(f"[core]\n\texcludesFile = {excludes.as_posix()}\n", encoding="utf-8")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
     ambient = subprocess.run(
         ["git", "check-ignore", "--quiet", ".generated/skills"],
@@ -1101,15 +1136,13 @@ def test_sources_refuse_non_git_wrong_remote_and_dirty_checkout(
 
 
 def test_source_cache_rejects_replace_refs_and_disables_checkout_hooks(
-    built_project: tuple[Manifest, Path]
+    built_project: tuple[Manifest, Path],
 ) -> None:
     loaded, checkout = built_project
     repository = loaded.repositories["example-repo"]
     replacement_dir = checkout / ".git" / "refs" / "replace"
     replacement_dir.mkdir(parents=True)
-    (replacement_dir / repository.revision).write_text(
-        repository.revision + "\n", encoding="utf-8"
-    )
+    (replacement_dir / repository.revision).write_text(repository.revision + "\n", encoding="utf-8")
     with pytest.raises(SourceError, match="replacement refs"):
         sources.sync_repository(loaded, repository)
 

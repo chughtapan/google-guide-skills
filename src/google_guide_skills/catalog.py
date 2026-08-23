@@ -15,6 +15,7 @@ from .project_license import verified_project_license, wrapper_license_metadata
 
 
 def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
+    """Build catalog records from every generated and catalog-only entry."""
     records: list[dict[str, object]] = []
     for collection, artifact in manifest.artifacts(include_local=True):
         repository = manifest.repositories[collection.repository]
@@ -35,8 +36,7 @@ def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
                 "license": license_info.spdx,
                 "wrapper_license": wrapper_license_metadata(),
                 "supplemental_licenses": [
-                    supplemental.to_dict()
-                    for supplemental in artifact.supplemental_licenses
+                    supplemental.to_dict() for supplemental in artifact.supplemental_licenses
                 ],
                 "source": repository.url,
                 "revision": repository.revision,
@@ -65,6 +65,7 @@ def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
 def render_catalog_markdown(
     records: list[dict[str, object]], *, from_index_skill: bool = False
 ) -> str:
+    """Render catalog records as a Markdown table."""
     lines = [
         "# Google Guides Skill Catalog",
         "",
@@ -108,6 +109,7 @@ def render_catalog_markdown(
 
 
 def render_index_skill() -> str:
+    """Render the project-authored routing skill."""
     return """---
 name: google-guides-index
 description: >-
@@ -135,8 +137,7 @@ their scopes distinct.
 """
 
 
-def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
-    records = catalog_records(manifest)
+def _catalog_paths(manifest: Manifest) -> tuple[Path, Path]:
     catalog_dir = require_safe_project_path(
         manifest.project_root,
         manifest.project_root / "catalog",
@@ -153,6 +154,12 @@ def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
             context="Catalog output",
             error_type=GoogleGuideSkillsError,
         )
+    return json_path, markdown_path
+
+
+def _write_catalog_files(
+    records: list[dict[str, object]], json_path: Path, markdown_path: Path
+) -> None:
     json_path.write_text(
         json.dumps(
             {
@@ -167,9 +174,10 @@ def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
         + "\n",
         encoding="utf-8",
     )
-    markdown = render_catalog_markdown(records)
-    markdown_path.write_text(markdown, encoding="utf-8")
+    markdown_path.write_text(render_catalog_markdown(records), encoding="utf-8")
 
+
+def _index_paths(manifest: Manifest) -> tuple[Path, Path, Path, Path]:
     index_dir = require_safe_project_path(
         manifest.project_root,
         manifest.project_root / "skills" / "google-guides-index",
@@ -195,6 +203,30 @@ def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
             context="Index skill output",
             error_type=GoogleGuideSkillsError,
         )
+    return skill_path, reference_path, license_path, source_path
+
+
+def _index_provenance(manifest: Manifest) -> dict[str, object]:
+    return {
+        "artifact": "google-guides-index",
+        "authorship": "Project-authored routing index generated from corpus.yaml.",
+        "collection": "authored-index",
+        "distribution": "committed",
+        "generated_by": f"google-guide-skills/{__version__}",
+        "license": wrapper_license_metadata("references/LICENSE.txt"),
+        "source_manifest": {
+            "path": "corpus.yaml",
+            "sha256": sha256((manifest.project_root / "corpus.yaml").read_bytes()).hexdigest(),
+        },
+    }
+
+
+def _write_index_skill(
+    manifest: Manifest,
+    records: list[dict[str, object]],
+    paths: tuple[Path, Path, Path, Path],
+) -> None:
+    skill_path, reference_path, license_path, source_path = paths
     skill_path.write_text(render_index_skill(), encoding="utf-8")
     reference_path.write_text(
         render_catalog_markdown(records, from_index_skill=True), encoding="utf-8"
@@ -202,25 +234,15 @@ def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
     project_license = verified_project_license(manifest.project_root)
     shutil.copyfile(project_license, license_path)
     source_path.write_text(
-        json.dumps(
-            {
-                "artifact": "google-guides-index",
-                "authorship": "Project-authored routing index generated from corpus.yaml.",
-                "collection": "authored-index",
-                "distribution": "committed",
-                "generated_by": f"google-guide-skills/{__version__}",
-                "license": wrapper_license_metadata("references/LICENSE.txt"),
-                "source_manifest": {
-                    "path": "corpus.yaml",
-                    "sha256": sha256(
-                        (manifest.project_root / "corpus.yaml").read_bytes()
-                    ).hexdigest(),
-                },
-            },
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n",
+        json.dumps(_index_provenance(manifest), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
+    """Write the catalog and index skill, returning the catalog paths."""
+    records = catalog_records(manifest)
+    json_path, markdown_path = _catalog_paths(manifest)
+    _write_catalog_files(records, json_path, markdown_path)
+    _write_index_skill(manifest, records, _index_paths(manifest))
     return json_path, markdown_path

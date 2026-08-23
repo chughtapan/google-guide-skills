@@ -20,7 +20,6 @@ def _normalize_generated_markdown(value: str) -> str:
 
 def markup_to_markdown(value: str, parser: str = "html.parser") -> str:
     """Convert document-oriented HTML or XML to Markdown without summarizing it."""
-
     soup = BeautifulSoup(value, parser)
     for element in soup.select("script, style, noscript"):
         element.decompose()
@@ -43,7 +42,6 @@ def markup_to_markdown(value: str, parser: str = "html.parser") -> str:
 
 def source_to_markdown(path: Path) -> tuple[str, str]:
     """Return Markdown plus the conversion mode recorded in provenance."""
-
     text = path.read_text(encoding="utf-8")
     if path.suffix.lower() in HTML_SUFFIXES:
         parser = "xml" if path.suffix.lower() in {".xml", ".xhtml"} else "html.parser"

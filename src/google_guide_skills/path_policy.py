@@ -18,7 +18,6 @@ def require_safe_project_path(
     error_type: type[ErrorT],
 ) -> Path:
     """Reject lexical escapes and every existing symlink component."""
-
     root = project_root.resolve()
     absolute = path if path.is_absolute() else project_root / path
     try:

@@ -41,7 +41,6 @@ def metadata_budget(
     skill_dirs: list[Path], *, install_root: str = REFERENCE_INSTALL_ROOT
 ) -> dict[str, object]:
     """Measure startup metadata using a stable documented Codex list rendering."""
-
     encoding = tiktoken.get_encoding("o200k_base")
     records: list[tuple[str, str]] = []
     for skill_dir in sorted(skill_dirs):
@@ -54,8 +53,7 @@ def metadata_budget(
         if isinstance(name, str) and isinstance(description, str):
             records.append((name, " ".join(description.split())))
     rendered = "".join(
-        f"- {name}: {description} "
-        f"(file: {install_root}/{name}/SKILL.md)\n"
+        f"- {name}: {description} (file: {install_root}/{name}/SKILL.md)\n"
         for name, description in records
     )
     path_independent_chars = len(rendered) - len(records) * len(install_root)
@@ -78,7 +76,56 @@ def metadata_budget(
     }
 
 
+def _file_metrics(
+    manifest: Manifest, skill_dir: Path, path: Path, encoding: tiktoken.Encoding
+) -> dict[str, object]:
+    text = path.read_text(encoding="utf-8")
+    return {
+        "path": path.relative_to(manifest.project_root).as_posix(),
+        "skill": skill_dir.name,
+        "kind": _kind(path),
+        "bytes": len(text.encode("utf-8")),
+        "lines": len(text.splitlines()),
+        "words": len(re.findall(r"\S+", text)),
+        "tokens_o200k_base": len(encoding.encode(text)),
+    }
+
+
+def _skill_metrics(
+    manifest: Manifest,
+    root: Path,
+    skill_dir: Path,
+    files: list[dict[str, object]],
+    encoding: tiktoken.Encoding,
+) -> dict[str, object]:
+    skill_files = [
+        _file_metrics(manifest, skill_dir, path, encoding)
+        for path in sorted(skill_dir.rglob("*"))
+        if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES
+    ]
+    files.extend(skill_files)
+    skill_text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
+    skill_record = next((record for record in skill_files if record["kind"] == "skill"), None)
+
+    def tokens_for(kind: str) -> int:
+        return sum(
+            int(record["tokens_o200k_base"]) for record in skill_files if record["kind"] == kind
+        )
+
+    return {
+        "skill": skill_dir.name,
+        "distribution": "local-only" if root == manifest.root_for("local-only") else "committed",
+        "metadata_tokens_o200k_base": len(encoding.encode(_metadata_text(skill_text))),
+        "skill_md_tokens_o200k_base": skill_record["tokens_o200k_base"] if skill_record else 0,
+        "reference_tokens_o200k_base": tokens_for("reference"),
+        "license_tokens_o200k_base": tokens_for("license"),
+        "total_tokens_o200k_base": sum(int(record["tokens_o200k_base"]) for record in skill_files),
+        "files": len(skill_files),
+    }
+
+
 def collect_metrics(manifest: Manifest, include_local: bool = False) -> dict[str, object]:
+    """Measure generated text files and aggregate them by skill."""
     encoding = tiktoken.get_encoding("o200k_base")
     roots = [manifest.root_for("committed")]
     if include_local:
@@ -92,52 +139,7 @@ def collect_metrics(manifest: Manifest, include_local: bool = False) -> dict[str
             continue
         for skill_dir in sorted(path for path in root.iterdir() if path.is_dir()):
             measured_skill_dirs.append(skill_dir)
-            skill_files: list[dict[str, object]] = []
-            for path in sorted(skill_dir.rglob("*")):
-                if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
-                    continue
-                text = path.read_text(encoding="utf-8")
-                record = {
-                    "path": path.relative_to(manifest.project_root).as_posix(),
-                    "skill": skill_dir.name,
-                    "kind": _kind(path),
-                    "bytes": len(text.encode("utf-8")),
-                    "lines": len(text.splitlines()),
-                    "words": len(re.findall(r"\S+", text)),
-                    "tokens_o200k_base": len(encoding.encode(text)),
-                }
-                files.append(record)
-                skill_files.append(record)
-            skill_text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
-            skill_record = next(
-                (record for record in skill_files if record["kind"] == "skill"), None
-            )
-            skills.append(
-                {
-                    "skill": skill_dir.name,
-                    "distribution": "local-only"
-                    if root == manifest.root_for("local-only")
-                    else "committed",
-                    "metadata_tokens_o200k_base": len(encoding.encode(_metadata_text(skill_text))),
-                    "skill_md_tokens_o200k_base": skill_record["tokens_o200k_base"]
-                    if skill_record
-                    else 0,
-                    "reference_tokens_o200k_base": sum(
-                        int(record["tokens_o200k_base"])
-                        for record in skill_files
-                        if record["kind"] == "reference"
-                    ),
-                    "license_tokens_o200k_base": sum(
-                        int(record["tokens_o200k_base"])
-                        for record in skill_files
-                        if record["kind"] == "license"
-                    ),
-                    "total_tokens_o200k_base": sum(
-                        int(record["tokens_o200k_base"]) for record in skill_files
-                    ),
-                    "files": len(skill_files),
-                }
-            )
+            skills.append(_skill_metrics(manifest, root, skill_dir, files, encoding))
     return {
         "schema_version": 1,
         "encoding": "o200k_base",
@@ -154,6 +156,7 @@ def collect_metrics(manifest: Manifest, include_local: bool = False) -> dict[str
 
 
 def write_metrics(manifest: Manifest, include_local: bool = False) -> tuple[Path, Path]:
+    """Write JSON and CSV token reports for the requested distribution scope."""
     metrics = collect_metrics(manifest, include_local=include_local)
     output_dir = (
         manifest.project_root / ".generated" / "metrics"

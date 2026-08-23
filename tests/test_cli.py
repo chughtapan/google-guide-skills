@@ -149,12 +149,7 @@ def test_swe_book_install_rejects_copy_and_project_destinations(
     monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
 
     assert cli.main(["install", "--copy", "--dry-run"]) == 2
-    assert (
-        cli.main(
-            ["install", "--include-swe-book", "--project", str(tmp_path), "--dry-run"]
-        )
-        == 2
-    )
+    assert cli.main(["install", "--include-swe-book", "--project", str(tmp_path), "--dry-run"]) == 2
 
 
 def test_swe_book_install_generates_before_linking(
@@ -170,19 +165,17 @@ def test_swe_book_install_generates_before_linking(
     monkeypatch.setattr(
         cli,
         "write_metrics",
-        lambda manifest, include_local=False: calls.append(
-            ("metrics", (manifest, include_local))
-        )
-        or (),
+        lambda manifest, include_local=False: (
+            calls.append(("metrics", (manifest, include_local))) or ()
+        ),
     )
     monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
     monkeypatch.setattr(
         cli,
         "install_user_links",
-        lambda manifest, agents, **kwargs: calls.append(
-            ("install", (manifest, agents, kwargs))
-        )
-        or [],
+        lambda manifest, agents, **kwargs: (
+            calls.append(("install", (manifest, agents, kwargs))) or []
+        ),
     )
 
     assert cli.main(["install", "--include-swe-book", "--agent", "codex"]) == 0

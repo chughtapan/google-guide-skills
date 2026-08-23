@@ -33,7 +33,6 @@ class UserInstallAction:
 
 def minimal_process_env(home: Path | None = None) -> dict[str, str]:
     """Pass only runtime/network basics to third-party subprocesses."""
-
     allowed = {
         "PATH",
         "LANG",
@@ -104,20 +103,8 @@ def _user_skill_root(agent: str, user_home: Path | None) -> Path:
     return skill_root
 
 
-def install_user_links(
-    manifest: Manifest,
-    agents: list[str],
-    skills: list[str] | None = None,
-    *,
-    include_local: bool = False,
-    dry_run: bool = False,
-    user_home: Path | None = None,
-) -> list[UserInstallAction]:
-    """Symlink generated skills into user agent homes without exporting local-only bytes."""
-
-    if not agents:
-        raise GoogleGuideSkillsError("Select at least one target agent")
-    available: dict[str, tuple[Path, str]] = {
+def _available_user_skills(manifest: Manifest, include_local: bool) -> dict[str, tuple[Path, str]]:
+    available = {
         "google-guides-index": (
             manifest.root_for("committed") / "google-guides-index",
             "committed",
@@ -130,15 +117,16 @@ def install_user_links(
             manifest.root_for(collection.distribution) / artifact.name,
             collection.distribution,
         )
-    requested = set(skills) if skills is not None else set(available)
-    unknown = sorted(requested - set(available))
-    if unknown:
-        raise GoogleGuideSkillsError(
-            "Selected skills are unavailable under the current distribution policy: "
-            + ", ".join(unknown)
-        )
+    return available
 
-    source_hashes: dict[str, dict[str, str]] = {}
+
+def _resolve_user_sources(
+    manifest: Manifest,
+    available: dict[str, tuple[Path, str]],
+    requested: set[str],
+) -> tuple[dict[str, tuple[Path, str]], dict[str, dict[str, str]]]:
+    resolved = dict(available)
+    hashes: dict[str, dict[str, str]] = {}
     for name in sorted(requested):
         source, distribution = available[name]
         source = require_safe_project_path(
@@ -154,11 +142,51 @@ def install_user_links(
                 else ""
             )
             raise GoogleGuideSkillsError(f"Generated skill does not exist: {source}{hint}")
-        if (source / "SKILL.md").is_symlink() or not (source / "SKILL.md").is_file():
+        skill_file = source / "SKILL.md"
+        if skill_file.is_symlink() or not skill_file.is_file():
             raise GoogleGuideSkillsError(f"Generated skill is missing SKILL.md: {source}")
-        available[name] = (source, distribution)
-        source_hashes[name] = _checked_tree_hashes(source, f"Generated skill {name}")
+        resolved[name] = source, distribution
+        hashes[name] = _checked_tree_hashes(source, f"Generated skill {name}")
+    return resolved, hashes
 
+
+def _user_link_status(
+    destination: Path,
+    source: Path,
+    source_hashes: dict[str, str],
+    skill: str,
+    dry_run: bool,
+) -> str:
+    if destination.is_symlink():
+        try:
+            matches = destination.resolve(strict=True) == source.resolve(strict=True)
+        except FileNotFoundError:
+            matches = False
+        if not matches:
+            raise GoogleGuideSkillsError(
+                f"User skill destination is an unrelated symlink: {destination}"
+            )
+        return "already-linked"
+    if destination.exists():
+        if (
+            not destination.is_dir()
+            or _checked_tree_hashes(destination, f"Installed skill {skill}") != source_hashes
+        ):
+            raise GoogleGuideSkillsError(
+                f"User skill destination already exists with different content: {destination}"
+            )
+        return "already-identical"
+    return "would-link" if dry_run else "linked"
+
+
+def _plan_user_links(
+    agents: list[str],
+    requested: set[str],
+    available: dict[str, tuple[Path, str]],
+    source_hashes: dict[str, dict[str, str]],
+    dry_run: bool,
+    user_home: Path | None,
+) -> list[UserInstallAction]:
     planned: list[UserInstallAction] = []
     for agent in agents:
         destination_root = _user_skill_root(agent, user_home)
@@ -167,33 +195,10 @@ def install_user_links(
                 f"User skill root must be a real directory, not a symlink: {destination_root}"
             )
         if destination_root.exists() and not destination_root.is_dir():
-            raise GoogleGuideSkillsError(
-                f"User skill root is not a directory: {destination_root}"
-            )
+            raise GoogleGuideSkillsError(f"User skill root is not a directory: {destination_root}")
         for name in sorted(requested):
             source, distribution = available[name]
             destination = destination_root / name
-            if destination.is_symlink():
-                try:
-                    matches = destination.resolve(strict=True) == source.resolve(strict=True)
-                except FileNotFoundError:
-                    matches = False
-                if not matches:
-                    raise GoogleGuideSkillsError(
-                        f"User skill destination is an unrelated symlink: {destination}"
-                    )
-                status = "already-linked"
-            elif destination.exists():
-                if not destination.is_dir() or _checked_tree_hashes(
-                    destination, f"Installed skill {name}"
-                ) != source_hashes[name]:
-                    raise GoogleGuideSkillsError(
-                        f"User skill destination already exists with different content: "
-                        f"{destination}"
-                    )
-                status = "already-identical"
-            else:
-                status = "would-link" if dry_run else "linked"
             planned.append(
                 UserInstallAction(
                     agent=agent,
@@ -201,10 +206,40 @@ def install_user_links(
                     distribution=distribution,
                     source=source.resolve(),
                     destination=destination,
-                    status=status,
+                    status=_user_link_status(
+                        destination,
+                        source,
+                        source_hashes[name],
+                        name,
+                        dry_run,
+                    ),
                 )
             )
+    return planned
 
+
+def install_user_links(
+    manifest: Manifest,
+    agents: list[str],
+    skills: list[str] | None = None,
+    *,
+    include_local: bool = False,
+    dry_run: bool = False,
+    user_home: Path | None = None,
+) -> list[UserInstallAction]:
+    """Symlink generated skills into user agent homes without exporting local-only bytes."""
+    if not agents:
+        raise GoogleGuideSkillsError("Select at least one target agent")
+    available = _available_user_skills(manifest, include_local)
+    requested = set(skills) if skills is not None else set(available)
+    unknown = sorted(requested - set(available))
+    if unknown:
+        raise GoogleGuideSkillsError(
+            "Selected skills are unavailable under the current distribution policy: "
+            + ", ".join(unknown)
+        )
+    available, source_hashes = _resolve_user_sources(manifest, available, requested)
+    planned = _plan_user_links(agents, requested, available, source_hashes, dry_run, user_home)
     if dry_run:
         return planned
     for action in planned:
@@ -220,6 +255,48 @@ def install_user_links(
     return planned
 
 
+def _skills_by_distribution(manifest: Manifest) -> dict[str, set[str]]:
+    available = {"committed": {"google-guides-index"}, "local-only": set()}
+    for collection, artifact in manifest.artifacts(include_local=True):
+        available[collection.distribution].add(artifact.name)
+    return available
+
+
+def _install_roots(
+    manifest: Manifest, project: Path, include_local: bool, global_install: bool
+) -> list[tuple[Path, str]]:
+    roots = [(manifest.root_for("committed"), "committed")]
+    if not include_local:
+        return roots
+    if global_install or not _inside_local_eval_boundary(manifest, project):
+        raise GoogleGuideSkillsError(
+            "Local-only skills may be installed only into ignored evaluation workspaces "
+            "under evals/results and never globally"
+        )
+    roots.append((manifest.root_for("local-only"), "local-only"))
+    return roots
+
+
+def _install_command(
+    source: Path,
+    agents: list[str],
+    selected: list[str],
+    copy: bool,
+    global_install: bool,
+) -> list[str]:
+    command = ["npx", "--yes", SKILLS_CLI_PACKAGE, "add", str(source)]
+    for agent in agents:
+        command.extend(["--agent", agent])
+    for skill in selected:
+        command.extend(["--skill", skill])
+    command.append("--yes")
+    if copy:
+        command.append("--copy")
+    if global_install:
+        command.append("--global")
+    return command
+
+
 def install_commands(
     manifest: Manifest,
     project: Path,
@@ -229,26 +306,13 @@ def install_commands(
     copy: bool = False,
     global_install: bool = False,
 ) -> list[list[str]]:
+    """Build allowlisted `skills` CLI commands for one target project."""
     if not agents:
         raise GoogleGuideSkillsError("Select at least one target agent")
     if not project.is_dir():
         raise GoogleGuideSkillsError(f"Install project does not exist: {project}")
-    command_roots = [(manifest.root_for("committed"), "committed")]
-    if include_local:
-        if global_install or not _inside_local_eval_boundary(manifest, project):
-            raise GoogleGuideSkillsError(
-                "Local-only skills may be installed only into ignored evaluation workspaces "
-                "under evals/results and never globally"
-            )
-        command_roots.append((manifest.root_for("local-only"), "local-only"))
-
-    available_by_distribution: dict[str, set[str]] = {
-        "committed": {"google-guides-index"},
-        "local-only": set(),
-    }
-    for collection, artifact in manifest.artifacts(include_local=True):
-        available_by_distribution[collection.distribution].add(artifact.name)
-
+    command_roots = _install_roots(manifest, project, include_local, global_install)
+    available_by_distribution = _skills_by_distribution(manifest)
     requested = set(skills) if skills is not None else None
     available = set().union(
         *(available_by_distribution[distribution] for _root, distribution in command_roots)
@@ -272,18 +336,26 @@ def install_commands(
         )
         if not selected:
             continue
-        command = ["npx", "--yes", SKILLS_CLI_PACKAGE, "add", str(source)]
-        for agent in agents:
-            command.extend(["--agent", agent])
-        for skill in selected:
-            command.extend(["--skill", skill])
-        command.append("--yes")
-        if copy:
-            command.append("--copy")
-        if global_install:
-            command.append("--global")
-        commands.append(command)
+        commands.append(_install_command(source, agents, selected, copy, global_install))
     return commands
+
+
+def _execute_install_commands(project: Path, commands: list[list[str]]) -> None:
+    with tempfile.TemporaryDirectory(prefix="google-guides-npx-home-") as temporary:
+        env = minimal_process_env(Path(temporary))
+        for command in commands:
+            try:
+                subprocess.run(
+                    command,
+                    cwd=project,
+                    env=env,
+                    timeout=INSTALL_TIMEOUT_SECONDS,
+                    check=True,
+                )
+            except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+                raise GoogleGuideSkillsError(
+                    f"Skill installation failed: {' '.join(command)}"
+                ) from exc
 
 
 def install(
@@ -296,6 +368,7 @@ def install(
     global_install: bool = False,
     dry_run: bool = False,
 ) -> list[list[str]]:
+    """Install redistributable skills into an explicit project."""
     if include_local:
         raise GoogleGuideSkillsError(
             "The public installer does not export local-only skills; use the isolated "
@@ -319,19 +392,5 @@ def install(
     )
     if dry_run:
         return commands
-    with tempfile.TemporaryDirectory(prefix="google-guides-npx-home-") as temporary:
-        env = minimal_process_env(Path(temporary))
-        for command in commands:
-            try:
-                subprocess.run(
-                    command,
-                    cwd=project,
-                    env=env,
-                    timeout=INSTALL_TIMEOUT_SECONDS,
-                    check=True,
-                )
-            except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
-                raise GoogleGuideSkillsError(
-                    f"Skill installation failed: {' '.join(command)}"
-                ) from exc
+    _execute_install_commands(project, commands)
     return commands

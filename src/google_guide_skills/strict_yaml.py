@@ -25,9 +25,7 @@ def _construct_unique_mapping(
         try:
             hash(key)
         except TypeError as exc:
-            raise DuplicateKeyError(
-                f"YAML mapping keys must be hashable scalars: {key!r}"
-            ) from exc
+            raise DuplicateKeyError(f"YAML mapping keys must be hashable scalars: {key!r}") from exc
         if key in mapping:
             raise DuplicateKeyError(f"Duplicate YAML mapping key: {key!r}")
         mapping[key] = loader.construct_object(value_node, deep=deep)
@@ -41,4 +39,5 @@ UniqueKeyLoader.add_constructor(
 
 
 def strict_safe_load(text: str) -> object:
+    """Load YAML while rejecting duplicate or non-scalar mapping keys."""
     return yaml.load(text, Loader=UniqueKeyLoader)

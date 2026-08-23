@@ -119,6 +119,7 @@ affiliated with or endorsed by Google.
 ## Development
 
 ```bash
+uv run ruff format --check src tests
 uv run ruff check .
 uv run pytest --cov=google_guide_skills --cov-report=term-missing
 uv run google-guides all

@@ -60,7 +60,6 @@ def _artifact(name: str) -> Artifact:
 @pytest.fixture
 def manifest(tmp_path: Path) -> Manifest:
     """A complete manifest with committed and local-only skill distributions."""
-
     license_info = LicenseInfo(
         spdx="Apache-2.0",
         name="Apache License 2.0",
@@ -296,9 +295,7 @@ def test_load_cases_expands_controls_and_profile_specific_index_expectations(
             {
                 "schema_version": 1,
                 "smoke": [{"id": "valid", "prompt": "x"}],
-                "explicit_controls": {
-                    "prompt_template": "Please invoke {invocation}."
-                },
+                "explicit_controls": {"prompt_template": "Please invoke {invocation}."},
             },
             "must begin with",
         ),
@@ -461,9 +458,7 @@ def test_parse_trace_separates_inventory_loads_and_last_self_report() -> None:
                                 "type": "tool_use",
                                 "id": "read-alpha",
                                 "name": "Read",
-                                "input": {
-                                    "file_path": ".claude/skills/alpha-style/SKILL.md"
-                                },
+                                "input": {"file_path": ".claude/skills/alpha-style/SKILL.md"},
                             },
                             {
                                 "type": "tool_result",
@@ -506,9 +501,7 @@ def test_parse_trace_requires_successful_claude_tool_results() -> None:
                                 "type": "tool_use",
                                 "id": "unfinished-read",
                                 "name": "Read",
-                                "input": {
-                                    "file_path": ".claude/skills/beta-review/SKILL.md"
-                                },
+                                "input": {"file_path": ".claude/skills/beta-review/SKILL.md"},
                             },
                         ]
                     }
@@ -531,9 +524,7 @@ def test_parse_trace_requires_successful_claude_tool_results() -> None:
         ]
     )
 
-    loaded, _claimed, _visible = parse_trace(
-        trace, "", {"alpha-style", "beta-review"}
-    )
+    loaded, _claimed, _visible = parse_trace(trace, "", {"alpha-style", "beta-review"})
 
     assert loaded == set()
 
@@ -589,9 +580,7 @@ def test_trace_metadata_normalizes_codex_claude_and_budget_events() -> None:
         [
             "Skill descriptions were shortened to fit the metadata budget.",
             "not-json",
-            json.dumps(
-                {"type": "system", "subtype": "init", "model": "claude-test"}
-            ),
+            json.dumps({"type": "system", "subtype": "init", "model": "claude-test"}),
             json.dumps({"type": "turn.completed", "usage": {"input_tokens": 12}}),
             json.dumps(
                 {
@@ -620,16 +609,19 @@ def test_trace_metadata_normalizes_codex_claude_and_budget_events() -> None:
         "resolved_model": None,
         "skill_budget_warning": False,
     }
-    assert trace_metadata(
-        json.dumps(
-            {
-                "type": "result",
-                "is_error": True,
-                "subtype": "error_max_budget_usd",
-                "result": "provider budget exhausted",
-            }
-        )
-    )["terminal_error"] == "provider budget exhausted"
+    assert (
+        trace_metadata(
+            json.dumps(
+                {
+                    "type": "result",
+                    "is_error": True,
+                    "subtype": "error_max_budget_usd",
+                    "result": "provider budget exhausted",
+                }
+            )
+        )["terminal_error"]
+        == "provider budget exhausted"
+    )
 
 
 def test_build_codex_command_is_ephemeral_read_only_and_model_pinned(tmp_path: Path) -> None:
@@ -737,9 +729,7 @@ def test_prepare_workspace_initializes_one_fresh_git_repository(
     (template / "hooks").mkdir(parents=True)
     (template / "hooks" / "injected").write_text("ambient\n", encoding="utf-8")
     config = tmp_path / "ambient-gitconfig"
-    config.write_text(
-        f"[init]\n\ttemplateDir = {template.as_posix()}\n", encoding="utf-8"
-    )
+    config.write_text(f"[init]\n\ttemplateDir = {template.as_posix()}\n", encoding="utf-8")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(config))
     workspace = tmp_path / "workspace"
     eval_module._prepare_workspace(workspace)
@@ -783,9 +773,7 @@ def test_run_agent_passes_minimal_env_and_deletes_temporary_home(
         assert (state_root / "home").is_dir()
         assert (state_root / "codex").is_dir()
         seen_home.append(state_root)
-        (tmp_path / "raw-isolated/final.txt").write_text(
-            "answer provider-key", encoding="utf-8"
-        )
+        (tmp_path / "raw-isolated/final.txt").write_text("answer provider-key", encoding="utf-8")
         return subprocess.CompletedProcess(
             command, 0, stdout='{"leak":"provider-key"}\n', stderr="provider-key"
         )
@@ -847,9 +835,7 @@ def test_live_preflight_checks_every_binary_and_disposable_key(
     monkeypatch.setattr(
         eval_module.subprocess,
         "run",
-        lambda command, **_kwargs: subprocess.CompletedProcess(
-            command, 0, stdout="", stderr=""
-        ),
+        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, stdout="", stderr=""),
     )
     monkeypatch.setenv("GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "codex-key")
     monkeypatch.setenv("GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY", "claude-key")
@@ -923,9 +909,7 @@ def test_run_agent_records_codex_trace_and_final_output(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/fake")
-    monkeypatch.setattr(
-        eval_module, "_isolated_agent_env", lambda _agent, _path, **_kwargs: {}
-    )
+    monkeypatch.setattr(eval_module, "_isolated_agent_env", lambda _agent, _path, **_kwargs: {})
     ticks = iter((10.0, 11.2345))
     monkeypatch.setattr(eval_module.time, "monotonic", lambda: next(ticks))
 
@@ -961,9 +945,7 @@ def test_run_agent_extracts_claude_final_from_canned_trace(
 ) -> None:
     trace = json.dumps({"type": "result", "result": "Claude answer"}) + "\n"
     monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/fake")
-    monkeypatch.setattr(
-        eval_module, "_isolated_agent_env", lambda _agent, _path, **_kwargs: {}
-    )
+    monkeypatch.setattr(eval_module, "_isolated_agent_env", lambda _agent, _path, **_kwargs: {})
     monkeypatch.setattr(
         eval_module.subprocess,
         "run",
@@ -992,9 +974,7 @@ def test_run_agent_normalizes_timeout_bytes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/fake")
-    monkeypatch.setattr(
-        eval_module, "_isolated_agent_env", lambda _agent, _path, **_kwargs: {}
-    )
+    monkeypatch.setattr(eval_module, "_isolated_agent_env", lambda _agent, _path, **_kwargs: {})
 
     def timeout(command: list[str], **_kwargs: object) -> None:
         raise subprocess.TimeoutExpired(command, 1, output=b'{"partial":true}\n', stderr=b"late")
@@ -1098,7 +1078,6 @@ def _fake_profile_installer(
         if extra:
             rogue = install_root / "rogue-skill"
             rogue.mkdir()
-            (rogue / "SKILL.md").write_text("# rogue\n", encoding="utf-8")
         return [["npx", "fake-install"]]
 
     return install_commands
@@ -1314,9 +1293,7 @@ def test_install_profile_rejects_symlinks_and_project_configuration(
     monkeypatch.setattr(
         eval_module.subprocess,
         "run",
-        lambda command, **_kwargs: subprocess.CompletedProcess(
-            command, 0, stdout="", stderr=""
-        ),
+        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, stdout="", stderr=""),
     )
 
     symlink_project = tmp_path / "symlink-install"
@@ -1590,12 +1567,8 @@ def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
     manifest: Manifest, tmp_path: Path
 ) -> None:
     (manifest.project_root / ".gitignore").write_text("evals/results/\n", encoding="utf-8")
-    subprocess.run(
-        ["git", "init", "--quiet"], cwd=manifest.project_root, check=True
-    )
-    local_case = _case(
-        "local-case", expected=("local-testing",), rubric=()
-    )
+    subprocess.run(["git", "init", "--quiet"], cwd=manifest.project_root, check=True)
+    local_case = _case("local-case", expected=("local-testing",), rubric=())
     with pytest.raises(EvaluationError, match="require --include-swe-book"):
         run_evaluation(
             manifest,
@@ -1626,9 +1599,7 @@ def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
         dry_run=True,
     )
     assert report["summary"]["runs"] == 1
-    assert output.resolve().is_relative_to(
-        (manifest.project_root / "evals" / "results").resolve()
-    )
+    assert output.resolve().is_relative_to((manifest.project_root / "evals" / "results").resolve())
     with pytest.raises(EvaluationError, match="hosted-agent evaluation"):
         run_evaluation(
             manifest,
@@ -1685,10 +1656,7 @@ def test_trigger_plan_only_creates_normalized_report_without_live_helpers(
     assert report["dry_run"] is True
     assert len(report["corpus_identity"]["manifest_sha256"]) == 64
     assert len(report["corpus_identity"]["case_set_sha256"]) == 64
-    assert (
-        report["records"][0]["manifest_sha256"]
-        == report["corpus_identity"]["manifest_sha256"]
-    )
+    assert report["records"][0]["manifest_sha256"] == report["corpus_identity"]["manifest_sha256"]
     assert report["summary"] == {
         "runs": 4,
         "completed": 0,
@@ -1756,9 +1724,7 @@ def test_index_ab_plan_pairs_full_pack_with_no_index_profile(
         prompt="Route a broad request.",
         expected_skills=("google-guides-index",),
         forbidden_skills=(),
-        profile_expectations=(
-            ("all-no-index", (), ("google-guides-index",)),
-        ),
+        profile_expectations=(("all-no-index", (), ("google-guides-index",)),),
     )
 
     report, _output = run_evaluation(
@@ -1828,9 +1794,7 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
         },
     )
     monkeypatch.setattr(eval_module, "_run_agent", run_agent)
-    monkeypatch.setattr(
-        eval_module, "_version", lambda command, **_kwargs: f"{command[0]} test"
-    )
+    monkeypatch.setattr(eval_module, "_version", lambda command, **_kwargs: f"{command[0]} test")
 
     report, output = run_evaluation(
         manifest,
@@ -1861,9 +1825,7 @@ def test_full_pack_direct_smoke_reports_unexpected_skill_as_routing_failure(
     manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(eval_module, "_preflight_live", lambda _agents: None)
-    monkeypatch.setattr(
-        eval_module, "_prepare_workspace", lambda path: path.mkdir(parents=True)
-    )
+    monkeypatch.setattr(eval_module, "_prepare_workspace", lambda path: path.mkdir(parents=True))
     monkeypatch.setattr(
         eval_module,
         "_install_profile",

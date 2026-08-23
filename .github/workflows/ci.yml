@@ -27,6 +27,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: uv sync --frozen --all-groups
       - run: uv run python -c "import platform; assert platform.python_version().startswith('${{ matrix.python }}')"
+      - run: uv run ruff format --check src tests
       - run: uv run ruff check .
       - run: uv run pytest --cov=google_guide_skills --cov-report=term-missing
 

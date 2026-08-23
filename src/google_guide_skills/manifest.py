@@ -28,9 +28,7 @@ ALLOWED_DISTRIBUTIONS = {"committed", "local-only"}
 ALLOWED_LAYOUTS = {"inline", "references"}
 REQUIRED_GENERATED_ROOTS = {"committed": "skills", "local_only": ".generated/skills"}
 REQUIRED_CANONICAL_PATH_POLICIES = {
-    "abseil/abseil.github.io": {
-        ("resources/swe-book/html/**", "local-only")
-    },
+    "abseil/abseil.github.io": {("resources/swe-book/html/**", "local-only")},
     "google/styleguide": {("Rguide.md", "catalog-only")},
 }
 CANONICAL_REPOSITORY_URLS = {
@@ -50,7 +48,6 @@ PROTECTED_GITHUB_REPOSITORIES = {
 
 def _github_repository_identity(url: str) -> str | None:
     """Normalize common GitHub transports to a lowercase owner/repository identity."""
-
     prefixes = (
         "https://github.com/",
         "http://github.com/",
@@ -74,7 +71,6 @@ def _github_repository_identity(url: str) -> str | None:
 
 def find_project_root(start: Path | None = None) -> Path:
     """Find the closest parent containing corpus.yaml."""
-
     current = (start or Path.cwd()).resolve()
     for candidate in (current, *current.parents):
         if (candidate / "corpus.yaml").is_file():
@@ -90,40 +86,33 @@ def _text(data: dict[str, Any], key: str, context: str) -> str:
 
 
 def _license(data: Any, context: str) -> LicenseInfo:
-    try:
-        item = require_mapping(data, context)
-        evidence_path = _optional_text(item.get("evidence_path"))
-        evidence_glob = _optional_text(item.get("evidence_glob"))
-        evidence_contains = _optional_text(item.get("evidence_contains"))
-        if not evidence_path and not evidence_glob:
-            raise ManifestError(
-                f"{context} must provide evidence_path or evidence_glob"
-            )
-        if evidence_contains and not evidence_glob:
-            raise ManifestError(
-                f"{context}.evidence_contains requires evidence_glob"
-            )
-        allow_committed = item.get("allow_committed_output")
-        if not isinstance(allow_committed, bool):
-            raise ManifestError(f"{context}.allow_committed_output must be a boolean")
-        return LicenseInfo(
-            spdx=_text(item, "spdx", context),
-            name=_text(item, "name", context),
-            url=_text(item, "url", context),
-            attribution=_text(item, "attribution", context),
-            audited=_text(item, "audited", context),
-            allow_committed_output=allow_committed,
-            evidence_path=_safe_relative(evidence_path, f"{context}.evidence_path")
-            if evidence_path
-            else None,
-            evidence_glob=_safe_relative(evidence_glob, f"{context}.evidence_glob")
-            if evidence_glob
-            else None,
-            evidence_contains=evidence_contains,
-            warning=_optional_text(item.get("warning")),
-        )
-    except TypeError as exc:
-        raise ManifestError(str(exc)) from exc
+    item = require_mapping(data, context)
+    evidence_path = _optional_text(item.get("evidence_path"))
+    evidence_glob = _optional_text(item.get("evidence_glob"))
+    evidence_contains = _optional_text(item.get("evidence_contains"))
+    if not evidence_path and not evidence_glob:
+        raise ManifestError(f"{context} must provide evidence_path or evidence_glob")
+    if evidence_contains and not evidence_glob:
+        raise ManifestError(f"{context}.evidence_contains requires evidence_glob")
+    allow_committed = item.get("allow_committed_output")
+    if not isinstance(allow_committed, bool):
+        raise ManifestError(f"{context}.allow_committed_output must be a boolean")
+    return LicenseInfo(
+        spdx=_text(item, "spdx", context),
+        name=_text(item, "name", context),
+        url=_text(item, "url", context),
+        attribution=_text(item, "attribution", context),
+        audited=_text(item, "audited", context),
+        allow_committed_output=allow_committed,
+        evidence_path=_safe_relative(evidence_path, f"{context}.evidence_path")
+        if evidence_path
+        else None,
+        evidence_glob=_safe_relative(evidence_glob, f"{context}.evidence_glob")
+        if evidence_glob
+        else None,
+        evidence_contains=evidence_contains,
+        warning=_optional_text(item.get("warning")),
+    )
 
 
 def _optional_text(value: Any) -> str | None:
@@ -160,30 +149,7 @@ def _safe_relative(pattern: str, context: str) -> str:
     return pattern
 
 
-def load_manifest(path: Path | None = None) -> Manifest:
-    """Parse corpus.yaml and enforce all static safety invariants."""
-
-    manifest_path = (path or (find_project_root() / "corpus.yaml")).resolve()
-    try:
-        raw = strict_safe_load(manifest_path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        raise ManifestError(f"Cannot read {manifest_path}: {exc}") from exc
-    except yaml.YAMLError as exc:
-        raise ManifestError(f"Invalid YAML in {manifest_path}: {exc}") from exc
-
-    try:
-        data = require_mapping(raw, "corpus")
-    except TypeError as exc:
-        raise ManifestError(str(exc)) from exc
-
-    schema_version = data.get("schema_version")
-    if schema_version != 1:
-        raise ManifestError(f"Unsupported schema_version: {schema_version!r}")
-    generator = require_mapping(data.get("generator"), "generator")
-    canonical_python = _text(generator, "python", "generator")
-    if not re.fullmatch(r"3\.\d+\.\d+", canonical_python):
-        raise ManifestError("generator.python must be an exact Python 3 version such as 3.13.7")
-
+def _generated_roots(data: dict[str, Any]) -> dict[str, str]:
     roots_data = require_mapping(data.get("generated_roots"), "generated_roots")
     roots = {
         "committed": _safe_relative(
@@ -199,146 +165,160 @@ def load_manifest(path: Path | None = None) -> Manifest:
         raise ManifestError(
             f"generated_roots are a fixed security boundary and must be {REQUIRED_GENERATED_ROOTS}"
         )
+    return roots
 
-    repositories: dict[str, Repository] = {}
-    for repo_id, repo_raw in require_mapping(data.get("repositories"), "repositories").items():
-        context = f"repositories.{repo_id}"
-        if not NAME_RE.fullmatch(str(repo_id)):
-            raise ManifestError(f"{context} has an invalid identifier")
-        repo = require_mapping(repo_raw, context)
-        revision = _text(repo, "revision", context)
-        if not REVISION_RE.fullmatch(revision):
-            raise ManifestError(f"{context}.revision must be a full 40-character commit SHA")
-        repository_url = _text(repo, "url", context)
-        identity = _github_repository_identity(repository_url)
-        protected = PROTECTED_GITHUB_REPOSITORIES.get(identity or "")
-        canonical_url = CANONICAL_REPOSITORY_URLS.get(str(repo_id))
-        if protected is not None:
-            protected_id, protected_url = protected
-            if str(repo_id) != protected_id or repository_url != protected_url:
-                raise ManifestError(
-                    f"{context}.url must use canonical protected source "
-                    f"{protected_url} under repository id {protected_id!r}"
-                )
-        elif canonical_url is not None and repository_url != canonical_url:
+
+def _repository(repo_id: object, raw: object) -> Repository:
+    context = f"repositories.{repo_id}"
+    if not NAME_RE.fullmatch(str(repo_id)):
+        raise ManifestError(f"{context} has an invalid identifier")
+    item = require_mapping(raw, context)
+    revision = _text(item, "revision", context)
+    if not REVISION_RE.fullmatch(revision):
+        raise ManifestError(f"{context}.revision must be a full 40-character commit SHA")
+    url = _text(item, "url", context)
+    protected = PROTECTED_GITHUB_REPOSITORIES.get(_github_repository_identity(url) or "")
+    canonical_url = CANONICAL_REPOSITORY_URLS.get(str(repo_id))
+    if protected is not None:
+        protected_id, protected_url = protected
+        if str(repo_id) != protected_id or url != protected_url:
             raise ManifestError(
-                f"{context}.url must use the canonical protected source {canonical_url}"
+                f"{context}.url must use canonical protected source "
+                f"{protected_url} under repository id {protected_id!r}"
             )
-        repositories[repo_id] = Repository(
-            id=repo_id,
-            url=repository_url,
-            revision=revision,
-            default_branch=_text(repo, "default_branch", context),
-            license=_license(repo.get("license"), f"{context}.license"),
+    elif canonical_url is not None and url != canonical_url:
+        raise ManifestError(
+            f"{context}.url must use the canonical protected source {canonical_url}"
         )
+    return Repository(
+        id=str(repo_id),
+        url=url,
+        revision=revision,
+        default_branch=_text(item, "default_branch", context),
+        license=_license(item.get("license"), f"{context}.license"),
+    )
 
-    collections: dict[str, Collection] = {}
-    seen_skills: set[str] = set()
-    for collection_id, collection_raw in require_mapping(
-        data.get("collections"), "collections"
-    ).items():
-        context = f"collections.{collection_id}"
-        if not NAME_RE.fullmatch(str(collection_id)):
-            raise ManifestError(f"{context} has an invalid identifier")
-        item = require_mapping(collection_raw, context)
-        repo_id = _text(item, "repository", context)
-        if repo_id not in repositories:
-            raise ManifestError(f"{context} references unknown repository {repo_id!r}")
-        distribution = _text(item, "distribution", context)
-        if distribution not in ALLOWED_DISTRIBUTIONS:
-            raise ManifestError(f"{context}.distribution must be one of {ALLOWED_DISTRIBUTIONS}")
-        artifacts_raw = item.get("artifacts")
-        if not isinstance(artifacts_raw, list) or not artifacts_raw:
-            raise ManifestError(f"{context}.artifacts must be a non-empty list")
 
-        artifacts: list[Artifact] = []
-        for index, artifact_raw in enumerate(artifacts_raw):
-            artifact_context = f"{context}.artifacts[{index}]"
-            artifact_item = require_mapping(artifact_raw, artifact_context)
-            name = _text(artifact_item, "name", artifact_context)
-            if not NAME_RE.fullmatch(name) or len(name) > 64:
-                raise ManifestError(f"{artifact_context}.name violates Agent Skills naming rules")
-            if name in seen_skills:
-                raise ManifestError(f"Duplicate skill name: {name}")
-            seen_skills.add(name)
-            description = _text(artifact_item, "description", artifact_context)
-            if len(description) > 1024:
-                raise ManifestError(f"{artifact_context}.description exceeds 1024 characters")
-            layout = _text(artifact_item, "layout", artifact_context)
-            if layout not in ALLOWED_LAYOUTS:
-                raise ManifestError(f"{artifact_context}.layout must be one of {ALLOWED_LAYOUTS}")
-            inputs_raw = artifact_item.get("inputs")
-            if not isinstance(inputs_raw, list) or not inputs_raw:
-                raise ManifestError(f"{artifact_context}.inputs must be a non-empty list")
-            inputs = tuple(
-                _safe_relative(str(value), f"{artifact_context}.inputs") for value in inputs_raw
+def _repositories(data: dict[str, Any]) -> dict[str, Repository]:
+    raw = require_mapping(data.get("repositories"), "repositories")
+    return {str(repo_id): _repository(repo_id, item) for repo_id, item in raw.items()}
+
+
+def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
+    item = require_mapping(raw, context)
+    name = _text(item, "name", context)
+    if not NAME_RE.fullmatch(name) or len(name) > 64:
+        raise ManifestError(f"{context}.name violates Agent Skills naming rules")
+    if name in seen_names:
+        raise ManifestError(f"Duplicate skill name: {name}")
+    seen_names.add(name)
+    description = _text(item, "description", context)
+    if len(description) > 1024:
+        raise ManifestError(f"{context}.description exceeds 1024 characters")
+    layout = _text(item, "layout", context)
+    if layout not in ALLOWED_LAYOUTS:
+        raise ManifestError(f"{context}.layout must be one of {ALLOWED_LAYOUTS}")
+    inputs_raw = item.get("inputs")
+    if not isinstance(inputs_raw, list) or not inputs_raw:
+        raise ManifestError(f"{context}.inputs must be a non-empty list")
+    tags_raw = item.get("tags", [])
+    if not isinstance(tags_raw, list) or not all(
+        isinstance(value, str) and value for value in tags_raw
+    ):
+        raise ManifestError(f"{context}.tags must be a list of strings")
+    supplemental_raw = item.get("supplemental_licenses", [])
+    if not isinstance(supplemental_raw, list):
+        raise ManifestError(f"{context}.supplemental_licenses must be a list")
+    return Artifact(
+        name=name,
+        title=_text(item, "title", context),
+        description=description,
+        tags=tuple(tags_raw),
+        layout=layout,
+        inputs=tuple(_safe_relative(str(value), f"{context}.inputs") for value in inputs_raw),
+        license_note=_optional_text(item.get("license_note")),
+        supplemental_licenses=tuple(
+            _supplemental_license(
+                candidate,
+                f"{context}.supplemental_licenses[{index}]",
             )
-            tags_raw = artifact_item.get("tags", [])
-            if not isinstance(tags_raw, list) or not all(
-                isinstance(value, str) and value for value in tags_raw
-            ):
-                raise ManifestError(f"{artifact_context}.tags must be a list of strings")
-            supplemental_raw = artifact_item.get("supplemental_licenses", [])
-            if not isinstance(supplemental_raw, list):
-                raise ManifestError(
-                    f"{artifact_context}.supplemental_licenses must be a list"
-                )
-            artifacts.append(
-                Artifact(
-                    name=name,
-                    title=_text(artifact_item, "title", artifact_context),
-                    description=description,
-                    tags=tuple(tags_raw),
-                    layout=layout,
-                    inputs=inputs,
-                    license_note=_optional_text(artifact_item.get("license_note")),
-                    supplemental_licenses=tuple(
-                        _supplemental_license(
-                            candidate,
-                            f"{artifact_context}.supplemental_licenses[{supplemental_index}]",
-                        )
-                        for supplemental_index, candidate in enumerate(supplemental_raw)
-                    ),
-                )
-            )
+            for index, candidate in enumerate(supplemental_raw)
+        ),
+    )
 
-        override = item.get("license_override")
-        if distribution == "local-only" and override is None:
-            raise ManifestError(f"{context} is local-only but has no explicit license_override")
-        override_license = (
-            _license(override, f"{context}.license_override") if override is not None else None
+
+def _collection(
+    collection_id: object,
+    raw: object,
+    repositories: dict[str, Repository],
+    seen_names: set[str],
+) -> Collection:
+    context = f"collections.{collection_id}"
+    if not NAME_RE.fullmatch(str(collection_id)):
+        raise ManifestError(f"{context} has an invalid identifier")
+    item = require_mapping(raw, context)
+    repo_id = _text(item, "repository", context)
+    if repo_id not in repositories:
+        raise ManifestError(f"{context} references unknown repository {repo_id!r}")
+    distribution = _text(item, "distribution", context)
+    if distribution not in ALLOWED_DISTRIBUTIONS:
+        raise ManifestError(f"{context}.distribution must be one of {ALLOWED_DISTRIBUTIONS}")
+    artifacts_raw = item.get("artifacts")
+    if not isinstance(artifacts_raw, list) or not artifacts_raw:
+        raise ManifestError(f"{context}.artifacts must be a non-empty list")
+    artifacts = tuple(
+        _artifact(candidate, f"{context}.artifacts[{index}]", seen_names)
+        for index, candidate in enumerate(artifacts_raw)
+    )
+    override = item.get("license_override")
+    if distribution == "local-only" and override is None:
+        raise ManifestError(f"{context} is local-only but has no explicit license_override")
+    override_license = (
+        _license(override, f"{context}.license_override") if override is not None else None
+    )
+    effective_license = override_license or repositories[repo_id].license
+    if distribution == "committed" and not effective_license.allow_committed_output:
+        raise ManifestError(
+            f"{context} cannot use committed distribution under its recorded license policy"
         )
-        effective_license = override_license or repositories[repo_id].license
-        if distribution == "committed" and not effective_license.allow_committed_output:
-            raise ManifestError(
-                f"{context} cannot use committed distribution under its recorded license policy"
-            )
-        collections[collection_id] = Collection(
-            id=collection_id,
-            repository=repo_id,
-            distribution=distribution,
-            description=_text(item, "description", context),
-            artifacts=tuple(artifacts),
-            license_override=override_license,
-        )
+    return Collection(
+        id=str(collection_id),
+        repository=repo_id,
+        distribution=distribution,
+        description=_text(item, "description", context),
+        artifacts=artifacts,
+        license_override=override_license,
+    )
 
-    catalog_items: list[CatalogOnly] = []
-    catalog_raw = data.get("catalog_only", [])
-    if not isinstance(catalog_raw, list):
+
+def _collections(
+    data: dict[str, Any], repositories: dict[str, Repository], seen_names: set[str]
+) -> dict[str, Collection]:
+    raw = require_mapping(data.get("collections"), "collections")
+    return {
+        str(collection_id): _collection(collection_id, item, repositories, seen_names)
+        for collection_id, item in raw.items()
+    }
+
+
+def _catalog_items(data: dict[str, Any], seen_names: set[str]) -> tuple[CatalogOnly, ...]:
+    raw = data.get("catalog_only", [])
+    if not isinstance(raw, list):
         raise ManifestError("catalog_only must be a list")
-    for index, candidate_raw in enumerate(catalog_raw):
+    items: list[CatalogOnly] = []
+    for index, candidate in enumerate(raw):
         context = f"catalog_only[{index}]"
-        item = require_mapping(candidate_raw, context)
+        item = require_mapping(candidate, context)
         item_id = _text(item, "id", context)
         if not NAME_RE.fullmatch(item_id):
             raise ManifestError(f"{context}.id has an invalid identifier")
-        if item_id in seen_skills:
+        if item_id in seen_names:
             raise ManifestError(f"Duplicate skill or catalog id: {item_id}")
-        seen_skills.add(item_id)
+        seen_names.add(item_id)
         tags_raw = item.get("tags", [])
         if not isinstance(tags_raw, list) or not all(isinstance(tag, str) for tag in tags_raw):
             raise ManifestError(f"{context}.tags must be a list of strings")
-        catalog_items.append(
+        items.append(
             CatalogOnly(
                 id=item_id,
                 title=_text(item, "title", context),
@@ -349,47 +329,84 @@ def load_manifest(path: Path | None = None) -> Manifest:
                 tags=tuple(tags_raw),
             )
         )
+    return tuple(items)
 
-    policies_raw = data.get("source_path_policies", [])
-    if not isinstance(policies_raw, list):
+
+def _source_path_policies(
+    data: dict[str, Any], repositories: dict[str, Repository]
+) -> tuple[SourcePathPolicy, ...]:
+    raw = data.get("source_path_policies", [])
+    if not isinstance(raw, list):
         raise ManifestError("source_path_policies must be a list")
-    source_path_policies: list[SourcePathPolicy] = []
-    for index, policy_raw in enumerate(policies_raw):
+    policies: list[SourcePathPolicy] = []
+    for index, candidate in enumerate(raw):
         context = f"source_path_policies[{index}]"
-        item = require_mapping(policy_raw, context)
+        item = require_mapping(candidate, context)
         repository = _text(item, "repository", context)
         if repository not in repositories:
             raise ManifestError(f"{context} references unknown repository {repository!r}")
-        required_distribution = _text(item, "required_distribution", context)
-        if required_distribution not in {*ALLOWED_DISTRIBUTIONS, "catalog-only"}:
+        distribution = _text(item, "required_distribution", context)
+        if distribution not in {*ALLOWED_DISTRIBUTIONS, "catalog-only"}:
             raise ManifestError(
                 f"{context}.required_distribution must be committed, local-only, or catalog-only"
             )
-        source_path_policies.append(
+        policies.append(
             SourcePathPolicy(
                 repository=repository,
                 pattern=_safe_relative(_text(item, "pattern", context), f"{context}.pattern"),
-                required_distribution=required_distribution,
+                required_distribution=distribution,
                 reason=_text(item, "reason", context),
             )
         )
+    _require_protected_path_policies(repositories, policies)
+    return tuple(policies)
+
+
+def _require_protected_path_policies(
+    repositories: dict[str, Repository], policies: list[SourcePathPolicy]
+) -> None:
     for repository in repositories.values():
         identity = _github_repository_identity(repository.url)
         required = REQUIRED_CANONICAL_PATH_POLICIES.get(identity or "", set())
         actual = {
             (policy.pattern, policy.required_distribution)
-            for policy in source_path_policies
+            for policy in policies
             if policy.repository == repository.id
         }
         missing = sorted(required - actual)
-        if missing:
-            formatted = ", ".join(
-                f"{pattern} -> {distribution}" for pattern, distribution in missing
-            )
-            raise ManifestError(
-                f"Repository {repository.id} is missing mandatory source path policies: {formatted}"
-            )
+        if not missing:
+            continue
+        formatted = ", ".join(f"{pattern} -> {distribution}" for pattern, distribution in missing)
+        raise ManifestError(
+            f"Repository {repository.id} is missing mandatory source path policies: {formatted}"
+        )
 
+
+def _read_manifest(path: Path) -> dict[str, Any]:
+    try:
+        return require_mapping(strict_safe_load(path.read_text(encoding="utf-8")), "corpus")
+    except OSError as exc:
+        raise ManifestError(f"Cannot read {path}: {exc}") from exc
+    except yaml.YAMLError as exc:
+        raise ManifestError(f"Invalid YAML in {path}: {exc}") from exc
+
+
+def load_manifest(path: Path | None = None) -> Manifest:
+    """Parse corpus.yaml and enforce its source and distribution policies."""
+    manifest_path = (path or (find_project_root() / "corpus.yaml")).resolve()
+    data = _read_manifest(manifest_path)
+    schema_version = data.get("schema_version")
+    if schema_version != 1:
+        raise ManifestError(f"Unsupported schema_version: {schema_version!r}")
+    generator = require_mapping(data.get("generator"), "generator")
+    canonical_python = _text(generator, "python", "generator")
+    if not re.fullmatch(r"3\.\d+\.\d+", canonical_python):
+        raise ManifestError("generator.python must be an exact Python 3 version such as 3.13.7")
+
+    roots = _generated_roots(data)
+    repositories = _repositories(data)
+    seen_names: set[str] = set()
+    collections = _collections(data, repositories, seen_names)
     return Manifest(
         path=manifest_path,
         schema_version=schema_version,
@@ -397,6 +414,6 @@ def load_manifest(path: Path | None = None) -> Manifest:
         generated_roots=roots,
         repositories=repositories,
         collections=collections,
-        catalog_only=tuple(catalog_items),
-        source_path_policies=tuple(source_path_policies),
+        catalog_only=_catalog_items(data, seen_names),
+        source_path_policies=_source_path_policies(data, repositories),
     )

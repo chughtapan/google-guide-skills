@@ -16,10 +16,12 @@ GIT_TIMEOUT_SECONDS = 300
 
 
 def source_root(manifest: Manifest) -> Path:
+    """Return the repository cache root."""
     return manifest.project_root / ".cache" / "sources"
 
 
 def checkout_path(manifest: Manifest, repository_id: str) -> Path:
+    """Return the cache path for one manifest repository."""
     return source_root(manifest) / repository_id
 
 
@@ -52,9 +54,7 @@ def _remote_url(path: Path) -> str:
     return _run(["git", "remote", "get-url", "origin"], cwd=path)
 
 
-def sync_repository(manifest: Manifest, repository: Repository) -> Path:
-    """Clone or move one cache checkout to its exact pinned commit."""
-
+def _prepare_checkout(manifest: Manifest, repository: Repository) -> Path:
     root = require_safe_project_path(
         manifest.project_root,
         source_root(manifest),
@@ -68,26 +68,25 @@ def sync_repository(manifest: Manifest, repository: Repository) -> Path:
         context="Source checkout",
         error_type=SourceError,
     )
-    created = not target.exists()
-    if created:
+    if not target.exists():
         target.mkdir()
         _run(["git", "init", "--quiet", "--template="], cwd=target)
         _run(["git", "remote", "add", "origin", repository.url], cwd=target)
-    elif not git_dir_is_safe(target):
+        return target
+    if not git_dir_is_safe(target):
         raise SourceError(
             f"Refusing to replace non-git cache path {target}. Move it aside and retry."
         )
-
-    if not created:
-        config_problem = repository_config_problem(
-            target, repository.url, repository.default_branch
+    config_problem = repository_config_problem(target, repository.url, repository.default_branch)
+    if config_problem:
+        raise SourceError(
+            f"Cache checkout {target} has unsafe local Git config: {config_problem}. "
+            "Move it aside and retry."
         )
-        if config_problem:
-            raise SourceError(
-                f"Cache checkout {target} has unsafe local Git config: {config_problem}. "
-                "Move it aside and retry."
-            )
+    return target
 
+
+def _verify_remote(target: Path, repository: Repository) -> None:
     actual_remote = _remote_url(target)
     accepted = {repository.url, repository.url.removesuffix(".git")}
     if actual_remote not in accepted and actual_remote.removesuffix(".git") not in accepted:
@@ -100,6 +99,8 @@ def sync_repository(manifest: Manifest, repository: Repository) -> Path:
     if replacements:
         raise SourceError(f"Cache checkout {target} contains forbidden Git replacement refs")
 
+
+def _fetch_revision(target: Path, repository: Repository) -> None:
     has_revision = (
         subprocess.run(
             git_command("cat-file", "-e", f"{repository.revision}^{{commit}}"),
@@ -115,6 +116,8 @@ def sync_repository(manifest: Manifest, repository: Repository) -> Path:
     if not has_revision:
         _run(["git", "fetch", "--depth", "1", "origin", repository.revision], cwd=target)
 
+
+def _checkout_revision(target: Path, repository: Repository) -> None:
     status = _run(["git", "status", "--porcelain"], cwd=target)
     if status:
         raise SourceError(
@@ -127,10 +130,19 @@ def sync_repository(manifest: Manifest, repository: Repository) -> Path:
             f"Checkout verification failed for {repository.id}: {actual_revision} != "
             f"{repository.revision}"
         )
+
+
+def sync_repository(manifest: Manifest, repository: Repository) -> Path:
+    """Clone or move one cache checkout to its exact pinned commit."""
+    target = _prepare_checkout(manifest, repository)
+    _verify_remote(target, repository)
+    _fetch_revision(target, repository)
+    _checkout_revision(target, repository)
     return target
 
 
 def sync(manifest: Manifest, repository_ids: list[str] | None = None) -> list[Path]:
+    """Synchronize selected repositories and return their checkout paths."""
     ids = repository_ids or list(manifest.repositories)
     unknown = sorted(set(ids) - set(manifest.repositories))
     if unknown:

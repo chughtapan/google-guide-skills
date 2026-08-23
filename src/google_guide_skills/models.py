@@ -11,6 +11,8 @@ from .errors import ManifestError
 
 @dataclass(frozen=True)
 class LicenseInfo:
+    """License terms and the upstream evidence used to verify them."""
+
     spdx: str
     name: str
     url: str
@@ -23,6 +25,7 @@ class LicenseInfo:
     warning: str | None = None
 
     def to_dict(self) -> dict[str, object]:
+        """Return populated fields in provenance format."""
         values = {
             "spdx": self.spdx,
             "name": self.name,
@@ -40,6 +43,8 @@ class LicenseInfo:
 
 @dataclass(frozen=True)
 class SupplementalLicense:
+    """An additional license that applies to part of an artifact."""
+
     spdx: str
     name: str
     url: str
@@ -50,6 +55,7 @@ class SupplementalLicense:
     sha256: str
 
     def to_dict(self) -> dict[str, str]:
+        """Return the supplemental license in provenance format."""
         return {
             "spdx": self.spdx,
             "name": self.name,
@@ -64,6 +70,8 @@ class SupplementalLicense:
 
 @dataclass(frozen=True)
 class Repository:
+    """A pinned upstream repository and its default license."""
+
     id: str
     url: str
     revision: str
@@ -73,6 +81,8 @@ class Repository:
 
 @dataclass(frozen=True)
 class Artifact:
+    """One skill recipe within a source collection."""
+
     name: str
     title: str
     description: str
@@ -85,6 +95,8 @@ class Artifact:
 
 @dataclass(frozen=True)
 class Collection:
+    """Artifacts that share a repository and distribution policy."""
+
     id: str
     repository: str
     distribution: str
@@ -95,6 +107,8 @@ class Collection:
 
 @dataclass(frozen=True)
 class CatalogOnly:
+    """A known guide that the generator does not currently package."""
+
     id: str
     title: str
     url: str
@@ -106,6 +120,8 @@ class CatalogOnly:
 
 @dataclass(frozen=True)
 class SourcePathPolicy:
+    """A distribution restriction for matching upstream paths."""
+
     repository: str
     pattern: str
     required_distribution: str
@@ -114,6 +130,8 @@ class SourcePathPolicy:
 
 @dataclass(frozen=True)
 class Manifest:
+    """The validated corpus configuration used by every command."""
+
     path: Path
     schema_version: int
     canonical_python: str
@@ -125,9 +143,11 @@ class Manifest:
 
     @property
     def project_root(self) -> Path:
+        """Return the directory containing corpus.yaml."""
         return self.path.parent
 
     def root_for(self, distribution: str) -> Path:
+        """Return the generated root for a supported distribution."""
         keys = {"committed": "committed", "local-only": "local_only"}
         try:
             key = keys[distribution]
@@ -136,9 +156,11 @@ class Manifest:
         return self.project_root / self.generated_roots[key]
 
     def license_for(self, collection: Collection) -> LicenseInfo:
+        """Return the collection override or its repository license."""
         return collection.license_override or self.repositories[collection.repository].license
 
     def artifacts(self, include_local: bool = False) -> list[tuple[Collection, Artifact]]:
+        """List artifacts allowed by the requested distribution scope."""
         values: list[tuple[Collection, Artifact]] = []
         for collection in self.collections.values():
             if include_local or collection.distribution == "committed":
@@ -148,6 +170,8 @@ class Manifest:
 
 @dataclass(frozen=True)
 class BuiltSkill:
+    """The output and source list for one completed build."""
+
     collection: str
     name: str
     distribution: str
@@ -157,15 +181,19 @@ class BuiltSkill:
 
 @dataclass(frozen=True)
 class ValidationIssue:
+    """One validation finding with a project-relative path."""
+
     severity: str
     path: str
     message: str
 
     def to_dict(self) -> dict[str, str]:
+        """Return the finding in report format."""
         return {"severity": self.severity, "path": self.path, "message": self.message}
 
 
 def require_mapping(value: Any, context: str) -> dict[str, Any]:
+    """Return a manifest mapping or raise an error naming its context."""
     if not isinstance(value, dict):
         raise ManifestError(f"{context} must be a mapping")
     return value
