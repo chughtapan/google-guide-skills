@@ -42,9 +42,8 @@ selected live clients. `--model AGENT=MODEL` is optional and repeatable. Use `--
 large matrix. Raw traces are discarded unless `--keep-raw` is passed. Reports and kept traces live
 under mode-0700 `evals/results/`, which Git ignores. Failed runs do not count toward accuracy.
 
-Each client receives a reduced process environment. Codex shell commands inherit none of it. The
-harness does not send SWE-book output to hosted agents; `local-smoke` supports planning and
-offline tests only.
+Each client receives a reduced process environment. Codex shell commands inherit none of it. Live
+client runs exclude SWE-book output; `local-smoke` supports planning and offline tests only.
 
 ## Test cases
 

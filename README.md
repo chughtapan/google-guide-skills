@@ -99,6 +99,8 @@ only when a run needs an override. Live evaluations do not run in CI. See
 
 ## Outputs
 
+- [`docs/onboarding.md`](docs/onboarding.md) and [`docs/migration.md`](docs/migration.md): add
+  selected skills to new or existing repositories.
 - [`catalog/catalog.md`](catalog/catalog.md): source and skill catalog in Markdown.
 - [`catalog/catalog.json`](catalog/catalog.json): source and skill catalog in JSON.
 - [`catalog/tokens.json`](catalog/tokens.json): per-file and per-skill token totals.

@@ -36,7 +36,7 @@ smoke:
     rubric:
       - ['naming']
       - ['error']
-      - ['package comment']
+      - ['package comments?']
       - ['test']
   - id: smoke-html-css-style
     prompt: Under Google's HTML and CSS guide, what conventions cover validity, accessibility, selector naming, and formatting?
@@ -60,7 +60,7 @@ smoke:
     prompt: Under Google's Python guide, what rules apply to naming, mutable defaults, typing, and docstrings?
     expected: [google-python-style]
     rubric:
-      - ['snake.case', 'lowercase.*underscore']
+      - ['snake.case', 'lower.with.under', 'lowercase.*underscore']
       - ['mutable default', 'shared.*calls']
   - id: smoke-shell-style
     prompt: Under Google's shell guide, what rules apply to Bash quoting, command substitution, naming, scope, and error handling?
@@ -135,7 +135,7 @@ representative:
         split: train
         prompt: Our Python repository follows Google style. Review a function with CamelCase naming and a list default argument.
         rubric:
-          - ['snake.case', 'lowercase.*underscore']
+          - ['snake.case', 'lower.with.under', 'lowercase.*underscore']
           - ['mutable default', 'shared.*calls']
       - id: python-pos-02
         split: train
