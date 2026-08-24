@@ -346,8 +346,8 @@ collections:
     repository: abseil
     distribution: local-only
     description: >-
-      Local generator recipes for Software Engineering at Google. The chapter files carry a
-      CC BY-NC-ND 4.0 notice and must never be committed or redistributed by this project.
+      Software Engineering at Google guides for engineering practice, testing, documentation,
+      delivery, infrastructure, culture, and leadership.
     license_override:
       spdx: CC-BY-NC-ND-4.0
       name: Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
@@ -366,9 +366,9 @@ collections:
       - name: google-swe-culture-and-leadership
         title: "Software Engineering at Google: Culture and Leadership"
         description: >-
-          Use locally for questions about software engineering over time, teamwork, knowledge
-          sharing, equity, leadership, and engineering productivity using the corresponding
-          chapters of Software Engineering at Google. Never redistribute this generated skill.
+          Use for questions about software engineering over time, teamwork, knowledge sharing,
+          equity, leadership, and engineering productivity covered by Software Engineering at
+          Google.
         tags: [engineering, culture, leadership, productivity]
         layout: references
         inputs:
@@ -383,9 +383,8 @@ collections:
       - name: google-swe-style-and-readability
         title: "Software Engineering at Google: Style Guides and Rules"
         description: >-
-          Use locally for engineering-wide style-guide, consistency, rule, and readability
-          questions grounded in the style-guides chapter of Software Engineering at Google.
-          Never redistribute this generated skill.
+          Use for engineering-wide style-guide, consistency, rule, and readability questions
+          covered by Software Engineering at Google.
         tags: [engineering, style, readability]
         layout: references
         inputs: [resources/swe-book/html/ch08.html]
@@ -393,9 +392,8 @@ collections:
       - name: google-swe-code-review
         title: "Software Engineering at Google: Code Review"
         description: >-
-          Use locally for code-review policy, process, tooling, reviewer, author, and readability
-          questions grounded in the code-review chapters of Software Engineering at Google.
-          Never redistribute this generated skill.
+          Use for code-review policy, process, tooling, reviewer, author, and readability
+          questions covered by Software Engineering at Google.
         tags: [engineering, code-review, readability, tooling]
         layout: references
         inputs:
@@ -405,9 +403,8 @@ collections:
       - name: google-swe-documentation
         title: "Software Engineering at Google: Documentation"
         description: >-
-          Use locally for documentation purpose, audience, quality, review, maintenance, and
-          documentation-as-code questions grounded in Software Engineering at Google. Never
-          redistribute this generated skill.
+          Use for documentation purpose, audience, quality, review, maintenance, and
+          documentation-as-code questions covered by Software Engineering at Google.
         tags: [engineering, documentation, maintenance]
         layout: references
         inputs: [resources/swe-book/html/ch10.html]
@@ -415,9 +412,8 @@ collections:
       - name: google-swe-testing
         title: "Software Engineering at Google: Testing"
         description: >-
-          Use locally for testing strategy, test size and scope, unit tests, test doubles, and
-          larger-test questions grounded in the testing chapters of Software Engineering at
-          Google. Never redistribute this generated skill.
+          Use for testing strategy, test size and scope, unit tests, test doubles, and larger-test
+          questions covered by Software Engineering at Google.
         tags: [engineering, testing, unit-testing, test-doubles]
         layout: references
         inputs:
@@ -429,9 +425,9 @@ collections:
       - name: google-swe-maintenance-and-delivery
         title: "Software Engineering at Google: Maintenance and Delivery"
         description: >-
-          Use locally for deprecation, version control, code search, builds, static analysis,
-          dependencies, large changes, continuous integration, and continuous delivery grounded
-          in Software Engineering at Google. Never redistribute this generated skill.
+          Use for deprecation, version control, code search, builds, static analysis, dependencies,
+          large changes, continuous integration, and continuous delivery covered by Software
+          Engineering at Google.
         tags: [engineering, maintenance, build, ci, cd, dependencies]
         layout: references
         inputs:
@@ -448,9 +444,8 @@ collections:
       - name: google-swe-infrastructure
         title: "Software Engineering at Google: Compute as a Service"
         description: >-
-          Use locally for questions about compute infrastructure, hosted services, deployment,
-          multitenancy, and infrastructure abstractions grounded in Software Engineering at
-          Google. Never redistribute this generated skill.
+          Use for questions about compute infrastructure, hosted services, deployment,
+          multitenancy, and infrastructure abstractions covered by Software Engineering at Google.
         tags: [engineering, infrastructure, compute, deployment]
         layout: references
         inputs: [resources/swe-book/html/ch25.html]
@@ -458,9 +453,8 @@ collections:
       - name: google-swe-book-front-matter
         title: "Software Engineering at Google: Front Matter and Afterword"
         description: >-
-          Use locally when book-level context, scope, authorship, publication, navigation, or the
-          afterword from Software Engineering at Google is specifically needed. Never
-          redistribute this generated skill.
+          Use when book-level context, scope, authorship, publication, navigation, or the
+          afterword from Software Engineering at Google is specifically needed.
         tags: [engineering, book, context, attribution]
         layout: references
         inputs:

@@ -19,7 +19,16 @@ from .evals import (
     run_evaluation,
     select_cases,
 )
-from .installer import DEFAULT_AGENTS, install, install_user_links
+from .installer import (
+    DEFAULT_AGENTS,
+    SWE_BOOK_COLLECTION_ID,
+    InstallLinkAction,
+    install,
+    install_links,
+    require_swe_book_license_acceptance,
+    selected_install_skills,
+    swe_book_license_notice,
+)
 from .manifest import find_project_root, load_manifest
 from .metrics import write_metrics
 from .models import Manifest, ValidationIssue
@@ -58,7 +67,8 @@ def _parser() -> argparse.ArgumentParser:
     validate_parser.add_argument("--json", action="store_true", dest="json_output")
 
     install_parser = subparsers.add_parser(
-        "install", help="Install skills for the current user or an explicit project"
+        "install",
+        help="Install for the current user (recommended) or an explicit project",
     )
     install_parser.add_argument("--project", type=Path)
     install_parser.add_argument("--agent", action="append", choices=DEFAULT_AGENTS)
@@ -67,7 +77,12 @@ def _parser() -> argparse.ArgumentParser:
     install_parser.add_argument(
         "--include-swe-book",
         action="store_true",
-        help="Generate and link the local-only SWE-book skills",
+        help="Generate and link the Software Engineering at Google skills",
+    )
+    install_parser.add_argument(
+        "--accept-swe-book-license",
+        action="store_true",
+        help="Accept the SWE-book CC BY-NC-ND 4.0 license without an interactive prompt",
     )
     install_parser.add_argument("--dry-run", action="store_true")
 
@@ -170,54 +185,88 @@ def _run_validate(args: argparse.Namespace, manifest: Manifest) -> int:
     return 1 if has_errors(issues) else 0
 
 
-def _install_for_user(args: argparse.Namespace, manifest: Manifest, agents: list[str]) -> int:
-    if args.copy:
-        raise GoogleGuideSkillsError("User installation uses symlinks; --copy requires --project")
-    if args.include_swe_book and not args.dry_run:
-        built = build(
-            manifest,
-            collection_ids=["software-engineering-at-google"],
-            include_local=True,
-        )
-        write_metrics(manifest, include_local=True)
-        print(f"Generated {len(built)} local-only SWE-book skill(s).")
-    issues = validate(manifest, include_local=args.include_swe_book)
+def _prepare_swe_book_install(
+    args: argparse.Namespace,
+    manifest: Manifest,
+    local_skills: list[str],
+) -> None:
+    if not local_skills:
+        return
+    if args.dry_run:
+        print(f"license acceptance required: {swe_book_license_notice(manifest)}")
+        return
+    notice = require_swe_book_license_acceptance(
+        manifest,
+        accepted=args.accept_swe_book_license,
+    )
+    print(f"license accepted: {notice}")
+    built = build(
+        manifest,
+        collection_ids=[SWE_BOOK_COLLECTION_ID],
+        include_local=True,
+    )
+    write_metrics(manifest, include_local=True)
+    print(f"Generated {len(built)} SWE-book skill(s).")
+
+
+def _validate_install(manifest: Manifest, *, include_swe_book: bool) -> None:
+    issues = validate(manifest, include_local=include_swe_book)
     if has_errors(issues):
-        option = " --include-swe-book" if args.include_swe_book else ""
+        option = " --include-swe-book" if include_swe_book else ""
         raise GoogleGuideSkillsError(
             f"Generated skills failed validation; run `google-guides validate{option}` for details"
         )
-    actions = install_user_links(
-        manifest,
-        agents,
-        skills=args.skills,
-        include_local=args.include_swe_book,
-        dry_run=args.dry_run,
-    )
+
+
+def _print_link_actions(actions: list[InstallLinkAction]) -> None:
     for action in actions:
-        print(f"{action.status}: {action.destination} -> {action.source} [{action.distribution}]")
-    return 0
+        source_kind = "SWE-book" if action.distribution == "local-only" else "public"
+        print(f"{action.status}: {action.destination} -> {action.source} [{source_kind}]")
 
 
 def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
     agents = args.agent or list(DEFAULT_AGENTS)
-    if args.project is None:
-        return _install_for_user(args, manifest, agents)
-    if args.include_swe_book:
-        raise GoogleGuideSkillsError(
-            "--include-swe-book is only for user installation and cannot be combined with --project"
-        )
-    commands = install(
+    committed_skills, local_skills = selected_install_skills(
         manifest,
-        args.project,
-        agents,
-        skills=args.skills,
-        copy=args.copy,
-        dry_run=args.dry_run,
+        args.skills,
+        include_local=args.include_swe_book,
     )
+    project = args.project
+    if project is not None and not project.is_dir():
+        raise GoogleGuideSkillsError(f"Install project does not exist: {project}")
+    if project is None and args.copy:
+        raise GoogleGuideSkillsError("User installation uses symlinks; --copy requires --project")
+    _prepare_swe_book_install(args, manifest, local_skills)
+    _validate_install(
+        manifest,
+        include_swe_book=bool(local_skills) and not args.dry_run,
+    )
+    commands = []
+    if project is not None and committed_skills:
+        commands = install(
+            manifest,
+            project,
+            agents,
+            skills=committed_skills,
+            copy=args.copy,
+            dry_run=args.dry_run,
+        )
     if args.dry_run:
         for command in commands:
             print(shlex.join(command))
+    if args.copy and local_skills:
+        print("--copy applies to public skills; SWE-book skills are linked.")
+    link_skills = local_skills if project is not None else committed_skills + local_skills
+    if link_skills:
+        actions = install_links(
+            manifest,
+            agents,
+            skills=link_skills,
+            include_local=bool(local_skills),
+            dry_run=args.dry_run,
+            project=project,
+        )
+        _print_link_actions(actions)
     return 0
 
 

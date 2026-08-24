@@ -1367,7 +1367,7 @@ def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Pa
         (skill / "SKILL.md").write_text(text, encoding="utf-8")
     user_home = tmp_path / "user"
 
-    planned = installer.install_user_links(
+    planned = installer.install_links(
         loaded,
         ["codex"],
         skills=["public-guide", "restricted-guide"],
@@ -1378,7 +1378,7 @@ def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Pa
     assert [action.status for action in planned] == ["would-link", "would-link"]
     assert not (user_home / ".codex/skills").exists()
 
-    actions = installer.install_user_links(
+    actions = installer.install_links(
         loaded,
         ["codex"],
         skills=["public-guide", "restricted-guide"],
@@ -1394,7 +1394,7 @@ def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Pa
     assert restricted_link.resolve() == restricted.resolve()
     assert ".generated/skills" in restricted_link.resolve().as_posix()
 
-    repeated = installer.install_user_links(
+    repeated = installer.install_links(
         loaded,
         ["codex"],
         skills=["public-guide", "restricted-guide"],
@@ -1405,6 +1405,99 @@ def test_user_install_links_local_only_skills_without_copying_bytes(tmp_path: Pa
         "already-linked",
         "already-linked",
     ]
+
+
+def test_project_install_links_swe_book_skills_for_each_agent(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    source = loaded.root_for("local-only") / "restricted-guide"
+    source.mkdir(parents=True)
+    (source / "SKILL.md").write_text("restricted\n", encoding="utf-8")
+    project = tmp_path / "consumer"
+    project.mkdir()
+
+    actions = installer.install_links(
+        loaded,
+        ["codex", "claude-code"],
+        skills=["restricted-guide"],
+        include_local=True,
+        project=project,
+    )
+
+    assert [action.status for action in actions] == ["linked", "linked"]
+    codex_link = project / ".agents/skills/restricted-guide"
+    claude_link = project / ".claude/skills/restricted-guide"
+    assert codex_link.is_symlink()
+    assert codex_link.resolve() == source.resolve()
+    assert claude_link.is_symlink()
+    assert claude_link.resolve() == source.resolve()
+
+
+def test_project_install_rejects_skill_root_that_escapes_project(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    source = loaded.root_for("local-only") / "restricted-guide"
+    source.mkdir(parents=True)
+    (source / "SKILL.md").write_text("restricted\n", encoding="utf-8")
+    project = tmp_path / "consumer"
+    project.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (project / ".agents").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(GoogleGuideSkillsError, match="escapes the project"):
+        installer.install_links(
+            loaded,
+            ["codex"],
+            skills=["restricted-guide"],
+            include_local=True,
+            project=project,
+        )
+
+
+def test_swe_book_license_acceptance_is_explicit(tmp_path: Path) -> None:
+    data = _manifest_data()
+    collections = data["collections"]
+    assert isinstance(collections, dict)
+    collections[installer.SWE_BOOK_COLLECTION_ID] = collections.pop("restricted-guides")
+    loaded = _write_manifest(tmp_path / "generator", data)
+    prompts: list[str] = []
+
+    def accept(message: str) -> str:
+        prompts.append(message)
+        return "yes"
+
+    accepted = installer.require_swe_book_license_acceptance(
+        loaded,
+        accepted=False,
+        prompt=accept,
+    )
+    assert "CC-BY-NC-ND-4.0" in prompts[0]
+    assert "https://example.test/licenses/CC-BY-NC-ND-4.0" in accepted
+    assert "Do not redistribute generated output" in accepted
+
+    with pytest.raises(GoogleGuideSkillsError, match="was not accepted"):
+        installer.require_swe_book_license_acceptance(
+            loaded,
+            accepted=False,
+            prompt=lambda _message: "no",
+        )
+
+
+def test_swe_book_dry_run_plans_missing_generated_source(tmp_path: Path) -> None:
+    loaded = _write_manifest(tmp_path / "generator", _manifest_data())
+    project = tmp_path / "consumer"
+    project.mkdir()
+
+    actions = installer.install_links(
+        loaded,
+        ["codex"],
+        skills=["restricted-guide"],
+        include_local=True,
+        dry_run=True,
+        project=project,
+    )
+
+    assert actions[0].status == "would-link"
+    assert actions[0].destination == project / ".agents/skills/restricted-guide"
 
 
 def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Path) -> None:
@@ -1419,7 +1512,7 @@ def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Pa
     (source / "references").mkdir()
     (destination / "references").mkdir()
 
-    planned = installer.install_user_links(
+    planned = installer.install_links(
         loaded,
         ["codex"],
         skills=["public-guide"],
@@ -1430,7 +1523,7 @@ def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Pa
     assert destination.is_dir()
     assert not destination.is_symlink()
 
-    actions = installer.install_user_links(
+    actions = installer.install_links(
         loaded,
         ["codex"],
         skills=["public-guide"],
@@ -1447,7 +1540,7 @@ def test_user_install_relinks_identical_copy_and_rejects_collisions(tmp_path: Pa
     destination.mkdir()
     (destination / "SKILL.md").write_text("different\n", encoding="utf-8")
     with pytest.raises(GoogleGuideSkillsError, match="different content"):
-        installer.install_user_links(
+        installer.install_links(
             loaded,
             ["codex"],
             skills=["public-guide"],
@@ -1473,7 +1566,7 @@ def test_user_install_restores_identical_copy_when_relink_fails(
 
     monkeypatch.setattr(Path, "symlink_to", fail_to_link)
     with pytest.raises(GoogleGuideSkillsError, match="fixture link failure"):
-        installer.install_user_links(
+        installer.install_links(
             loaded,
             ["codex"],
             skills=["public-guide"],
@@ -1488,14 +1581,14 @@ def test_user_install_restores_identical_copy_when_relink_fails(
 def test_user_install_requires_local_generation_and_explicit_opt_in(tmp_path: Path) -> None:
     loaded = _write_manifest(tmp_path / "generator", _manifest_data())
     with pytest.raises(GoogleGuideSkillsError, match="unavailable"):
-        installer.install_user_links(
+        installer.install_links(
             loaded,
             ["codex"],
             skills=["restricted-guide"],
             user_home=tmp_path / "user",
         )
     with pytest.raises(GoogleGuideSkillsError, match="all --include-swe-book"):
-        installer.install_user_links(
+        installer.install_links(
             loaded,
             ["codex"],
             skills=["restricted-guide"],

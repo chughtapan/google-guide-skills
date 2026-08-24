@@ -1,11 +1,13 @@
-"""Install generated skills through the open `skills` CLI."""
+"""Install generated skills into user or project agent directories."""
 
 from __future__ import annotations
 
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -16,11 +18,16 @@ from .path_policy import checked_tree_hashes, require_safe_project_path
 DEFAULT_AGENTS = ("codex", "claude-code")
 SKILLS_CLI_PACKAGE = "skills@1.5.23"
 INSTALL_TIMEOUT_SECONDS = 300
+SWE_BOOK_COLLECTION_ID = "software-engineering-at-google"
+PROJECT_SKILL_ROOTS = {
+    "codex": Path(".agents/skills"),
+    "claude-code": Path(".claude/skills"),
+}
 
 
 @dataclass(frozen=True)
-class UserInstallAction:
-    """One checked user-level skill link operation."""
+class InstallLinkAction:
+    """One checked skill link operation."""
 
     agent: str
     skill: str
@@ -76,7 +83,97 @@ def _user_skill_root(agent: str, user_home: Path | None) -> Path:
     return skill_root
 
 
-def _available_user_skills(manifest: Manifest, include_local: bool) -> dict[str, tuple[Path, str]]:
+def _project_skill_root(agent: str, project: Path) -> Path:
+    if agent not in PROJECT_SKILL_ROOTS:
+        raise GoogleGuideSkillsError(f"Unsupported project install agent: {agent}")
+    project = project.expanduser()
+    if not project.is_dir():
+        raise GoogleGuideSkillsError(f"Install project does not exist: {project}")
+    project = project.resolve(strict=True)
+    skill_root = project / PROJECT_SKILL_ROOTS[agent]
+    if not skill_root.resolve(strict=False).is_relative_to(project):
+        raise GoogleGuideSkillsError(f"Project skill root escapes the project: {skill_root}")
+    return skill_root
+
+
+def _install_skill_root(
+    agent: str,
+    user_home: Path | None,
+    project: Path | None,
+) -> Path:
+    if project is None:
+        return _user_skill_root(agent, user_home)
+    if user_home is not None:
+        raise GoogleGuideSkillsError("user_home cannot be combined with a project install")
+    return _project_skill_root(agent, project)
+
+
+def selected_install_skills(
+    manifest: Manifest,
+    skills: list[str] | None,
+    *,
+    include_local: bool,
+) -> tuple[list[str], list[str]]:
+    """Return selected committed and local-only skill names."""
+    distributions = {
+        artifact.name: collection.distribution
+        for collection, artifact in manifest.artifacts(include_local=True)
+    }
+    eligible = {name for name, distribution in distributions.items() if distribution == "committed"}
+    if include_local:
+        eligible.update(distributions)
+    requested = set(skills) if skills is not None else eligible
+    unknown = sorted(requested - set(distributions))
+    if unknown:
+        raise GoogleGuideSkillsError("Unknown skills: " + ", ".join(unknown))
+    blocked = sorted(requested - eligible)
+    if blocked:
+        raise GoogleGuideSkillsError(
+            "SWE-book skills require --include-swe-book: " + ", ".join(blocked)
+        )
+    committed = sorted(name for name in requested if distributions[name] == "committed")
+    local = sorted(name for name in requested if distributions[name] == "local-only")
+    return committed, local
+
+
+def swe_book_license_notice(manifest: Manifest) -> str:
+    """Return the license notice shown before SWE-book installation."""
+    collection = manifest.collections[SWE_BOOK_COLLECTION_ID]
+    license_info = manifest.license_for(collection)
+    notice = (
+        "Software Engineering at Google material is licensed under "
+        f"{license_info.name} ({license_info.spdx}). Review {license_info.url} and use the "
+        "generated skills only as the license permits."
+    )
+    return f"{notice} {license_info.warning}" if license_info.warning else notice
+
+
+def require_swe_book_license_acceptance(
+    manifest: Manifest,
+    *,
+    accepted: bool,
+    prompt: Callable[[str], str] | None = None,
+) -> str:
+    """Require explicit acceptance before installing generated SWE-book skills."""
+    notice = swe_book_license_notice(manifest)
+    if accepted:
+        return notice
+    if prompt is None:
+        if not sys.stdin.isatty():
+            raise GoogleGuideSkillsError(
+                f"SWE-book installation requires license acceptance. {notice} "
+                "Rerun with --accept-swe-book-license to continue."
+            )
+        prompt = input
+    answer = prompt(f"{notice}\nAccept this license for this installation? [y/N] ")
+    if answer.strip().lower() not in {"y", "yes"}:
+        raise GoogleGuideSkillsError(
+            "SWE-book license was not accepted; no SWE-book skills were installed"
+        )
+    return notice
+
+
+def _available_link_skills(manifest: Manifest, include_local: bool) -> dict[str, tuple[Path, str]]:
     available: dict[str, tuple[Path, str]] = {}
     for collection, artifact in manifest.artifacts(include_local=True):
         if collection.distribution == "local-only" and not include_local:
@@ -88,13 +185,15 @@ def _available_user_skills(manifest: Manifest, include_local: bool) -> dict[str,
     return available
 
 
-def _resolve_user_sources(
+def _resolve_link_sources(
     manifest: Manifest,
     available: dict[str, tuple[Path, str]],
     requested: set[str],
-) -> tuple[dict[str, tuple[Path, str]], dict[str, dict[str, str]]]:
+    *,
+    dry_run: bool,
+) -> tuple[dict[str, tuple[Path, str]], dict[str, dict[str, str] | None]]:
     resolved = dict(available)
-    hashes: dict[str, dict[str, str]] = {}
+    hashes: dict[str, dict[str, str] | None] = {}
     for name in sorted(requested):
         source, distribution = available[name]
         source = require_safe_project_path(
@@ -104,6 +203,10 @@ def _resolve_user_sources(
             error_type=GoogleGuideSkillsError,
         )
         if not source.is_dir():
+            if dry_run and distribution == "local-only":
+                resolved[name] = source, distribution
+                hashes[name] = None
+                continue
             hint = (
                 "; run `google-guides all --include-swe-book` first"
                 if distribution == "local-only"
@@ -122,10 +225,10 @@ def _resolve_user_sources(
     return resolved, hashes
 
 
-def _user_link_status(
+def _link_status(
     destination: Path,
     source: Path,
-    source_hashes: dict[str, str],
+    source_hashes: dict[str, str] | None,
     skill: str,
     dry_run: bool,
 ) -> str:
@@ -136,10 +239,14 @@ def _user_link_status(
             matches = False
         if not matches:
             raise GoogleGuideSkillsError(
-                f"User skill destination is an unrelated symlink: {destination}"
+                f"Skill destination is an unrelated symlink: {destination}"
             )
         return "already-linked"
     if destination.exists():
+        if source_hashes is None:
+            raise GoogleGuideSkillsError(
+                f"Generate {skill} before checking the existing destination: {destination}"
+            )
         if (
             not destination.is_dir()
             or checked_tree_hashes(
@@ -150,13 +257,13 @@ def _user_link_status(
             != source_hashes
         ):
             raise GoogleGuideSkillsError(
-                f"User skill destination already exists with different content: {destination}"
+                f"Skill destination already exists with different content: {destination}"
             )
         return "would-relink" if dry_run else "relinked"
     return "would-link" if dry_run else "linked"
 
 
-def _replace_identical_copy_with_link(action: UserInstallAction) -> None:
+def _replace_identical_copy_with_link(action: InstallLinkAction) -> None:
     """Replace a verified identical copy and restore it if link creation fails."""
     with tempfile.TemporaryDirectory(
         prefix=f".{action.skill}-backup-", dir=action.destination.parent
@@ -170,7 +277,7 @@ def _replace_identical_copy_with_link(action: UserInstallAction) -> None:
             raise
 
 
-def _apply_user_link(action: UserInstallAction) -> None:
+def _apply_install_link(action: InstallLinkAction) -> None:
     action.destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     if action.status == "relinked":
         _replace_identical_copy_with_link(action)
@@ -178,34 +285,35 @@ def _apply_user_link(action: UserInstallAction) -> None:
         action.destination.symlink_to(action.source, target_is_directory=True)
 
 
-def _plan_user_links(
+def _plan_install_links(
     agents: list[str],
     requested: set[str],
     available: dict[str, tuple[Path, str]],
-    source_hashes: dict[str, dict[str, str]],
+    source_hashes: dict[str, dict[str, str] | None],
     dry_run: bool,
     user_home: Path | None,
-) -> list[UserInstallAction]:
-    planned: list[UserInstallAction] = []
+    project: Path | None,
+) -> list[InstallLinkAction]:
+    planned: list[InstallLinkAction] = []
     for agent in agents:
-        destination_root = _user_skill_root(agent, user_home)
+        destination_root = _install_skill_root(agent, user_home, project)
         if destination_root.is_symlink():
             raise GoogleGuideSkillsError(
-                f"User skill root must be a real directory, not a symlink: {destination_root}"
+                f"Skill root must be a real directory, not a symlink: {destination_root}"
             )
         if destination_root.exists() and not destination_root.is_dir():
-            raise GoogleGuideSkillsError(f"User skill root is not a directory: {destination_root}")
+            raise GoogleGuideSkillsError(f"Skill root is not a directory: {destination_root}")
         for name in sorted(requested):
             source, distribution = available[name]
             destination = destination_root / name
             planned.append(
-                UserInstallAction(
+                InstallLinkAction(
                     agent=agent,
                     skill=name,
                     distribution=distribution,
                     source=source.resolve(),
                     destination=destination,
-                    status=_user_link_status(
+                    status=_link_status(
                         destination,
                         source,
                         source_hashes[name],
@@ -217,7 +325,7 @@ def _plan_user_links(
     return planned
 
 
-def install_user_links(
+def install_links(
     manifest: Manifest,
     agents: list[str],
     skills: list[str] | None = None,
@@ -225,11 +333,12 @@ def install_user_links(
     include_local: bool = False,
     dry_run: bool = False,
     user_home: Path | None = None,
-) -> list[UserInstallAction]:
-    """Symlink generated skills into user agent homes without exporting local-only bytes."""
+    project: Path | None = None,
+) -> list[InstallLinkAction]:
+    """Symlink generated skills into user or project agent directories."""
     if not agents:
         raise GoogleGuideSkillsError("Select at least one target agent")
-    available = _available_user_skills(manifest, include_local)
+    available = _available_link_skills(manifest, include_local)
     requested = set(skills) if skills is not None else set(available)
     unknown = sorted(requested - set(available))
     if unknown:
@@ -237,18 +346,31 @@ def install_user_links(
             "Selected skills are unavailable under the current distribution policy: "
             + ", ".join(unknown)
         )
-    available, source_hashes = _resolve_user_sources(manifest, available, requested)
-    planned = _plan_user_links(agents, requested, available, source_hashes, dry_run, user_home)
+    available, source_hashes = _resolve_link_sources(
+        manifest,
+        available,
+        requested,
+        dry_run=dry_run,
+    )
+    planned = _plan_install_links(
+        agents,
+        requested,
+        available,
+        source_hashes,
+        dry_run,
+        user_home,
+        project,
+    )
     if dry_run:
         return planned
     for action in planned:
         if action.status not in {"linked", "relinked"}:
             continue
         try:
-            _apply_user_link(action)
+            _apply_install_link(action)
         except OSError as exc:
             raise GoogleGuideSkillsError(
-                f"Could not create user skill link {action.destination}: {exc}"
+                f"Could not create skill link {action.destination}: {exc}"
             ) from exc
     return planned
 

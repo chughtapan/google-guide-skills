@@ -635,7 +635,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally when book-level context, scope, authorship, publication, navigation, or the afterword from Software Engineering at Google is specifically needed. Never redistribute this generated skill.",
+      "description": "Use when book-level context, scope, authorship, publication, navigation, or the afterword from Software Engineering at Google is specifically needed.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-book-front-matter",
@@ -663,7 +663,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for code-review policy, process, tooling, reviewer, author, and readability questions grounded in the code-review chapters of Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for code-review policy, process, tooling, reviewer, author, and readability questions covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-code-review",
@@ -691,7 +691,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for questions about software engineering over time, teamwork, knowledge sharing, equity, leadership, and engineering productivity using the corresponding chapters of Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for questions about software engineering over time, teamwork, knowledge sharing, equity, leadership, and engineering productivity covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-culture-and-leadership",
@@ -719,7 +719,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for documentation purpose, audience, quality, review, maintenance, and documentation-as-code questions grounded in Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for documentation purpose, audience, quality, review, maintenance, and documentation-as-code questions covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-documentation",
@@ -746,7 +746,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for questions about compute infrastructure, hosted services, deployment, multitenancy, and infrastructure abstractions grounded in Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for questions about compute infrastructure, hosted services, deployment, multitenancy, and infrastructure abstractions covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-infrastructure",
@@ -774,7 +774,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for deprecation, version control, code search, builds, static analysis, dependencies, large changes, continuous integration, and continuous delivery grounded in Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for deprecation, version control, code search, builds, static analysis, dependencies, large changes, continuous integration, and continuous delivery covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-maintenance-and-delivery",
@@ -804,7 +804,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for engineering-wide style-guide, consistency, rule, and readability questions grounded in the style-guides chapter of Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for engineering-wide style-guide, consistency, rule, and readability questions covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-style-and-readability",
@@ -831,7 +831,7 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use locally for testing strategy, test size and scope, unit tests, test doubles, and larger-test questions grounded in the testing chapters of Software Engineering at Google. Never redistribute this generated skill.",
+      "description": "Use for testing strategy, test size and scope, unit tests, test doubles, and larger-test questions covered by Software Engineering at Google.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-testing",
