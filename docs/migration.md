@@ -11,21 +11,20 @@ repository, or adopting several new processes in the same change.
 
 ## 2. Install the matching skills
 
-For example:
+Per-user installation is recommended for a pilot:
 
 ```bash
 uv run google-guides install \
-  --project /path/to/existing-repository \
   --agent codex \
   --agent claude-code \
-  --copy \
   --skill google-python-style \
   --skill google-code-review-reviewer
 ```
 
-The SWE-book skills are local-only. Generate and link them to your own Codex and Claude Code
-homes with `uv run google-guides install --include-swe-book`; do not copy them into a project or
-commit their generated files.
+Add `--project /path/to/existing-repository --copy` when the repository should contain the public
+skills. Add `--include-swe-book` when the pilot needs the Software Engineering at Google guides;
+the installer asks for license acceptance. Project SWE-book installs are links to this checkout
+and should remain untracked.
 
 ## 3. Add one routing section
 

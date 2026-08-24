@@ -16,26 +16,26 @@ project that maintains user documentation and reviews every change, start with:
 Use [`catalog/catalog.md`](../catalog/catalog.md) to find other guides. Do not install the full
 pack unless the repository uses it; every installed description consumes agent startup context.
 
-## 2. Install them into the repository
+## 2. Install them
 
-From this checkout, run:
+Per-user installation is recommended for personal use because it works across repositories:
 
 ```bash
 uv run google-guides install \
-  --project /path/to/new-repository \
   --agent codex \
   --agent claude-code \
-  --copy \
   --skill google-python-style \
   --skill google-documentation-guide \
   --skill google-code-review-author \
   --skill google-code-review-reviewer
 ```
 
-Select only the agents the repository supports. Use `--dry-run` to inspect the install command.
+Add `--project /path/to/new-repository --copy` when the repository should contain the public
+skills. Select only the agents the repository supports. Use `--dry-run` to inspect the install.
 
-The SWE-book skills cannot be copied into a repository. To use them from your own Codex and Claude
-Code homes, run `uv run google-guides install --include-swe-book` from this checkout.
+Add `--include-swe-book` to install the Software Engineering at Google skills. The installer asks
+you to accept their CC BY-NC-ND 4.0 license before it generates them. A project install links those
+skills back to this checkout; keep the links out of version control.
 
 ## 3. Route work in `AGENTS.md`
 
@@ -56,4 +56,4 @@ Repository rules still take precedence. Add another skill only when a recurring 
 
 Ask each supported agent to perform one normal repository task. Confirm that it loads the intended
 skill, follows the repository's existing commands, and does not select unrelated skills. Commit
-the installed files, `AGENTS.md`, and any setup documentation together.
+public copied skills, `AGENTS.md`, and setup documentation together. Do not commit SWE-book links.

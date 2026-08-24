@@ -1,48 +1,27 @@
 # Google Guide Skills
 
-Convert Google's public engineering guides into [Agent Skills](https://agentskills.io/), install
-them, and test whether agents select them. Project installation supports Codex and Claude Code.
-Evaluation supports Codex, Claude Code, OpenCode, OpenClaw, and Hermes.
-The generator copies Markdown and converts HTML/XML to Markdown. It adds skill metadata,
-navigation, source records, and license files. Version 0.1 does not bundle images or rewrite
-relative links. Open the source repository named in `source.json` to view missing diagrams or
-follow those links.
+Convert Google's engineering guides into [Agent Skills](https://agentskills.io/), install them for
+a user or repository, and test whether agents select them. Installation supports Codex and Claude
+Code. Evaluation supports Codex, Claude Code, OpenCode, OpenClaw, and Hermes.
 
-Generated files go to one of two places:
-
-- `skills/` contains material that can be redistributed and committed.
-- `.generated/skills/` contains SWE-book output for local use and is ignored by git.
-
-`corpus.yaml` records every source, revision, license, file pattern, output policy, and skill
-description.
-
-This split is required for
-[`abseil/abseil.github.io`](https://github.com/abseil/abseil.github.io). Most files used here are
-Apache-2.0, but `resources/swe-book/html/` has CC BY-NC-ND 4.0 notices. The generator writes those
-chapters only to `.generated/skills/`.
+The generator pins each source revision, copies Markdown, converts HTML/XML to Markdown, and writes
+skill metadata, provenance, license files, a catalog, and token counts. `corpus.yaml` defines the
+corpus and output rules.
 
 ## Quick start
 
-Requirements: Git, [uv](https://docs.astral.sh/uv/), and Node.js/npm for cross-agent
-installation. The package and unit tests support Python 3.11+, while byte-for-byte generation is
-pinned to Python 3.13.7 in `.python-version` and `corpus.yaml`; `uv` provisions that interpreter.
+Requirements: Git and [uv](https://docs.astral.sh/uv/). Project installation of public skills also
+requires Node.js/npm. The package and unit tests support Python 3.11+, while byte-for-byte
+generation is pinned to Python 3.13.7 in `.python-version` and `corpus.yaml`; `uv` provisions that
+interpreter.
 
 ```bash
 uv sync --all-groups
 uv run google-guides all
 ```
 
-That command checks out the exact revisions in `corpus.yaml`, builds redistributable skills,
-regenerates the catalog and `o200k_base` token report, and validates the result.
-
-Generate the SWE-book skills on your machine:
-
-```bash
-uv run google-guides all --include-swe-book
-```
-
-The files in `.generated/` remain subject to CC BY-NC-ND 4.0. Use them only for noncommercial
-purposes. Do not commit, share, or redistribute them. Read the recorded license before use.
+That command checks out the revisions in `corpus.yaml`, builds the public skill set, regenerates
+the catalog and `o200k_base` token report, and validates the result.
 
 ## Commands
 
@@ -53,29 +32,26 @@ google-guides build --include-swe-book     also build the SWE-book skills locall
 google-guides catalog                      regenerate catalog files
 google-guides metrics [--include-swe-book] count every generated text file with o200k_base
 google-guides validate [--include-swe-book] check skill, reference, and license boundaries
-google-guides install --agent codex        install for the current user
-google-guides install --include-swe-book   also generate and link the SWE-book skills
+google-guides install --agent codex        install for the current user (recommended)
+google-guides install --project PATH       install into a repository
+google-guides install --include-swe-book   add the SWE-book skills after license acceptance
 google-guides eval triggers                plan skill-selection tests
 google-guides eval quality                 plan answers with and without skills
 google-guides all                           sync, build, catalog, measure, and validate
 ```
 
-Install the generated skills into a project for Codex and Claude Code:
+## Installation
+
+Per-user installation is recommended because one setup works across repositories:
 
 ```bash
 uv run google-guides install \
-  --project /path/to/project \
   --agent codex \
-  --agent claude-code \
-  --copy
+  --agent claude-code
 ```
 
-The command uses pinned [`npx skills@1.5.23`](https://github.com/vercel-labs/skills). The same
-folders work with Codex and Claude Code. Use `--dry-run` to inspect commands first. Without
-`--project`, the command installs for the current user. For repository setup, follow the
-[new-repository onboarding guide](docs/onboarding.md) or the
-[existing-repository migration guide](docs/migration.md). To include the SWE-book skills for both
-supported agents, run:
+Add the eight Software Engineering at Google skills with `--include-swe-book`. The installer shows
+the CC BY-NC-ND 4.0 terms and asks for acceptance before it generates or links them:
 
 ```bash
 uv run google-guides install \
@@ -84,10 +60,27 @@ uv run google-guides install \
   --include-swe-book
 ```
 
-The flag generates all eight book skills and links them from `.generated/skills/`; it does not copy
-or publish them. A byte-identical skill copy is replaced with a link so later source updates flow
-through it; a destination with different content stops the install. `--project` installs include
-only the 23 redistributable skills.
+For a noninteractive run, review the license first and pass `--accept-swe-book-license`.
+
+To install into a repository instead, add `--project`. Public skills can be copied; SWE-book
+skills are linked back to this checkout:
+
+```bash
+uv run google-guides install \
+  --project /path/to/project \
+  --agent codex \
+  --agent claude-code \
+  --copy \
+  --include-swe-book
+```
+
+Keep project SWE-book links out of version control. Use `--dry-run` to inspect an install. Project
+installation of public skills uses pinned
+[`npx skills@1.5.23`](https://github.com/vercel-labs/skills). For repository setup, follow the
+[new-repository onboarding guide](docs/onboarding.md) or the
+[existing-repository migration guide](docs/migration.md).
+
+## Evaluation
 
 The full pack uses most of Codex's fallback startup-metadata budget; the generated token report
 records the current total and supported path length. Deeper projects or unrelated host skills can
@@ -122,6 +115,9 @@ Version 0.1 leaves most source prose inline. The Go guide and multi-file collect
 text in `references/`. Validation warns when a main skill file exceeds the context recommendations.
 Use routing and quality results before moving another guide.
 
+Version 0.1 does not bundle upstream images or rewrite relative links. Use the repository and
+revision in each `source.json` to view missing diagrams or follow those links.
+
 The catalog lists four sources that the generator does not build: R style, Developer
 Documentation Style, Technical Writing, and a Google Cloud product-management article. Their
 snapshot or license work is unfinished.
@@ -132,6 +128,11 @@ The generator code, skill metadata, and navigation it adds are Apache-2.0. Sourc
 under the license recorded in each skill's `references/LICENSE.txt` and
 `references/source.json`; the project license does not replace those terms. See
 [`docs/licensing.md`](docs/licensing.md) for the policy.
+
+Public generated skills are written to `skills/`. SWE-book skills are written to the ignored
+`.generated/skills/` tree because the selected book chapters carry CC BY-NC-ND 4.0 notices. Their
+installer requires license acceptance and uses links rather than publishing those generated
+files. Do not commit or redistribute them.
 
 Google, Abseil, and related marks belong to their owners. This independent project is not
 affiliated with or endorsed by Google.

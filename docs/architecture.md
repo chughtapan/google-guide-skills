@@ -44,8 +44,9 @@ CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
 - A build fails when license evidence is missing.
 - Validation rejects local-only provenance inside the committed root and checks that
   `.generated/` is ignored and contains no tracked files, including force-added files.
-- User-level local-only installation is symlink-only: `install --include-swe-book` points an
-  agent home back to `.generated/skills/`, while project and copy export remain prohibited.
+- SWE-book installation requires license acceptance and links agent directories back to
+  `.generated/skills/`. User installation is recommended; an explicit project install uses the
+  same checked links. Copy mode applies only to public skills.
 
 ## Skill layout
 
