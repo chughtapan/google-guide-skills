@@ -21,7 +21,7 @@ The full committed pack fits Codex's fallback metadata budget only when the skil
 54 characters or shorter and no unrelated skills consume the same budget. After the routing run,
 shorten descriptions or split the pack without lowering recall. Move oversized inline guides into
 references and compare selection and answer quality before changing the default layout. OpenClaw
-already omits `google-go-style` from its full-pack inventory because that `SKILL.md` is oversized.
+omitted `google-go-style` in a single-skill probe because that `SKILL.md` is oversized.
 
 ## Distribution
 
