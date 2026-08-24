@@ -829,20 +829,7 @@ def test_write_catalog_links_only_generated_committed_skills(
     root_catalog = markdown_path.read_text(encoding="utf-8")
     assert "[`public-guide`](../skills/public-guide/SKILL.md)" in root_catalog
     assert "[`restricted-guide`]" not in root_catalog
-    index_catalog = (
-        loaded.project_root / "skills" / "google-guides-index" / "references" / "catalog.md"
-    ).read_text(encoding="utf-8")
-    assert "[`public-guide`](../../public-guide/SKILL.md)" in index_catalog
-    assert "name: google-guides-index" in (
-        loaded.project_root / "skills" / "google-guides-index" / "SKILL.md"
-    ).read_text(encoding="utf-8")
-    index_references = loaded.project_root / "skills/google-guides-index/references"
-    index_provenance = json.loads((index_references / "source.json").read_text(encoding="utf-8"))
-    assert index_provenance["collection"] == "authored-index"
-    assert (
-        hashlib.sha256((index_references / "LICENSE.txt").read_bytes()).hexdigest()
-        == (index_provenance["license"]["sha256"])
-    )
+    assert not (loaded.project_root / "skills" / "google-guides-index").exists()
 
 
 def test_metrics_count_text_files_and_gate_local_output(
@@ -1025,22 +1012,12 @@ def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
     public_skill = root / "skills" / "public-guide" / "SKILL.md"
     public_skill.write_text(
         "---\nname: wrong-name\ndescription: useful\nextra: unsupported\n---\n"
-        "Body with [missing metadata](references/missing.json).\n",
+        "Body with [missing metadata](references/missing.json) and "
+        "[an escaping link](references/../../../../outside.md).\n",
         encoding="utf-8",
     )
     provenance = root / "skills" / "public-guide" / "references" / "source.json"
     provenance.write_text("{not json}\n", encoding="utf-8")
-    index_catalog = root / "skills" / "google-guides-index" / "references" / "catalog.md"
-    index_catalog.write_text("[escape](../../../../outside.md)\n", encoding="utf-8")
-    shutil.rmtree(root / "skills" / "google-guides-index")
-    # Recreate the index with an escaping catalog link so both checks remain reachable.
-    index_dir = root / "skills" / "google-guides-index"
-    (index_dir / "references").mkdir(parents=True)
-    (index_dir / "SKILL.md").write_text(catalog.render_index_skill(), encoding="utf-8")
-    (index_dir / "references" / "catalog.md").write_text(
-        "[escape](../../../../outside.md)\n", encoding="utf-8"
-    )
-
     issues = validation.validate(generated_project)
     messages = [issue.message for issue in issues]
 
@@ -1048,7 +1025,7 @@ def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
     assert "Skill name 'wrong-name' does not match directory 'public-guide'" in messages
     assert "Broken local link: references/missing.json" in messages
     assert any(message.startswith("Invalid source metadata:") for message in messages)
-    assert "Link escapes project root: ../../../../outside.md" in messages
+    assert "Link escapes project root: references/../../../../outside.md" in messages
 
     shutil.rmtree(root / "skills" / "public-guide")
     missing = validation.validate(generated_project)
@@ -1221,7 +1198,7 @@ def test_install_commands_route_committed_skills(tmp_path: Path) -> None:
         loaded,
         project,
         ["codex", "claude-code"],
-        skills=["google-guides-index", "public-guide"],
+        skills=["public-guide"],
         copy=True,
     )
     assert commands == [
@@ -1235,8 +1212,6 @@ def test_install_commands_route_committed_skills(tmp_path: Path) -> None:
             "codex",
             "--agent",
             "claude-code",
-            "--skill",
-            "google-guides-index",
             "--skill",
             "public-guide",
             "--yes",
@@ -1322,9 +1297,7 @@ def test_install_commands_enumerate_manifest_allowlist(tmp_path: Path) -> None:
 
     commands = installer.install_commands(loaded, project, ["codex"])
 
-    assert commands[0][-5:] == [
-        "--skill",
-        "google-guides-index",
+    assert commands[0][-3:] == [
         "--skill",
         "public-guide",
         "--yes",

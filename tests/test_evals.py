@@ -19,7 +19,6 @@ from google_guide_skills.evals import (
     _evaluation_prompt,
     _filesystem_sandbox_command,
     _final_from_claude_trace,
-    _index_comparisons,
     _install_profile,
     _isolated_agent_env,
     _markdown_report,
@@ -105,7 +104,7 @@ def manifest(tmp_path: Path) -> Manifest:
     )
     value.path.write_text("schema_version: 1\n", encoding="utf-8")
     for distribution, names in (
-        ("committed", ("alpha-style", "beta-review", "google-guides-index")),
+        ("committed", ("alpha-style", "beta-review")),
         ("local-only", ("local-testing",)),
     ):
         for name in names:
@@ -190,11 +189,9 @@ def test_load_cases_expands_representative_defaults(manifest: Manifest, tmp_path
     assert cases[3].forbidden_skills == ("beta-review",)
 
 
-def test_load_cases_expands_controls_and_profile_specific_index_expectations(
-    manifest: Manifest, tmp_path: Path
-) -> None:
+def test_load_cases_expands_agent_specific_controls(manifest: Manifest, tmp_path: Path) -> None:
     path = _write_cases(
-        tmp_path / "index-cases.yaml",
+        tmp_path / "control-cases.yaml",
         {
             "schema_version": 1,
             "explicit_controls": {
@@ -207,22 +204,6 @@ def test_load_cases_expands_controls_and_profile_specific_index_expectations(
                     "expected": ["alpha-style"],
                 }
             ],
-            "index_experiment": {
-                "forbid_index_on_direct_smoke": True,
-                "cases": [
-                    {
-                        "id": "broad",
-                        "prompt": "Route this broad task.",
-                        "expected": ["google-guides-index"],
-                        "profiles": {
-                            "all-no-index": {
-                                "expected": [],
-                                "forbidden": ["google-guides-index"],
-                            }
-                        },
-                    }
-                ],
-            },
         },
     )
 
@@ -233,14 +214,7 @@ def test_load_cases_expands_controls_and_profile_specific_index_expectations(
     assert _evaluation_prompt(control, "codex").startswith("$alpha-style\n")
     for agent in ("claude-code", "opencode", "openclaw", "hermes"):
         assert _evaluation_prompt(control, agent).startswith("/alpha-style\n")
-    assert by_id["smoke-alpha"].expectations_for("all") == (
-        ("alpha-style",),
-        ("google-guides-index",),
-    )
-    assert by_id["broad"].expectations_for("all-no-index") == (
-        (),
-        ("google-guides-index",),
-    )
+    assert by_id["smoke-alpha"].expected_skills == ("alpha-style",)
 
 
 @pytest.mark.parametrize(
@@ -1431,9 +1405,7 @@ def test_version_normalizes_stdout_stderr_and_failures(monkeypatch: pytest.Monke
     ("profile", "expected_installed"),
     [
         ("single", ["alpha-style", "beta-review"]),
-        ("index", ["google-guides-index"]),
-        ("all-no-index", ["alpha-style", "beta-review"]),
-        ("all", ["alpha-style", "beta-review", "google-guides-index"]),
+        ("all", ["alpha-style", "beta-review"]),
     ],
 )
 def test_install_profile_selects_and_verifies_exact_skill_copies(
@@ -1502,9 +1474,9 @@ def test_install_profile_uses_each_clients_skill_root(
     project = tmp_path / agent
     project.mkdir()
 
-    result = _install_profile(manifest, project, agent, "index", _case())
+    result = _install_profile(manifest, project, agent, "single", _case())
 
-    assert (project / relative / "google-guides-index/SKILL.md").is_file()
+    assert (project / relative / "alpha-style/SKILL.md").is_file()
     assert result["agent_visible_install_root"] == visible
 
 
@@ -1540,7 +1512,7 @@ def test_install_profile_detects_copy_hash_mismatch(
 
     monkeypatch.setattr(eval_module.shutil, "copytree", corrupt)
     with pytest.raises(EvaluationError, match="Installed copy does not match"):
-        _install_profile(manifest, mismatch, "codex", "index", _case())
+        _install_profile(manifest, mismatch, "codex", "single", _case())
 
 
 def test_summary_and_quality_comparisons_normalize_completed_records() -> None:
@@ -1594,13 +1566,8 @@ def test_summary_and_quality_comparisons_normalize_completed_records() -> None:
         "direct_prompt_runs": 0,
         "direct_prompt_exact": 0,
         "direct_prompt_exact_rate": None,
-        "direct_index_steals": 0,
-        "direct_index_steal_rate": None,
         "direct_prompts_with_unexpected": 0,
         "direct_unexpected_skill_loads": 0,
-        "index_broad_runs": 0,
-        "index_broad_loaded": 0,
-        "index_broad_recall": None,
     }
     assert _quality_comparisons(records, "single") == [
         {
@@ -1614,43 +1581,6 @@ def test_summary_and_quality_comparisons_normalize_completed_records() -> None:
             "baseline_forbidden_claims": 0,
             "skilled_forbidden_claims": 0,
             "fidelity_delta": 1,
-        }
-    ]
-
-    index_records = [
-        {
-            "status": "completed",
-            "stage": "index-experiment",
-            "agent": "codex",
-            "profile": "all-no-index",
-            "case_id": "broad",
-            "repeat": 1,
-            "rubric_earned": 1,
-            "rubric_total": 2,
-            "observed_skills": ["alpha-style"],
-        },
-        {
-            "status": "completed",
-            "stage": "index-experiment",
-            "agent": "codex",
-            "profile": "all",
-            "case_id": "broad",
-            "repeat": 1,
-            "rubric_earned": 2,
-            "rubric_total": 2,
-            "observed_skills": ["google-guides-index"],
-        },
-    ]
-    assert _index_comparisons(index_records) == [
-        {
-            "agent": "codex",
-            "case_id": "broad",
-            "repeat": 1,
-            "index_loaded": True,
-            "without_index_rubric": 1,
-            "with_index_rubric": 2,
-            "rubric_total": 2,
-            "rubric_delta": 1,
         }
     ]
 
@@ -1829,13 +1759,8 @@ def test_trigger_plan_only_creates_normalized_report_without_live_helpers(
         "direct_prompt_runs": 0,
         "direct_prompt_exact": 0,
         "direct_prompt_exact_rate": None,
-        "direct_index_steals": 0,
-        "direct_index_steal_rate": None,
         "direct_prompts_with_unexpected": 0,
         "direct_unexpected_skill_loads": 0,
-        "index_broad_runs": 0,
-        "index_broad_loaded": 0,
-        "index_broad_recall": None,
     }
     assert {record["status"] for record in report["records"]} == {"planned"}
     assert report["tool_versions"] == dict.fromkeys(eval_module.SUPPORTED_AGENTS)
@@ -1860,38 +1785,6 @@ def test_quality_plan_includes_baseline_and_requested_profile(
 
     assert [record["profile"] for record in report["records"]] == ["baseline", "single"]
     assert report["quality_comparisons"] == []
-
-
-def test_index_ab_plan_pairs_full_pack_with_no_index_profile(
-    manifest: Manifest, tmp_path: Path
-) -> None:
-    case = EvalCase(
-        id="broad",
-        stage="index-experiment",
-        split="validation",
-        prompt="Route a broad request.",
-        expected_skills=("google-guides-index",),
-        forbidden_skills=(),
-        profile_expectations=(("all-no-index", (), ("google-guides-index",)),),
-    )
-
-    report, _output = run_evaluation(
-        manifest,
-        [case],
-        mode="quality",
-        agents=["codex"],
-        profile="index-ab",
-        dry_run=True,
-        results_root=tmp_path / "index-plan",
-    )
-
-    assert [record["profile"] for record in report["records"]] == [
-        "all-no-index",
-        "all",
-    ]
-    assert report["records"][0]["expected_skills"] == []
-    assert report["records"][1]["expected_skills"] == ["google-guides-index"]
-    assert report["index_comparisons"] == []
 
 
 def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
@@ -1998,7 +1891,6 @@ def test_full_pack_direct_smoke_reports_unexpected_skill_as_routing_failure(
             "installed_skills": [
                 "alpha-style",
                 "beta-review",
-                "google-guides-index",
             ],
             "hashes_verified": True,
         },
@@ -2068,7 +1960,7 @@ def test_codex_claim_for_known_but_uninstalled_skill_is_not_counted(
         "_install_profile",
         lambda *_args, **_kwargs: {
             "method": "direct-copy",
-            "installed_skills": ["google-guides-index"],
+            "installed_skills": ["beta-review"],
             "hashes_verified": True,
         },
     )
@@ -2090,7 +1982,7 @@ def test_codex_claim_for_known_but_uninstalled_skill_is_not_counted(
         [_case()],
         mode="triggers",
         agents=["codex"],
-        profile="index",
+        profile="single",
         dry_run=False,
         models={"codex": "test-model"},
         keep_raw=True,
@@ -2416,34 +2308,6 @@ def test_cli_rejects_invalid_model_override(
 
     assert result == 2
     assert "--model must use AGENT=MODEL" in capsys.readouterr().err
-
-
-def test_cli_index_ab_preflight_reports_both_profile_calls(
-    manifest: Manifest,
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    output = manifest.project_root / "evals/results/index-ab"
-    _patch_cli_eval(monkeypatch, manifest, output)
-
-    result = cli.main(
-        [
-            "eval",
-            "triggers",
-            "--agent",
-            "claude-code",
-            "--profile",
-            "index-ab",
-            "--live",
-            "--model",
-            "claude-code=claude-test",
-        ]
-    )
-
-    assert result == 0
-    output_text = capsys.readouterr().out
-    assert "Executing 2 isolated process(es)" in output_text
-    assert "existing client login(s)" in output_text
 
 
 @pytest.mark.parametrize("failure_key", ["failed_processes", "infrastructure_errors"])

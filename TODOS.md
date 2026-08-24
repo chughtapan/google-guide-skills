@@ -6,50 +6,28 @@
 
 **Priority:** P1
 
-Run invocation controls, full-pack routing, paired `index-ab`, specificity cases, and quality A/Bs
-across Codex, Claude Code, OpenCode, OpenClaw, and Hermes. Record each resolved model, tune
-descriptions and the index against the training split, then publish one validation run with its
-denominators. Treat earlier Abseil over-selection and Claude timeouts as hypotheses until the
-current harness reproduces them. A one-case index probe loaded the index on 2/5 clients with no
-rubric lift; use the full training split before changing its description or contents.
+Run the 23 full-pack smoke cases across Codex, Claude Code, OpenCode, OpenClaw, and Hermes. Fix
+only reproduced routing failures, then run the affected training and validation cases. Record the
+resolved models and denominators. Run quality A/Bs for guides whose layout or description changes.
 
 ### Reduce startup metadata and large inline skills
 
 **Priority:** P1
 
-The full committed pack fits Codex's fallback metadata budget only when the skill install root is
-54 characters or shorter and no unrelated skills consume the same budget. After the routing run,
-shorten descriptions or split the pack without lowering recall. Move oversized inline guides into
-references and compare selection and answer quality before changing the default layout. OpenClaw
-omitted `google-go-style` in a single-skill probe because that `SKILL.md` is oversized.
-
-## Distribution
-
-### Add an OpenAI plugin wrapper
-
-**Priority:** P2
-
-Package the skills as a Codex/ChatGPT plugin after their descriptions and grouping pass the
-cross-agent tests. Keep `skills/` as the source.
+The committed pack uses 7,361 of Codex's 8,000 fallback metadata characters at the recorded path.
+The Go guide now uses references after OpenClaw omitted its oversized inline form. Use routing and
+quality results before moving another guide; do not shorten source prose.
 
 ## Sources
 
-### Add locked web snapshots
+### Add cataloged web sources
 
 **Priority:** P2
 
-Implement page enumeration, content extraction, and content-hash lock updates for the cataloged
-Google Developer documentation style, technical-writing, and product-management pages before
-committing their prose.
-
-### Complete and maintain the source inventory
-
-**Priority:** P2
-
-The manifest is a curated list, not an exhaustive inventory of Google-authored guides. Define the
-source acceptance checklist, add an upstream revision check, and record when a guide is added,
-rejected, or left catalog-only. Model the R guide's combined CC BY 3.0 and CC BY-SA 2.0 terms before
-generating it.
+Create reproducible snapshots and verify licenses for the cataloged Developer Documentation Style,
+Technical Writing, and product-management pages before generating them. Model the R guide's
+combined CC BY 3.0 and CC BY-SA 2.0 terms separately. Use the acceptance checklist in
+`docs/licensing.md` for every addition.
 
 ## Content fidelity
 
@@ -59,9 +37,3 @@ generating it.
 
 Decide whether to mirror permitted upstream image assets or mechanically rewrite relative image
 and cross-document links to pinned upstream URLs. Version 0.1 omits them.
-
-## Completed
-
-- Removed unsupported local-only and global project-install branches.
-- Shared one checked tree-hashing implementation between user installs and evaluations.
-- Replaced tests for unreachable branches with install and tree-boundary tests.

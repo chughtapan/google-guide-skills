@@ -49,9 +49,10 @@ CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
 
 ## Skill layout
 
-In version 0.1, the `inline` layout puts converted source in `SKILL.md`, even when it exceeds Agent
-Skills context recommendations. The `references` layout is used for collections such as Abseil
-tips and the SWE book. Both preserve the source prose; the difference is when an agent loads it.
+The `inline` layout puts converted source in `SKILL.md`. The `references` layout keeps the entry
+file short and stores converted source in `references/`. Version 0.1 uses references for the Go
+guide, Abseil collections, and the SWE book. Both layouts preserve the source prose; the difference
+is when an agent loads it.
 
-Token reports and evaluations show which inline skills should move into references. Version 0.1
-does not edit the guides to reduce their size.
+Token reports and evaluations determine whether another inline skill should move into references.
+Version 0.1 does not edit the guides to reduce their size.

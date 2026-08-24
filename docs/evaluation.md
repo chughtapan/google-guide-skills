@@ -9,8 +9,8 @@ user homes, or other skills. The harness deletes the workspace after recording t
 Every run mounts its workspace at the same short agent-visible path, `/w`. Codex therefore sees
 installed skills under `/w/.agents/skills`, regardless of the host temporary-directory name or
 profile. Before model invocation, the harness recomputes the rendered metadata list at that exact
-path and rejects an over-budget install. This prevents profile-dependent paths or truncation from
-confounding the `all-no-index` versus `all` comparison.
+path and rejects an over-budget install. This prevents host paths or truncation from confounding
+the result.
 
 Live evaluation is Linux-only in v0.1 and requires `bwrap` plus the selected client binaries. It
 uses existing OAuth logins, copied into temporary client homes for each run:
@@ -31,7 +31,6 @@ Evaluation is plan-only by default. Add `--live` to run the selected clients:
 ```bash
 uv run google-guides eval triggers --stage smoke --profile all
 uv run google-guides eval triggers --stage controls --profile all
-uv run google-guides eval triggers --stage index-experiment --profile index-ab
 uv run google-guides eval triggers --stage smoke --profile all --limit 2 \
   --agent codex --live
 uv run google-guides eval quality --profile single \
@@ -51,12 +50,11 @@ offline tests only.
 
 [`evals/cases.yaml`](../evals/cases.yaml) contains:
 
-- 24 explicit invocation controls, rendered for each client adapter;
-- 24 implicit smoke prompts, one for every committed guide plus the index;
+- 23 explicit invocation controls, rendered for each client adapter;
+- 23 implicit smoke prompts, one for every committed guide;
 - 8 local-only smoke plans, one for every restricted SWE-book recipe;
 - 80 representative cases across Python style, reviewer workflow, documentation, and the
   Abseil C++ tips reference collection;
-- 6 broad-routing cases for a paired index/no-index experiment;
 - for each representative skill, 10 positives and 10 near-miss negatives with a fixed 60/40
   train/validation split;
 - concept-check rubrics for a quality A/B subset.
@@ -70,10 +68,7 @@ run in CI.
 | Profile | Purpose |
 | --- | --- |
 | `single` | Isolate the expected or forbidden skill and validate its metadata. |
-| `all-no-index` | Measure direct-skill discovery without router competition. |
-| `all` | Measure the normal full pack, including the index and metadata-budget pressure. |
-| `index` | Test broad routing when sibling skills are absent. |
-| `index-ab` | Run each broad case with `all-no-index` and then `all`, producing a paired index comparison. |
+| `all` | Measure exact routing with every committed guide installed. |
 
 Quality mode runs each rubric case twice: with no skills and with the selected profile. It reports
 the change in rubric score. Keyword checks do not fully judge answer quality.
@@ -101,15 +96,12 @@ models, and bounded redacted diagnostics for failed processes.
 - Positive recall: at least 80%; repeated cases should pass at least two of three runs.
 - Near-miss specificity: at least 90%.
 - Direct full-pack routing: at least 90% exact matches, with unexpected loads reported separately.
-- Index experiment: at least 5/6 broad prompts load the index, positive paired lift over
-  `all-no-index`, and a 0% index steal rate on direct smoke prompts.
 - Quality A/B: no correctness regression and a positive aggregate rubric delta.
 
 Version 0.1 ships the harness and cases. A one-case explicit-control probe completed correctly on
 all five clients (5/5). One implicit documentation case also routed exactly on all five clients;
-three loads were trace-proven and two used the installed-skill self-report proxy. In one paired
-broad-routing case, the index loaded on Codex and OpenCode (2/5 clients) and changed no rubric
-scores. An OpenClaw Go probe scored a miss because OpenClaw omitted the oversized skill from its
-inventory; the harness rejected the model's unverified self-report. These probes do not satisfy
-the routing or quality gates. See the
+three loads were trace-proven and two used the installed-skill self-report proxy. A discarded
+routing index loaded on only two clients and changed no rubric scores, so it was removed. An
+OpenClaw Go probe scored a miss because the inline skill was oversized; the guide now uses
+references. These probes do not satisfy the routing or quality gates. See the
 [version 0.1 plan review](../reports/v0.1-plan-review.md).

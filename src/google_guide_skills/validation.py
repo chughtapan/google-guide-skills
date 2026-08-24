@@ -58,16 +58,14 @@ def _parse_skill(path: Path, root: Path) -> tuple[dict[str, object], str, list[V
     return metadata, match.group(2), issues
 
 
-def _validate_links(
-    markdown_path: Path, project_root: Path, *, catalog: bool = False
-) -> list[ValidationIssue]:
+def _validate_links(markdown_path: Path, project_root: Path) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
     text = markdown_path.read_text(encoding="utf-8")
     for target in LINK_RE.findall(text):
         target = target.split("#", 1)[0]
         if not target or "://" in target or target.startswith(("mailto:", "#")):
             continue
-        if not catalog and not target.startswith("references/"):
+        if not target.startswith("references/"):
             # Links inside the mechanically preserved source body retain upstream-relative
             # semantics. Only links authored by this generator are structural invariants.
             continue
@@ -209,42 +207,6 @@ def _skill_content_issues(
     issues = _frontmatter_issues(skill_dir, project_root)
     issues.extend(_skill_size_issues(skill_path, project_root, encoding))
     issues.extend(_validate_links(skill_path, project_root))
-    if skill_dir.name == "google-guides-index":
-        catalog = skill_dir / "references" / "catalog.md"
-        if catalog.is_file():
-            issues.extend(_validate_links(catalog, project_root, catalog=True))
-    return issues
-
-
-def _index_provenance_issues(
-    manifest: Manifest,
-    provenance: dict[str, object],
-    provenance_path: Path,
-    license_path: Path,
-) -> list[ValidationIssue]:
-    root = manifest.project_root
-    expected_manifest = {
-        "path": "corpus.yaml",
-        "sha256": sha256((root / "corpus.yaml").read_bytes()).hexdigest(),
-    }
-    issues: list[ValidationIssue] = []
-    if (
-        provenance.get("collection") != "authored-index"
-        or provenance.get("generated_by") != f"google-guide-skills/{__version__}"
-        or provenance.get("license") != wrapper_license_metadata("references/LICENSE.txt")
-        or provenance.get("source_manifest") != expected_manifest
-    ):
-        issues.append(
-            _issue("error", provenance_path, root, "Authored index provenance is missing or stale")
-        )
-    if (
-        license_path.is_symlink()
-        or not license_path.is_file()
-        or sha256(license_path.read_bytes()).hexdigest() != PROJECT_LICENSE_SHA256
-    ):
-        issues.append(
-            _issue("error", license_path, root, "Authored index Apache license is missing or stale")
-        )
     return issues
 
 
@@ -418,14 +380,10 @@ def _recorded_provenance_issues(
 
 def _collection_boundary_issues(
     manifest: Manifest,
-    skill_name: str,
     distribution: str,
     provenance: dict[str, object],
     provenance_path: Path,
-    license_path: Path,
 ) -> list[ValidationIssue]:
-    if skill_name == "google-guides-index":
-        return _index_provenance_issues(manifest, provenance, provenance_path, license_path)
     collection = manifest.collections.get(str(provenance.get("collection")))
     if collection is None:
         return [
@@ -471,11 +429,9 @@ def _provenance_issues(
     issues.extend(
         _collection_boundary_issues(
             manifest,
-            skill_dir.name,
             distribution,
             provenance,
             provenance_path,
-            license_path,
         )
     )
     if owner is not None:
@@ -582,7 +538,6 @@ def validate(manifest: Manifest, include_local: bool = False) -> list[Validation
         artifact.name: collection.distribution
         for collection, artifact in manifest.artifacts(include_local=True)
     }
-    expected["google-guides-index"] = "committed"
     owners = {
         artifact.name: (collection, artifact)
         for collection, artifact in manifest.artifacts(include_local=True)

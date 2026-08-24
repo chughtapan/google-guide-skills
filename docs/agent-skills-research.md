@@ -9,8 +9,9 @@ with `SKILL.md`, a 1-64 character lowercase/hyphen `name`, and a non-empty `desc
 most 1024 characters. It recommends progressive disclosure: metadata at startup, a main skill
 under roughly 5,000 tokens/500 lines, and focused resources loaded only when needed.
 
-Version 0.1 leaves single guides inline even when they exceed these limits. The validator warns
-when they do, and the token report records the cost. Collections use one-level `references/`.
+Version 0.1 leaves many single guides inline even when they exceed these limits. The Go guide and
+larger collections use one-level `references/`. The validator warns about oversized main files,
+and the token report records every generated text file.
 
 The specification's [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions)
 recommends positive and near-miss queries, about 20 cases per skill, three runs per query, and a
@@ -29,14 +30,14 @@ The official [Codex skill documentation](https://developers.openai.com/codex/ski
 - follows symlinked skill directories;
 - supports explicit `$skill-name` and implicit description-based invocation.
 
-A catalog alone cannot show whether agents select the skills. The evaluations test whether the
-index and skill descriptions fit the metadata budget and trigger in a new process.
+A catalog alone cannot show whether agents select the skills. The evaluations test whether skill
+descriptions fit the metadata budget and trigger in a new process.
 
-The v0.1 committed pack contains 24 skills and 5,142 description characters (975 `o200k_base`
-tokens). Its path-independent rendered-list cost is 6,700 characters. At the recorded 45-character
-reference install root, the full list is 7,780 characters, or 97.25% of the 8,000-character
-fallback, leaving 220 characters. The descriptions fit only while the full skill install
-root is at most 54 characters; a deep monorepo path or unrelated host skills can force round-robin
+The v0.1 committed pack contains 23 skills and 4,830 description characters (915 `o200k_base`
+tokens). Its path-independent rendered-list cost is 6,326 characters. At the recorded 45-character
+reference install root, the full list is 7,361 characters, or 92.01% of the 8,000-character
+fallback, leaving 639 characters. The descriptions fit only while the full skill install
+root is at most 72 characters; a deep monorepo path or unrelated host skills can force round-robin
 shortening. Install only the skills a project needs. Use the full pack for discovery tests.
 
 The same documentation identifies three creation paths:
@@ -46,7 +47,8 @@ The same documentation identifies three creation paths:
 - manual `SKILL.md` authoring.
 
 It recommends plugins for distributing multiple skills. Standalone skill folders work across
-hosts. This project may add a Codex plugin after cross-agent trigger tests pass.
+hosts, and this project already installs them through a source-checkout command, so a plugin is
+not part of version 0.1.
 
 ## Cross-agent installer
 

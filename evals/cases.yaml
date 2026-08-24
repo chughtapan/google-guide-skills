@@ -90,13 +90,6 @@ smoke:
   - id: smoke-abseil-performance
     prompt: Use Abseil FAST guidance to review a proposed C++ optimization while insisting on measurement.
     expected: [abseil-performance-tips]
-  - id: smoke-index
-    prompt: Which installed Google guide should I consult for a readability review versus a TypeScript formatting question?
-    expected: [google-guides-index]
-    profiles:
-      all-no-index:
-        expected: []
-        forbidden: [google-guides-index]
 
 # Local-only routing controls. These contain prompts and identifiers, not converted book text.
 # They can be planned with --include-swe-book, but live hosted-agent runs are intentionally blocked.
@@ -125,75 +118,6 @@ local_smoke:
   - id: local-smoke-front-matter
     prompt: Consult the locally generated Software Engineering at Google front matter, preface, conclusion, and afterword.
     expected: [google-swe-book-front-matter]
-
-# Run these with --profile index-ab. Each case is evaluated once with every direct guide but no
-# index, then once with the normal full pack. The direct-only run supplies the answer-quality
-# control; the full run must discover the index and must not reduce deterministic rubric coverage.
-index_experiment:
-  forbid_index_on_direct_smoke: true
-  cases:
-    - id: index-broad-language-review
-      prompt: I need to review a Python API and the teammate's change description. Which Google guides should shape the work?
-      expected: [google-guides-index]
-      profiles:
-        all-no-index:
-          expected: []
-          forbidden: [google-guides-index]
-      rubric:
-        - ['Python']
-        - ['review', 'change description']
-    - id: index-broad-docs-go
-      prompt: Plan both the README and the public Go API conventions for a new developer tool using the available Google guidance.
-      expected: [google-guides-index]
-      profiles:
-        all-no-index:
-          expected: []
-          forbidden: [google-guides-index]
-      rubric:
-        - ['documentation', 'README']
-        - ['Go']
-    - id: index-broad-cpp-performance
-      prompt: We need C++ naming rules, Abseil API advice, and measurement-first performance guidance. Route me to the right installed guides.
-      expected: [google-guides-index]
-      profiles:
-        all-no-index:
-          expected: []
-          forbidden: [google-guides-index]
-      rubric:
-        - ['C\+\+']
-        - ['Abseil']
-        - ['measure', 'benchmark']
-    - id: index-broad-review-roles
-      prompt: Distinguish the Google guidance I should use as a change author from the guidance a reviewer should use.
-      expected: [google-guides-index]
-      profiles:
-        all-no-index:
-          expected: []
-          forbidden: [google-guides-index]
-      rubric:
-        - ['author']
-        - ['reviewer']
-    - id: index-broad-json-docs
-      prompt: Design a JSON API and its developer documentation. Identify the installed Google guidance for both parts.
-      expected: [google-guides-index]
-      profiles:
-        all-no-index:
-          expected: []
-          forbidden: [google-guides-index]
-      rubric:
-        - ['JSON']
-        - ['documentation']
-    - id: index-broad-readability-typescript
-      prompt: Our request spans TypeScript formatting, code-review readability, and maintainable documentation. Route each concern to the narrowest guide.
-      expected: [google-guides-index]
-      profiles:
-        all-no-index:
-          expected: []
-          forbidden: [google-guides-index]
-      rubric:
-        - ['TypeScript']
-        - ['review', 'readability']
-        - ['documentation']
 
 # Four contrasting skill shapes: inline language guide, role-specific workflow, documentation,
 # and a large reference collection. Each has 10 realistic positives and 10 near-miss negatives,

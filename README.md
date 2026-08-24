@@ -49,7 +49,7 @@ purposes. Do not commit, share, or redistribute them. Read the recorded license 
 google-guides sync                         clone and checkout pinned repositories
 google-guides build [--collection ID]     build selected redistributable skills
 google-guides build --include-swe-book     also build the SWE-book skills locally
-google-guides catalog                      regenerate catalog and index
+google-guides catalog                      regenerate catalog files
 google-guides metrics [--include-swe-book] count every generated text file with o200k_base
 google-guides validate [--include-swe-book] check skill, reference, and license boundaries
 google-guides install --agent codex        install for the current user
@@ -71,7 +71,9 @@ uv run google-guides install \
 
 The command uses pinned [`npx skills@1.5.23`](https://github.com/vercel-labs/skills). The same
 folders work with Codex and Claude Code. Use `--dry-run` to inspect commands first. Without
-`--project`, the command installs for the current user. To include the SWE-book skills for both
+`--project`, the command installs for the current user. For repository setup, follow the
+[new-repository onboarding guide](docs/onboarding.md) or the
+[existing-repository migration guide](docs/migration.md). To include the SWE-book skills for both
 supported agents, run:
 
 ```bash
@@ -84,11 +86,11 @@ uv run google-guides install \
 The flag generates all eight book skills and links them from `.generated/skills/`; it does not copy
 or publish them. A byte-identical skill copy is replaced with a link so later source updates flow
 through it; a destination with different content stops the install. `--project` installs include
-only the 24 redistributable skills.
+only the 23 redistributable skills.
 
-The 24-skill pack uses 7,780 of Codex's 8,000 fallback startup-metadata characters at the recorded
-reference path. That leaves 220 characters and supports an install-root path of at most 54
-characters before truncation; deeper projects or unrelated host skills can exceed the budget.
+The full pack uses most of Codex's fallback startup-metadata budget; the generated token report
+records the current total and supported path length. Deeper projects or unrelated host skills can
+exceed the budget.
 Install only the skills a project needs. Use the full pack for discovery tests. Live evaluations
 are Linux-only in v0.1 and require Bubblewrap plus logged-in client CLIs. OpenCode, OpenClaw, and
 Hermes reuse the Codex ChatGPT login; Claude Code uses its own login. Use `--model AGENT=MODEL`
@@ -97,8 +99,8 @@ only when a run needs an override. Live evaluations do not run in CI. See
 
 ## Outputs
 
-- [`catalog/catalog.md`](catalog/catalog.md): source and skill index in Markdown.
-- [`catalog/catalog.json`](catalog/catalog.json): source and skill index in JSON.
+- [`catalog/catalog.md`](catalog/catalog.md): source and skill catalog in Markdown.
+- [`catalog/catalog.json`](catalog/catalog.json): source and skill catalog in JSON.
 - [`catalog/tokens.json`](catalog/tokens.json): per-file and per-skill token totals.
 - `skills/*/references/source.json`: source URL, commit, input hashes, converter mode, and
   license evidence.
@@ -111,9 +113,9 @@ only when a run needs an override. Live evaluations do not run in CI. See
 - [`docs/agent-skills-research.md`](docs/agent-skills-research.md): format, installer, and creator
   findings.
 
-Version 0.1 leaves source prose inline. Validation warns when a skill exceeds the context
-recommendations. Later tests can compare inline skills with reference-based layouts using token
-counts and trigger results.
+Version 0.1 leaves most source prose inline. The Go guide and multi-file collections keep source
+text in `references/`. Validation warns when a main skill file exceeds the context recommendations.
+Use routing and quality results before moving another guide.
 
 The catalog lists four sources that the generator does not build: R style, Developer
 Documentation Style, Technical Writing, and a Google Cloud product-management article. Their

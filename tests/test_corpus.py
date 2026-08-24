@@ -26,9 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_real_corpus_and_eval_matrix_cannot_drift_silently() -> None:
     manifest = load_manifest(ROOT / "corpus.yaml")
     cases = load_cases(manifest)
-    committed = {
-        artifact.name for collection, artifact in manifest.artifacts(include_local=False)
-    } | {"google-guides-index"}
+    committed = {artifact.name for collection, artifact in manifest.artifacts(include_local=False)}
     local = {
         artifact.name
         for collection, artifact in manifest.artifacts(include_local=True)
@@ -38,26 +36,16 @@ def test_real_corpus_and_eval_matrix_cannot_drift_silently() -> None:
     smoke = [case for case in cases if case.stage == "smoke"]
     controls = [case for case in cases if case.stage == "controls"]
     local_smoke = [case for case in cases if case.stage == "local-smoke"]
-    index_experiment = [case for case in cases if case.stage == "index-experiment"]
-    assert len(smoke) == len(committed) == 24
+    assert len(smoke) == len(committed) == 23
     assert [skill for case in smoke for skill in case.expected_skills] == list(
         dict.fromkeys(skill for case in smoke for skill in case.expected_skills)
     )
     assert {skill for case in smoke for skill in case.expected_skills} == committed
-    assert len(controls) == len(committed) == 24
+    assert len(controls) == len(committed) == 23
     assert {skill for case in controls for skill in case.expected_skills} == committed
     assert all("{invocation}" in case.prompt for case in controls)
     assert len(local_smoke) == len(local) == 8
     assert {skill for case in local_smoke for skill in case.expected_skills} == local
-    assert len(index_experiment) == 6
-    assert all(case.expected_skills == ("google-guides-index",) for case in index_experiment)
-    assert all(
-        case.expectations_for("all-no-index") == ((), ("google-guides-index",))
-        for case in index_experiment
-    )
-    direct_smoke = [case for case in smoke if case.expected_skills != ("google-guides-index",)]
-    assert all("google-guides-index" in case.expectations_for("all")[1] for case in direct_smoke)
-
     representative = [case for case in cases if case.stage == "representative"]
     counts: dict[str, dict[str, dict[str, int]]] = defaultdict(
         lambda: defaultdict(lambda: defaultdict(int))
@@ -92,7 +80,7 @@ def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
 
     skill_dirs = sorted(path for path in (ROOT / "skills").iterdir() if path.is_dir())
     budget = metadata_budget(skill_dirs)
-    assert budget["skills"] == 24
+    assert budget["skills"] == 23
     assert int(budget["maximum_install_root_chars"]) >= MIN_SUPPORTED_INSTALL_ROOT_CHARS
     assert int(budget["codex_list_chars"]) <= CODEX_FALLBACK_METADATA_CHARS
     eval_budget = metadata_budget(skill_dirs, install_root="/w/.agents/skills")
@@ -100,6 +88,20 @@ def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
     assert int(eval_budget["codex_list_chars"]) <= CODEX_FALLBACK_METADATA_CHARS
     recorded = json.loads((ROOT / "catalog" / "tokens.json").read_text(encoding="utf-8"))
     assert recorded["metadata_budget"] == budget
+
+    go_artifact = next(
+        artifact
+        for _collection, artifact in manifest.artifacts(include_local=False)
+        if artifact.name == "google-go-style"
+    )
+    assert go_artifact.layout == "references"
+    go_skill = ROOT / "skills/google-go-style/SKILL.md"
+    assert len(go_skill.read_text(encoding="utf-8").splitlines()) < 500
+    assert {path.name for path in go_skill.parent.glob("references/go--*.md")} == {
+        "go--best-practices.md",
+        "go--decisions.md",
+        "go--guide.md",
+    }
 
 
 def test_release_version_and_generated_provenance_are_aligned() -> None:

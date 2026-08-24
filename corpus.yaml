@@ -113,7 +113,7 @@ collections:
           practices, including naming, APIs, errors, documentation, tests, and maintainability.
           Do not use as a replacement for the Go language specification.
         tags: [language, go, style, review, testing]
-        layout: inline
+        layout: references
         inputs:
           - go/guide.md
           - go/decisions.md

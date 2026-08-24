@@ -77,12 +77,7 @@ def _user_skill_root(agent: str, user_home: Path | None) -> Path:
 
 
 def _available_user_skills(manifest: Manifest, include_local: bool) -> dict[str, tuple[Path, str]]:
-    available = {
-        "google-guides-index": (
-            manifest.root_for("committed") / "google-guides-index",
-            "committed",
-        )
-    }
+    available: dict[str, tuple[Path, str]] = {}
     for collection, artifact in manifest.artifacts(include_local=True):
         if collection.distribution == "local-only" and not include_local:
             continue
@@ -259,9 +254,7 @@ def install_user_links(
 
 
 def _committed_skills(manifest: Manifest) -> set[str]:
-    return {"google-guides-index"} | {
-        artifact.name for _collection, artifact in manifest.artifacts(include_local=False)
-    }
+    return {artifact.name for _collection, artifact in manifest.artifacts(include_local=False)}
 
 
 def _install_command(

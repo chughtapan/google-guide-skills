@@ -50,7 +50,7 @@ def _parser() -> argparse.ArgumentParser:
     build_parser.add_argument("--include-swe-book", action="store_true", dest="include_local")
     build_parser.add_argument("--no-sync", action="store_true")
 
-    subparsers.add_parser("catalog", help="Regenerate catalog files and the index skill")
+    subparsers.add_parser("catalog", help="Regenerate catalog files")
     metrics_parser = subparsers.add_parser("metrics", help="Measure every generated text file")
     metrics_parser.add_argument("--include-swe-book", action="store_true", dest="include_local")
     validate_parser = subparsers.add_parser("validate", help="Validate all skill invariants")
@@ -240,7 +240,7 @@ def _print_evaluation_plan(
 ) -> None:
     if not args.live:
         return
-    profile_count = 2 if args.eval_mode == "quality" or args.profile == "index-ab" else 1
+    profile_count = 2 if args.eval_mode == "quality" else 1
     processes = case_count * len(agents) * args.repeat * profile_count
     print(f"Executing {processes} isolated process(es) with existing client login(s).")
 

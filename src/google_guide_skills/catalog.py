@@ -1,17 +1,14 @@
-"""Generate the machine-readable catalog and the agent-facing index skill."""
+"""Generate the human-readable and machine-readable guide catalogs."""
 
 from __future__ import annotations
 
 import json
-import shutil
-from hashlib import sha256
 from pathlib import Path
 
-from . import __version__
 from .errors import GoogleGuideSkillsError
 from .models import Manifest
 from .path_policy import require_safe_project_path
-from .project_license import verified_project_license, wrapper_license_metadata
+from .project_license import wrapper_license_metadata
 
 
 def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
@@ -62,9 +59,7 @@ def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
     return sorted(records, key=lambda record: str(record["id"]))
 
 
-def render_catalog_markdown(
-    records: list[dict[str, object]], *, from_index_skill: bool = False
-) -> str:
+def render_catalog_markdown(records: list[dict[str, object]]) -> str:
     """Render catalog records as a Markdown table."""
     lines = [
         "# Google Guides Skill Catalog",
@@ -82,12 +77,7 @@ def render_catalog_markdown(
         linkable = (
             path and record.get("distribution") == "committed" and record.get("generated") is True
         )
-        if linkable and from_index_skill:
-            label = f"[`{skill_id}`](../../{skill_id}/SKILL.md)"
-        elif linkable:
-            label = f"[`{skill_id}`](../{path}/SKILL.md)"
-        else:
-            label = f"`{skill_id}`"
+        label = f"[`{skill_id}`](../{path}/SKILL.md)" if linkable else f"`{skill_id}`"
         tags = ", ".join(str(tag) for tag in record.get("tags", []))
         source = str(record["source"])
         description = " ".join(str(record.get("description", "")).split())
@@ -106,35 +96,6 @@ def render_catalog_markdown(
             f"[upstream]({source}) |"
         )
     return "\n".join(lines).rstrip() + "\n"
-
-
-def render_index_skill() -> str:
-    """Render the project-authored routing skill."""
-    return """---
-name: google-guides-index
-description: >-
-  Use only when several Google guide skills could apply, the request spans guide categories, or
-  the right guide is unclear. Route to the narrowest installed skill and identify catalog-only or
-  local-only coverage gaps. Do not use when one named language, library, or code-review role
-  clearly selects a direct skill.
----
-
-# Google Guides Index
-
-Read [the generated catalog](references/catalog.md), select the narrowest guide that matches the
-task, and then read that guide's `SKILL.md`. Prefer project instructions and current requirements
-when they conflict with upstream guidance.
-
-Treat distribution labels as hard boundaries:
-
-- Use `committed` skills normally under their recorded source licenses.
-- Generate `local-only` skills for local use, keep them under `.generated/`, and do
-  not redistribute them.
-- Treat `catalog-only` entries as discovery leads, not installed guidance.
-
-When no single guide covers the task, name the small set of guides you are combining and keep
-their scopes distinct.
-"""
 
 
 def _catalog_paths(manifest: Manifest) -> tuple[Path, Path]:
@@ -177,72 +138,9 @@ def _write_catalog_files(
     markdown_path.write_text(render_catalog_markdown(records), encoding="utf-8")
 
 
-def _index_paths(manifest: Manifest) -> tuple[Path, Path, Path, Path]:
-    index_dir = require_safe_project_path(
-        manifest.project_root,
-        manifest.project_root / "skills" / "google-guides-index",
-        context="Index skill output",
-        error_type=GoogleGuideSkillsError,
-    )
-    references = index_dir / "references"
-    require_safe_project_path(
-        manifest.project_root,
-        references,
-        context="Index skill output",
-        error_type=GoogleGuideSkillsError,
-    )
-    references.mkdir(parents=True, exist_ok=True)
-    skill_path = index_dir / "SKILL.md"
-    reference_path = references / "catalog.md"
-    license_path = references / "LICENSE.txt"
-    source_path = references / "source.json"
-    for path in (skill_path, reference_path, license_path, source_path):
-        require_safe_project_path(
-            manifest.project_root,
-            path,
-            context="Index skill output",
-            error_type=GoogleGuideSkillsError,
-        )
-    return skill_path, reference_path, license_path, source_path
-
-
-def _index_provenance(manifest: Manifest) -> dict[str, object]:
-    return {
-        "artifact": "google-guides-index",
-        "authorship": "Project-authored routing index generated from corpus.yaml.",
-        "collection": "authored-index",
-        "distribution": "committed",
-        "generated_by": f"google-guide-skills/{__version__}",
-        "license": wrapper_license_metadata("references/LICENSE.txt"),
-        "source_manifest": {
-            "path": "corpus.yaml",
-            "sha256": sha256((manifest.project_root / "corpus.yaml").read_bytes()).hexdigest(),
-        },
-    }
-
-
-def _write_index_skill(
-    manifest: Manifest,
-    records: list[dict[str, object]],
-    paths: tuple[Path, Path, Path, Path],
-) -> None:
-    skill_path, reference_path, license_path, source_path = paths
-    skill_path.write_text(render_index_skill(), encoding="utf-8")
-    reference_path.write_text(
-        render_catalog_markdown(records, from_index_skill=True), encoding="utf-8"
-    )
-    project_license = verified_project_license(manifest.project_root)
-    shutil.copyfile(project_license, license_path)
-    source_path.write_text(
-        json.dumps(_index_provenance(manifest), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-
-
 def write_catalog(manifest: Manifest) -> tuple[Path, Path]:
-    """Write the catalog and index skill, returning the catalog paths."""
+    """Write the catalog files and return their paths."""
     records = catalog_records(manifest)
     json_path, markdown_path = _catalog_paths(manifest)
     _write_catalog_files(records, json_path, markdown_path)
-    _write_index_skill(manifest, records, _index_paths(manifest))
     return json_path, markdown_path

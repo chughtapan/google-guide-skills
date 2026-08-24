@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Iterator
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -49,13 +49,12 @@ CHATGPT_MODEL = "gpt-5.6-luna"
 OPENCLAW_PROVIDER_INSTALL_TIMEOUT = 600
 # Bubblewrap is the filesystem boundary; a nested Codex sandbox cannot read the `/w` bind.
 CODEX_SANDBOX_MODE = "danger-full-access"
-SUPPORTED_PROFILES = ("single", "all", "all-no-index", "index", "index-ab")
+SUPPORTED_PROFILES = ("single", "all")
 SUPPORTED_STAGES = (
     "controls",
     "smoke",
     "local-smoke",
     "representative",
-    "index-experiment",
 )
 MARKER_RE = re.compile(r"\bEVAL_SKILL:\s*([a-z0-9-]+|none)\b", re.IGNORECASE)
 EVAL_SANDBOX_PROJECT = Path("/w")
@@ -413,7 +412,6 @@ class EvalCase:
     expected_skills: tuple[str, ...]
     forbidden_skills: tuple[str, ...]
     polarity: str = "positive"
-    profile_expectations: tuple[tuple[str, tuple[str, ...], tuple[str, ...]], ...] = ()
     rubric: tuple[tuple[str, ...], ...] = ()
     forbidden_claims: tuple[str, ...] = ()
 
@@ -421,13 +419,6 @@ class EvalCase:
     def candidate_skills(self) -> tuple[str, ...]:
         """Return each skill named by the case once, in declaration order."""
         return tuple(dict.fromkeys((*self.expected_skills, *self.forbidden_skills)))
-
-    def expectations_for(self, profile: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
-        """Return a profile override or the case's default expectations."""
-        for selected, expected, forbidden in self.profile_expectations:
-            if selected == profile:
-                return expected, forbidden
-        return self.expected_skills, self.forbidden_skills
 
 
 @dataclass(frozen=True)
@@ -527,28 +518,6 @@ def _case(
         raise EvaluationError(f"{context}.prompt must be a non-empty string")
     if split not in {"train", "validation"}:
         raise EvaluationError(f"{context}.split must be train or validation")
-    profiles_raw = raw.get("profiles", {})
-    if not isinstance(profiles_raw, dict):
-        raise EvaluationError(f"{context}.profiles must be a mapping")
-    profile_expectations: list[tuple[str, tuple[str, ...], tuple[str, ...]]] = []
-    for selected_profile, expectation_raw in profiles_raw.items():
-        if selected_profile not in {"single", "all", "all-no-index", "index"}:
-            raise EvaluationError(f"{context}.profiles has unknown profile {selected_profile!r}")
-        if not isinstance(expectation_raw, dict):
-            raise EvaluationError(f"{context}.profiles.{selected_profile} must be a mapping")
-        expected = _strings(
-            expectation_raw.get("expected"),
-            f"{context}.profiles.{selected_profile}.expected",
-        )
-        forbidden = _strings(
-            expectation_raw.get("forbidden"),
-            f"{context}.profiles.{selected_profile}.forbidden",
-        )
-        if set(expected) & set(forbidden):
-            raise EvaluationError(
-                f"{context}.profiles.{selected_profile} expects and forbids the same skill"
-            )
-        profile_expectations.append((str(selected_profile), expected, forbidden))
     return EvalCase(
         id=case_id,
         stage=stage,
@@ -558,7 +527,6 @@ def _case(
         forbidden_skills=_strings(raw.get("forbidden"), f"{context}.forbidden")
         or forbidden_default,
         polarity=polarity,
-        profile_expectations=tuple(profile_expectations),
         rubric=_rubric(raw.get("rubric"), f"{context}.rubric"),
         forbidden_claims=_patterns(raw.get("forbidden_claims"), f"{context}.forbidden_claims"),
     )
@@ -656,46 +624,12 @@ def _representative_cases(data: dict[str, object]) -> list[EvalCase]:
     return cases
 
 
-def _index_experiment_cases(data: dict[str, object]) -> tuple[list[EvalCase], bool]:
-    experiment = data.get("index_experiment")
-    if experiment is None:
-        return [], False
-    if not isinstance(experiment, dict):
-        raise EvaluationError("index_experiment must be a mapping")
-    raw_cases = experiment.get("cases")
-    if not isinstance(raw_cases, list) or not raw_cases:
-        raise EvaluationError("index_experiment.cases must be a non-empty list")
-    return (
-        [
-            _case(raw, context=f"index_experiment.cases[{index}]", stage="index-experiment")
-            for index, raw in enumerate(raw_cases)
-        ],
-        experiment.get("forbid_index_on_direct_smoke") is True,
-    )
-
-
-def _forbid_index_on_direct_smoke(cases: list[EvalCase]) -> list[EvalCase]:
-    adjusted: list[EvalCase] = []
-    for case in cases:
-        if case.stage == "smoke" and case.expected_skills != ("google-guides-index",):
-            overrides = tuple(item for item in case.profile_expectations if item[0] != "all") + (
-                (
-                    "all",
-                    case.expected_skills,
-                    tuple(dict.fromkeys((*case.forbidden_skills, "google-guides-index"))),
-                ),
-            )
-            case = replace(case, profile_expectations=overrides)
-        adjusted.append(case)
-    return adjusted
-
-
 def _validate_cases(manifest: Manifest, cases: list[EvalCase]) -> None:
     known = {
         artifact.name
         for collection in manifest.collections.values()
         for artifact in collection.artifacts
-    } | {"google-guides-index"}
+    }
     seen: set[str] = set()
     for case in cases:
         if case.id in seen:
@@ -706,12 +640,6 @@ def _validate_cases(manifest: Manifest, cases: list[EvalCase]) -> None:
             raise EvaluationError(f"{case.id} references unknown skills: {', '.join(unknown)}")
         if set(case.expected_skills) & set(case.forbidden_skills):
             raise EvaluationError(f"{case.id} both expects and forbids the same skill")
-        for profile, expected, forbidden in case.profile_expectations:
-            unknown = sorted(set((*expected, *forbidden)) - known)
-            if unknown:
-                raise EvaluationError(
-                    f"{case.id} profile {profile} references unknown skills: " + ", ".join(unknown)
-                )
 
 
 def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
@@ -724,10 +652,6 @@ def load_cases(manifest: Manifest, path: Path | None = None) -> list[EvalCase]:
         *_local_smoke_cases(data),
         *_representative_cases(data),
     ]
-    index_cases, forbid_direct_index = _index_experiment_cases(data)
-    cases.extend(index_cases)
-    if forbid_direct_index:
-        cases = _forbid_index_on_direct_smoke(cases)
     _validate_cases(manifest, cases)
     return cases
 
@@ -1563,15 +1487,6 @@ def _profile_selection(manifest: Manifest, profile: str, case: EvalCase) -> list
         if not selected:
             raise EvaluationError(f"{case.id} has no candidate skill for the single profile")
         return selected
-    if profile == "index":
-        return ["google-guides-index"]
-    if profile == "all-no-index":
-        return [
-            artifact.name
-            for collection in manifest.collections.values()
-            if collection.distribution == "committed"
-            for artifact in collection.artifacts
-        ]
     if profile == "all":
         return None
     raise EvaluationError(f"Unsupported evaluation profile: {profile}")
@@ -1583,7 +1498,7 @@ def _committed_skill_inventory(manifest: Manifest) -> set[str]:
         for collection in manifest.collections.values()
         if collection.distribution == "committed"
         for artifact in collection.artifacts
-    } | {"google-guides-index"}
+    }
 
 
 def _verify_installed_skills(
@@ -1697,14 +1612,7 @@ def _routing_groups(
         "direct": [
             record
             for record in completed
-            if record.get("stage") == "smoke"
-            and record.get("profile") == "all"
-            and record.get("expected_skills") != ["google-guides-index"]
-        ],
-        "broad": [
-            record
-            for record in completed
-            if record.get("stage") == "index-experiment" and record.get("profile") == "all"
+            if record.get("stage") == "smoke" and record.get("profile") == "all"
         ],
     }
 
@@ -1714,7 +1622,6 @@ def _routing_metrics(groups: dict[str, list[dict[str, object]]]) -> dict[str, ob
     negatives = groups["negatives"]
     controls = groups["controls"]
     direct = groups["direct"]
-    broad = groups["broad"]
     positive_correct = sum(
         record.get("expected_loaded", record.get("trigger_correct")) is True for record in positives
     )
@@ -1724,17 +1631,11 @@ def _routing_metrics(groups: dict[str, list[dict[str, object]]]) -> dict[str, ob
     )
     control_correct = sum(record.get("trigger_correct") is True for record in controls)
     direct_exact = sum(record.get("trigger_correct") is True for record in direct)
-    direct_steals = sum(
-        "google-guides-index" in record.get("observed_skills", []) for record in direct
-    )
     direct_with_unexpected = sum(
         bool(record.get("unexpected_loaded_skills", [])) for record in direct
     )
     direct_unexpected_loads = sum(
         len(record.get("unexpected_loaded_skills", [])) for record in direct
-    )
-    broad_loaded = sum(
-        "google-guides-index" in record.get("observed_skills", []) for record in broad
     )
     return {
         "positive_runs": len(positives),
@@ -1749,13 +1650,8 @@ def _routing_metrics(groups: dict[str, list[dict[str, object]]]) -> dict[str, ob
         "direct_prompt_runs": len(direct),
         "direct_prompt_exact": direct_exact,
         "direct_prompt_exact_rate": _ratio(direct_exact, len(direct)),
-        "direct_index_steals": direct_steals,
-        "direct_index_steal_rate": _ratio(direct_steals, len(direct)),
         "direct_prompts_with_unexpected": direct_with_unexpected,
         "direct_unexpected_skill_loads": direct_unexpected_loads,
-        "index_broad_runs": len(broad),
-        "index_broad_loaded": broad_loaded,
-        "index_broad_recall": _ratio(broad_loaded, len(broad)),
     }
 
 
@@ -1783,35 +1679,6 @@ def _summary(records: list[dict[str, object]]) -> dict[str, object]:
     }
     summary.update(_routing_metrics(_routing_groups(completed)))
     return summary
-
-
-def _index_comparisons(records: list[dict[str, object]]) -> list[dict[str, object]]:
-    grouped: dict[tuple[object, object, object], dict[str, dict[str, object]]] = {}
-    for record in records:
-        if record.get("status") != "completed" or record.get("stage") != "index-experiment":
-            continue
-        key = (record.get("agent"), record.get("case_id"), record.get("repeat"))
-        grouped.setdefault(key, {})[str(record.get("profile"))] = record
-    comparisons: list[dict[str, object]] = []
-    for (agent, case_id, repeat), pair in sorted(grouped.items()):
-        without_index = pair.get("all-no-index")
-        with_index = pair.get("all")
-        if not without_index or not with_index:
-            continue
-        comparisons.append(
-            {
-                "agent": agent,
-                "case_id": case_id,
-                "repeat": repeat,
-                "index_loaded": "google-guides-index" in with_index.get("observed_skills", []),
-                "without_index_rubric": int(without_index.get("rubric_earned", 0)),
-                "with_index_rubric": int(with_index.get("rubric_earned", 0)),
-                "rubric_total": int(with_index.get("rubric_total", 0)),
-                "rubric_delta": int(with_index.get("rubric_earned", 0))
-                - int(without_index.get("rubric_earned", 0)),
-            }
-        )
-    return comparisons
 
 
 def _quality_comparisons(records: list[dict[str, object]], profile: str) -> list[dict[str, object]]:
@@ -1866,8 +1733,6 @@ def _markdown_report(report: dict[str, object]) -> str:
         f"- Near-miss specificity: {summary.get('near_miss_specificity')}",
         f"- Explicit-control accuracy: {summary.get('explicit_control_accuracy')}",
         f"- Direct-prompt exact rate: {summary.get('direct_prompt_exact_rate')}",
-        f"- Direct index-steal rate: {summary.get('direct_index_steal_rate')}",
-        f"- Broad index recall: {summary.get('index_broad_recall')}",
         f"- Manifest SHA-256: `{identity.get('manifest_sha256', 'unknown')}`",
         f"- Project commit: `{project_git.get('commit', 'unknown')}`",
         f"- Project dirty: `{project_git.get('dirty', 'unknown')}`",
@@ -1985,8 +1850,6 @@ def _create_results_directory(manifest: Manifest, settings: _EvaluationSettings)
 
 
 def _evaluation_profiles(mode: str, profile: str) -> tuple[str, ...]:
-    if profile == "index-ab":
-        return "all-no-index", "all"
     if mode == "quality":
         return "baseline", profile
     return (profile,)
@@ -1997,8 +1860,8 @@ def _case_expectations(
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     if profile == "baseline":
         return (), case.candidate_skills
-    expected, forbidden = case.expectations_for(profile)
-    if profile == "all" and case.stage == "smoke" and expected != ("google-guides-index",):
+    expected, forbidden = case.expected_skills, case.forbidden_skills
+    if profile == "all" and case.stage == "smoke":
         # Direct smoke prompts are exact-routing probes. Any unrelated load is a miss.
         forbidden = tuple(sorted(known_skills - set(expected)))
     return expected, forbidden
@@ -2205,13 +2068,7 @@ def _evaluation_report(
         "summary": _summary(records),
     }
     if settings.mode == "quality":
-        report["quality_comparisons"] = (
-            []
-            if settings.profile == "index-ab"
-            else _quality_comparisons(records, settings.profile)
-        )
-    if settings.profile == "index-ab":
-        report["index_comparisons"] = _index_comparisons(records)
+        report["quality_comparisons"] = _quality_comparisons(records, settings.profile)
     return report
 
 
@@ -2261,7 +2118,6 @@ def run_evaluation(
             for collection in manifest.collections.values()
             for artifact in collection.artifacts
         }
-        | {"google-guides-index"}
     )
     context = _EvaluationContext(
         manifest=manifest,
