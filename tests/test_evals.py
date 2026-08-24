@@ -1642,7 +1642,7 @@ def test_run_evaluation_validates_configuration_before_any_calls(
         run_evaluation(manifest, [_case()], **kwargs)
 
 
-def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
+def test_local_only_evaluations_stay_ignored_and_never_run_live(
     manifest: Manifest, tmp_path: Path
 ) -> None:
     (manifest.project_root / ".gitignore").write_text("evals/results/\n", encoding="utf-8")
@@ -1679,7 +1679,7 @@ def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
     )
     assert report["summary"]["runs"] == 1
     assert output.resolve().is_relative_to((manifest.project_root / "evals" / "results").resolve())
-    with pytest.raises(EvaluationError, match="hosted-agent evaluation"):
+    with pytest.raises(EvaluationError, match="Live client evaluation"):
         run_evaluation(
             manifest,
             [local_case],

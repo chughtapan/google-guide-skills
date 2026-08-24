@@ -34,6 +34,9 @@ uv run google-guides install \
 
 Select only the agents the repository supports. Use `--dry-run` to inspect the install command.
 
+The SWE-book skills cannot be copied into a repository. To use them from your own Codex and Claude
+Code homes, run `uv run google-guides install --include-swe-book` from this checkout.
+
 ## 3. Route work in `AGENTS.md`
 
 Keep the routing short and name only installed skills:

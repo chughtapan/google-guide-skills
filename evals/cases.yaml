@@ -7,8 +7,8 @@ explicit_controls:
     {invocation}
     State which repository skill you used.
 
-# One inexpensive positive case per redistributable skill. Run this stage once before spending
-# on repeated representative suites.
+# One positive case per redistributable skill. Run this stage before repeated representative
+# suites.
 smoke:
   - id: smoke-cpp-style
     prompt: Review a Google C++ class that uses getter names GetSize() and GetName(). Which naming convention applies?
@@ -25,46 +25,51 @@ smoke:
       - 'private static fields.{0,40}s_'
       - 'public fields are only acceptable'
   - id: smoke-angularjs-style
-    prompt: Review an AngularJS 1.x directive and controller for Google's module, dependency-injection, and testing conventions.
+    prompt: An AngularJS 1.x controller injects $scope and $http directly, and its directive has no tests. Review its module registration, minification-safe dependency injection, directive structure, and test setup under Google's guide.
     expected: [google-angularjs-style]
   - id: smoke-documentation-guide
     prompt: Plan a maintainable README for a developer tool using Google's documentation philosophy and practices.
     expected: [google-documentation-guide]
   - id: smoke-go-style
-    prompt: Review a Go API for Google naming, error handling, package comments, and test readability.
+    prompt: Under Google's Go guidance, what conventions apply to API names, returned errors, package comments, and readable tests?
     expected: [google-go-style]
+    rubric:
+      - ['naming']
+      - ['error']
+      - ['package comment']
+      - ['test']
   - id: smoke-html-css-style
-    prompt: Review this HTML and CSS for Google's validity, accessibility, selector naming, and formatting conventions.
+    prompt: Under Google's HTML and CSS guide, what conventions cover validity, accessibility, selector naming, and formatting?
     expected: [google-html-css-style]
   - id: smoke-java-style
-    prompt: Format and review a Java class according to Google's member ordering, naming, braces, and Javadoc rules.
+    prompt: Under Google's Java guide, what rules apply to member ordering, naming, braces, and Javadoc?
     expected: [google-java-style]
   - id: smoke-javascript-style
-    prompt: Review a plain JavaScript module under Google's module, naming, JSDoc, and language-feature conventions.
+    prompt: Under Google's JavaScript guide, what rules apply to modules, naming, JSDoc, and language features?
     expected: [google-javascript-style]
   - id: smoke-json-style
     prompt: Design a JSON API response using Google's property naming, date, collection, and error conventions.
     expected: [google-json-style]
   - id: smoke-common-lisp-style
-    prompt: Review Common Lisp code under Google's naming, macro, documentation, and error-handling conventions.
+    prompt: Under Google's Common Lisp guide, what rules apply to naming, macros, documentation, and error handling?
     expected: [google-common-lisp-style]
   - id: smoke-objective-c-style
-    prompt: Review Objective-C code for Google's Cocoa naming, memory-management, formatting, and documentation rules.
+    prompt: Under Google's Objective-C guide, what rules apply to Cocoa naming, memory management, formatting, and documentation?
     expected: [google-objective-c-style]
   - id: smoke-python-style
-    prompt: Review a Python function under Google's naming, mutable-default, typing, and docstring conventions.
+    prompt: Under Google's Python guide, what rules apply to naming, mutable defaults, typing, and docstrings?
     expected: [google-python-style]
     rubric:
       - ['snake.case', 'lowercase.*underscore']
       - ['mutable default', 'shared.*calls']
   - id: smoke-shell-style
-    prompt: Review a Bash deployment script under Google's quoting, command-substitution, naming, scope, and error-handling conventions.
+    prompt: Under Google's shell guide, what rules apply to Bash quoting, command substitution, naming, scope, and error handling?
     expected: [google-shell-style]
   - id: smoke-typescript-style
-    prompt: Review TypeScript under Google's module, type-system, naming, documentation, and conformance conventions.
+    prompt: Under Google's TypeScript guide, what rules apply to modules, types, naming, documentation, and conformance?
     expected: [google-typescript-style]
   - id: smoke-vimscript-style
-    prompt: Review a Vimscript plugin under Google's function, command, mapping, naming, and formatting conventions.
+    prompt: Under Google's Vimscript guide, what rules apply to functions, commands, mappings, naming, and formatting?
     expected: [google-vimscript-style]
   - id: smoke-xml-style
     prompt: Design an extensible XML document format using Google's namespace, naming, validation, and schema conventions.
@@ -92,7 +97,8 @@ smoke:
     expected: [abseil-performance-tips]
 
 # Local-only routing controls. These contain prompts and identifiers, not converted book text.
-# They can be planned with --include-swe-book, but live hosted-agent runs are intentionally blocked.
+# They can be planned with --include-swe-book. Live client runs are blocked to keep derived text
+# local.
 local_smoke:
   - id: local-smoke-culture-leadership
     prompt: Use the locally generated Software Engineering at Google material to discuss engineering culture, knowledge sharing, leadership, and productivity.

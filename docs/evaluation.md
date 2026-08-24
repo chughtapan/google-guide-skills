@@ -59,6 +59,9 @@ offline tests only.
   train/validation split;
 - concept-check rubrics for a quality A/B subset.
 
+Smoke prompts must be answerable in the empty evaluation repository. Include the relevant code or
+ask a guidance question; do not ask a client to inspect files that are not present.
+
 Use `--repeat 3` after the one-pass smoke stage passes. Tune descriptions against
 `--split train`, then evaluate once against the frozen `--split validation`. Live evals never
 run in CI.

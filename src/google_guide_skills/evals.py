@@ -1781,7 +1781,7 @@ def _validate_case_distribution(
 ) -> None:
     if settings.include_local and not settings.dry_run:
         raise EvaluationError(
-            "Live hosted-agent evaluation of local-only derived material is disabled; "
+            "Live client evaluation of local-only derived material is disabled; "
             "use plan mode and offline boundary tests"
         )
     local_skills = {
