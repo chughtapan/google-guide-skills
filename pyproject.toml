@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "google-guide-skills"
+version = "0.1.0.0"
+description = "Convert licensed Google guides into Agent Skills, install them, and test selection."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [{ name = "Google Guide Skills contributors" }]
+keywords = ["agent-skills", "google-style-guide", "codex", "claude-code"]
+classifiers = [
+  "Private :: Do Not Upload",
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "beautifulsoup4>=4.13.4,<5",
+  "lxml>=6.0.0,<7",
+  "markdownify>=1.2.0,<2",
+  "PyYAML>=6.0.2,<7",
+  "tiktoken>=0.11.0,<1",
+]
+
+[project.urls]
+Repository = "https://github.com/chughtapan/google-guide-skills"
+Issues = "https://github.com/chughtapan/google-guide-skills/issues"
+
+[project.scripts]
+google-guides = "google_guide_skills.cli:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4.1,<9",
+  "pytest-cov>=6.2.1,<7",
+  "ruff>=0.12.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/google_guide_skills"]
+
+[tool.hatch.build]
+exclude = [
+  "/.cache",
+  "/.generated",
+  "/catalog",
+  "/evals/results",
+  "/reports/runs",
+  "/skills",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["google_guide_skills"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".cache", ".generated", "evals/results", "skills"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "SIM",
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  "D202",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["D101", "D102", "D103", "D105", "D106", "D107"]

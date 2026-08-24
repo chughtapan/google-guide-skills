@@ -1,0 +1,45 @@
+{
+  "artifact": "google-typescript-style",
+  "collection": "google-style-guides",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "html-to-markdown",
+      "path": "tsguide.html",
+      "sha256": "f175e2dbbea31bc40a73e757bbea11f53ad1580bd5d6aa4d10288fa6505832bb"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Google Style Guides contributors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 3.0 Unported",
+    "spdx": "CC-BY-3.0",
+    "url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  "license_note": null,
+  "repository": {
+    "id": "styleguide",
+    "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
+    "url": "https://github.com/google/styleguide.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

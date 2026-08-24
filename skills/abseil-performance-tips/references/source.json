@@ -1,0 +1,175 @@
+{
+  "artifact": "abseil-performance-tips",
+  "collection": "abseil-documentation",
+  "distribution": "committed",
+  "generated_by": "google-guide-skills/0.1.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-03-02-fast-21.md",
+      "sha256": "d3a1811ce390cd992671c416a74b7664bac74b5be224fa4e3495c290516cc7d1"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-03-02-fast-39.md",
+      "sha256": "f28a2630f9eb480f25c3209feff060cb24713000e8719cccc5407d3dcc296a8b"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-03-02-fast-53.md",
+      "sha256": "ad7a0e4e0abe64582b02b12d6cf7ece7cff48e274525ba0677fdbb1c41d00339"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-03-02-fast-9.md",
+      "sha256": "899cdd6bae3b58a040da56f6b102011109dbac86a1e7ceb54f6131e1c08f93d6"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-09-14-fast-7.md",
+      "sha256": "bbd1638d43b4cfb376b5b50822f99115ddc873aa79dae044f704e086499ae703"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-09-30-fast-52.md",
+      "sha256": "05e37a737ffaa04a95e9aa622cc44c91ed3cd34ee29ab44f31b974ec98c44e3c"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-10-10-fast-64.md",
+      "sha256": "1dd2163c29d4e9d5390b17fe7c7042d52a70910b1d6aa1e26bee9500b978e8f2"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-10-15-fast-60.md",
+      "sha256": "e065f269b34a7181bdb5721ce9e126ea6ce60839d593986d4f1d868881f0eb92"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-10-20-fast-70.md",
+      "sha256": "d5b133f8ea1f5e1dac2421be5dcc15ff1a935c6be3e7804409c950ccffc45497"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-11-10-fast-74.md",
+      "sha256": "66f007552c6766d369a899266cbedbee54dd4e7545cadf0795487d39e9df1043"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2023-11-10-fast-75.md",
+      "sha256": "76cc13a3dd46d433874a39ad46e7bada3619f89ac6f6476c6788befda9844bec"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2024-09-04-fast-62.md",
+      "sha256": "7a4184f2c63399549d51dee00350693e41aa0015b897405f6f44b04fe04530b8"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2024-09-04-fast-72.md",
+      "sha256": "d057b68933ed25e9f78a2a29ffbfa65412160cd4593041f61a08027a39959efb"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2024-09-04-fast-79.md",
+      "sha256": "30409925b9b41c95fbc45d939e3ff0b370a8e6f97ddd51023916726d7acabc3f"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2024-09-04-fast-83.md",
+      "sha256": "e20388c4e44e34c7f2b0e3297843938b8cc9d2c5f84dd4aacb98aa96eb51a46a"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2024-11-08-fast-87.md",
+      "sha256": "60a95c2fd0c61e1b9c9abad67b4ed8dc9dd0a673c6e27c025962f3cfba43c761"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2024-11-18-fast-88.md",
+      "sha256": "19a632325ff2616cff918a80e8b0f26e170d044f0836e44ff06aac10a009ad45"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-02-06-fast-90.md",
+      "sha256": "e7896c342fd63c0cbfc00994416335b2818b6165a498090bd40b3ab2695e8749"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-06-03-fast-93.md",
+      "sha256": "6b3093d85e1628b27d1499c92f42b302618c08413014fc6b5387a6d7d0db9e68"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-06-27-fast-94.md",
+      "sha256": "5dc9e430acb620b53fa13ec8ff240f8a733c6510a4f36cf22bc8e7ed1d7aab1c"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-07-14-fast-95.md",
+      "sha256": "213243c10db1f47ca65baa84e41844a4e82a58b83d81f96635f3eac3dac9ccfe"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-07-16-fast-26.md",
+      "sha256": "3f59335961950b89e531a887fcb7fccd3eba28731597dfad8ca4d99e99ab6a8a"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-10-03-fast-98.md",
+      "sha256": "24f2373826125132ea5e1911fa36c32c4a50c5e8d6151fdd1b9545b12e1e1f8b"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-10-07-fast-99.md",
+      "sha256": "2a90995b0d92cd784ee2cac606289ed733634a63abbc40b3a611cbd0e1a913c6"
+    },
+    {
+      "conversion": "identity",
+      "path": "_posts/2025-11-27-fast-97.md",
+      "sha256": "7fa53b222175b4e1e71ca55ddf3f6df8b474d1e5d7ff7f3593087e5d077f6d98"
+    },
+    {
+      "conversion": "identity",
+      "path": "fast/hints.md",
+      "sha256": "154e9d023fcf870c6c25a7b294a219b599212270011793d3874e4dfe817807fe"
+    },
+    {
+      "conversion": "identity",
+      "path": "fast/index.md",
+      "sha256": "975737c21d87931d8100cb94518a3d3b242d93abf2802fb13b48d562d10849b7"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "The Abseil Authors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Apache License 2.0",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  },
+  "license_note": null,
+  "repository": {
+    "id": "abseil",
+    "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
+    "url": "https://github.com/abseil/abseil.github.io.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "references/LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

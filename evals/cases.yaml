@@ -1,0 +1,398 @@
+schema_version: 1
+
+# Explicit skill-name controls are generated one-for-one from the smoke inventory so additions
+# cannot silently omit the 100% control gate.
+explicit_controls:
+  prompt_template: |-
+    {invocation}
+    State which repository skill you used.
+
+# One positive case per redistributable skill. Run this stage before repeated representative
+# suites.
+smoke:
+  - id: smoke-cpp-style
+    prompt: Review a Google C++ class that uses getter names GetSize() and GetName(). Which naming convention applies?
+    expected: [google-cpp-style]
+  - id: smoke-csharp-style
+    prompt: Apply Google's C# conventions to a class with public fields, underscore-prefixed locals, and misplaced using directives.
+    expected: [google-csharp-style]
+    rubric:
+      - ['PascalCase']
+      - ['camelCase']
+      - ['using.*(top|before).*namespace', '(top|before).*namespace.*using']
+    forbidden_claims:
+      - 'fields are [`*]*private'
+      - 'private static fields.{0,40}s_'
+      - 'public fields are only acceptable'
+  - id: smoke-angularjs-style
+    prompt: An AngularJS 1.x controller injects $scope and $http directly, and its directive has no tests. Review its module registration, minification-safe dependency injection, directive structure, and test setup under Google's guide.
+    expected: [google-angularjs-style]
+  - id: smoke-documentation-guide
+    prompt: Plan a maintainable README for a developer tool using Google's documentation philosophy and practices.
+    expected: [google-documentation-guide]
+  - id: smoke-go-style
+    prompt: Under Google's Go guidance, what conventions apply to API names, returned errors, package comments, and readable tests?
+    expected: [google-go-style]
+    rubric:
+      - ['naming', 'API names?']
+      - ['error']
+      - ['package comments?']
+      - ['test']
+  - id: smoke-html-css-style
+    prompt: Under Google's HTML and CSS guide, what conventions cover validity, accessibility, selector naming, and formatting?
+    expected: [google-html-css-style]
+  - id: smoke-java-style
+    prompt: Under Google's Java guide, what rules apply to member ordering, naming, braces, and Javadoc?
+    expected: [google-java-style]
+  - id: smoke-javascript-style
+    prompt: Under Google's JavaScript guide, what rules apply to modules, naming, JSDoc, and language features?
+    expected: [google-javascript-style]
+  - id: smoke-json-style
+    prompt: Design a JSON API response using Google's property naming, date, collection, and error conventions.
+    expected: [google-json-style]
+  - id: smoke-common-lisp-style
+    prompt: Under Google's Common Lisp guide, what rules apply to naming, macros, documentation, and error handling?
+    expected: [google-common-lisp-style]
+  - id: smoke-objective-c-style
+    prompt: Under Google's Objective-C guide, what rules apply to Cocoa naming, memory management, formatting, and documentation?
+    expected: [google-objective-c-style]
+  - id: smoke-python-style
+    prompt: Under Google's Python guide, what rules apply to naming, mutable defaults, typing, and docstrings?
+    expected: [google-python-style]
+    rubric:
+      - ['snake.case', 'lower.with.under', 'lowercase.*underscore']
+      - ['mutable default', 'shared.*calls']
+  - id: smoke-shell-style
+    prompt: Under Google's shell guide, what rules apply to Bash quoting, command substitution, naming, scope, and error handling?
+    expected: [google-shell-style]
+  - id: smoke-typescript-style
+    prompt: Under Google's TypeScript guide, what rules apply to modules, types, naming, documentation, and conformance?
+    expected: [google-typescript-style]
+  - id: smoke-vimscript-style
+    prompt: Under Google's Vimscript guide, what rules apply to functions, commands, mappings, naming, and formatting?
+    expected: [google-vimscript-style]
+  - id: smoke-xml-style
+    prompt: Design an extensible XML document format using Google's namespace, naming, validation, and schema conventions.
+    expected: [google-xml-style]
+  - id: smoke-review-author
+    prompt: Prepare my change for review using Google's guidance on small changes, descriptions, and responding to comments.
+    expected: [google-code-review-author]
+  - id: smoke-review-reviewer
+    prompt: Review a teammate's change using Google's review standard, inspection order, comment style, and speed guidance.
+    expected: [google-code-review-reviewer]
+  - id: smoke-abseil-cpp-guides
+    prompt: Show the appropriate Abseil C++ APIs for returning errors, representing time, and manipulating strings.
+    expected: [abseil-cpp-guides]
+  - id: smoke-abseil-design-notes
+    prompt: Evaluate the Swiss-table and B-tree tradeoffs discussed in Abseil's C++ design notes.
+    expected: [abseil-cpp-design-notes]
+  - id: smoke-abseil-python-guides
+    prompt: Build a Python command-line app with absl.app, absl.flags, logging, and absl.testing.
+    expected: [abseil-python-guides]
+  - id: smoke-abseil-cpp-tips
+    prompt: Find the relevant Abseil C++ Tip of the Week for ownership and parameter-passing tradeoffs.
+    expected: [abseil-cpp-tips]
+  - id: smoke-abseil-performance
+    prompt: Use Abseil FAST guidance to review a proposed C++ optimization while insisting on measurement.
+    expected: [abseil-performance-tips]
+
+# Local-only routing controls. These contain prompts and identifiers, not converted book text.
+# They can be planned with --include-swe-book. Live client runs are blocked to keep derived text
+# local.
+local_smoke:
+  - id: local-smoke-culture-leadership
+    prompt: Use the locally generated Software Engineering at Google material to discuss engineering culture, knowledge sharing, leadership, and productivity.
+    expected: [google-swe-culture-and-leadership]
+  - id: local-smoke-style-readability
+    prompt: Use the local book skill for organization-wide style rules, consistency, and readability practices.
+    expected: [google-swe-style-and-readability]
+  - id: local-smoke-code-review
+    prompt: Use the local Software Engineering at Google chapters about code-review policy, process, and tooling.
+    expected: [google-swe-code-review]
+  - id: local-smoke-documentation
+    prompt: Use the local book chapters about documentation systems and knowledge management in a large engineering organization.
+    expected: [google-swe-documentation]
+  - id: local-smoke-testing
+    prompt: Use the local Software Engineering at Google testing chapters for unit, integration, and large-scale test strategy.
+    expected: [google-swe-testing]
+  - id: local-smoke-maintenance-delivery
+    prompt: Use the local book guidance for deprecation, migration, dependency management, and continuous delivery.
+    expected: [google-swe-maintenance-and-delivery]
+  - id: local-smoke-infrastructure
+    prompt: Use the local book chapters about build systems, code search, static analysis, and engineering infrastructure.
+    expected: [google-swe-infrastructure]
+  - id: local-smoke-front-matter
+    prompt: Consult the locally generated Software Engineering at Google front matter, preface, conclusion, and afterword.
+    expected: [google-swe-book-front-matter]
+
+# Four contrasting skill shapes: inline language guide, role-specific workflow, documentation,
+# and a large reference collection. Each has 10 realistic positives and 10 near-miss negatives,
+# split 60/40 for description tuning versus held-out validation.
+representative:
+  - skill: google-python-style
+    positive:
+      - id: python-pos-01
+        split: train
+        prompt: Our Python repository follows Google style. Review a function with CamelCase naming and a list default argument.
+        rubric:
+          - ['snake.case', 'lower.with.under', 'lowercase.*underscore']
+          - ['mutable default', 'shared.*calls']
+      - id: python-pos-02
+        split: train
+        prompt: Rewrite these Python imports to match Google's package and module import conventions.
+      - id: python-pos-03
+        split: train
+        prompt: Check this public Python API for Google's type annotation and docstring expectations.
+      - id: python-pos-04
+        split: train
+        prompt: Explain whether this broad except Exception block is acceptable under Google's Python rules.
+      - id: python-pos-05
+        split: train
+        prompt: Review a Python file for Google's line length, indentation, blank lines, and whitespace rules.
+      - id: python-pos-06
+        split: train
+        prompt: Does Google Python style permit a property, staticmethod, and nested helper in this class?
+      - id: python-pos-07
+        split: validation
+        prompt: Apply Google's Python guidance to TODO comments, logging calls, and error-message formatting.
+      - id: python-pos-08
+        split: validation
+        prompt: Review this comprehension and lambda-heavy Python function using Google's language rules.
+      - id: python-pos-09
+        split: validation
+        prompt: Under Google Python conventions, how should this executable module structure its main function?
+      - id: python-pos-10
+        split: validation
+        prompt: Check a Python test module for Google's naming, comments, typing, and formatting conventions.
+    negative:
+      - id: python-neg-01
+        split: train
+        prompt: Teach a complete beginner what Python variables and loops are.
+      - id: python-neg-02
+        split: train
+        prompt: Diagnose why pandas merge produces duplicate rows in my dataframe.
+      - id: python-neg-03
+        split: train
+        prompt: Choose between Django and FastAPI for a new web service.
+      - id: python-neg-04
+        split: train
+        prompt: Optimize this NumPy matrix multiplication benchmark.
+      - id: python-neg-05
+        split: train
+        prompt: Explain the CPython garbage collector implementation.
+      - id: python-neg-06
+        split: train
+        prompt: Write a packaging migration from setup.py to pyproject.toml.
+      - id: python-neg-07
+        split: validation
+        prompt: Debug an asyncio deadlock caused by two tasks waiting on one another.
+      - id: python-neg-08
+        split: validation
+        prompt: Design the database schema for a Python billing service.
+      - id: python-neg-09
+        split: validation
+        prompt: Explain Python's descriptor protocol with a teaching example.
+      - id: python-neg-10
+        split: validation
+        prompt: Compare mypy, pyright, and pytype for a large monorepo.
+
+  - skill: google-code-review-reviewer
+    positive:
+      - id: reviewer-pos-01
+        split: train
+        prompt: I am reviewing a teammate's 900-line change. Apply Google's review standard and tell me where to start.
+        rubric:
+          - ['design', 'overall']
+          - ['small', 'split']
+      - id: reviewer-pos-02
+        split: train
+        prompt: Help me write a respectful but firm Google-style review comment about a correctness bug.
+      - id: reviewer-pos-03
+        split: train
+        prompt: According to Google's review guidance, should I approve code that improves the system but is not perfect?
+      - id: reviewer-pos-04
+        split: train
+        prompt: What inspection order does Google recommend when navigating a code change?
+      - id: reviewer-pos-05
+        split: train
+        prompt: A review is stalled over a style preference. Apply Google's guidance for reviewer pushback.
+      - id: reviewer-pos-06
+        split: train
+        prompt: How quickly should I respond to a code review under Google's engineering practices?
+      - id: reviewer-pos-07
+        split: validation
+        prompt: Review this change for tests, naming, comments, complexity, and documentation using Google's checklist.
+      - id: reviewer-pos-08
+        split: validation
+        prompt: Decide whether this emergency change can receive a lighter review under Google's rules.
+      - id: reviewer-pos-09
+        split: validation
+        prompt: As the reviewer, distinguish blocking comments from optional polish using Google's conventions.
+      - id: reviewer-pos-10
+        split: validation
+        prompt: The author disagrees with my architectural concern. Use Google's reviewer guidance to resolve it.
+    negative:
+      - id: reviewer-neg-01
+        split: train
+        prompt: Write the description for my own change before I send it to review.
+      - id: reviewer-neg-02
+        split: train
+        prompt: Help me split my own large patch into several small changes.
+      - id: reviewer-neg-03
+        split: train
+        prompt: Draft my response to comments left by my reviewer.
+      - id: reviewer-neg-04
+        split: train
+        prompt: Choose a static-analysis vendor for our company.
+      - id: reviewer-neg-05
+        split: train
+        prompt: Explain how GitHub branch protection rules work.
+      - id: reviewer-neg-06
+        split: train
+        prompt: Review this prose for spelling and grammar only.
+      - id: reviewer-neg-07
+        split: validation
+        prompt: Prepare my commit history and changelist summary for reviewers.
+      - id: reviewer-neg-08
+        split: validation
+        prompt: Design a performance benchmark for our JSON parser.
+      - id: reviewer-neg-09
+        split: validation
+        prompt: Teach a new engineer how to use git rebase interactively.
+      - id: reviewer-neg-10
+        split: validation
+        prompt: Select the approvers for an organizational policy document.
+
+  - skill: google-documentation-guide
+    positive:
+      - id: docs-pos-01
+        split: train
+        prompt: Use Google's documentation philosophy to plan a README for an open-source command-line tool.
+        rubric:
+          - ['audience', 'reader']
+          - ['maintain', 'maintenance']
+      - id: docs-pos-02
+        split: train
+        prompt: Review this developer guide for Google's documentation best practices and information hierarchy.
+      - id: docs-pos-03
+        split: train
+        prompt: Decide what belongs in our README versus deeper reference documentation using Google's doc guide.
+      - id: docs-pos-04
+        split: train
+        prompt: Apply Google's Markdown documentation conventions to headings, links, code blocks, and lists.
+      - id: docs-pos-05
+        split: train
+        prompt: Create a maintenance plan for technical docs following Google's documentation practices.
+      - id: docs-pos-06
+        split: train
+        prompt: Review an API tutorial for audience, purpose, examples, and long-term accuracy using Google's guide.
+      - id: docs-pos-07
+        split: validation
+        prompt: Our repository has no onboarding docs. Use Google's documentation guide to propose the smallest useful set.
+      - id: docs-pos-08
+        split: validation
+        prompt: Improve a developer README's navigation and scannability using Google's practices.
+      - id: docs-pos-09
+        split: validation
+        prompt: Explain Google's philosophy on treating documentation quality as part of engineering quality.
+      - id: docs-pos-10
+        split: validation
+        prompt: Audit stale technical documentation and recommend ownership and review practices from Google's guide.
+    negative:
+      - id: docs-neg-01
+        split: train
+        prompt: Write a television advertisement for a new soft drink.
+      - id: docs-neg-02
+        split: train
+        prompt: Proofread my wedding invitation for warmth and grammar.
+      - id: docs-neg-03
+        split: train
+        prompt: Design a database migration for a payment system.
+      - id: docs-neg-04
+        split: train
+        prompt: Pick a static-site generator for a photography portfolio.
+      - id: docs-neg-05
+        split: train
+        prompt: Summarize this novel for a book club.
+      - id: docs-neg-06
+        split: train
+        prompt: Create a brand voice for a fashion company.
+      - id: docs-neg-07
+        split: validation
+        prompt: Negotiate the legal terms in a software license.
+      - id: docs-neg-08
+        split: validation
+        prompt: Debug a CSS grid layout on mobile browsers.
+      - id: docs-neg-09
+        split: validation
+        prompt: Write release code for a Python package.
+      - id: docs-neg-10
+        split: validation
+        prompt: Plan user interviews for a consumer mobile app.
+
+  - skill: abseil-cpp-tips
+    positive:
+      - id: cpp-tips-pos-01
+        split: train
+        prompt: Find the Abseil C++ Tip of the Week relevant to choosing value, pointer, or reference parameters.
+        rubric:
+          - ['Tip', 'TotW']
+          - ['ownership', 'parameter']
+      - id: cpp-tips-pos-02
+        split: train
+        prompt: Use Abseil C++ tips to review ownership transfer with unique_ptr and shared_ptr.
+      - id: cpp-tips-pos-03
+        split: train
+        prompt: Which Abseil tip discusses string_view lifetime hazards in an API?
+      - id: cpp-tips-pos-04
+        split: train
+        prompt: Apply the relevant Abseil C++ tip to a range-based loop that copies expensive values.
+      - id: cpp-tips-pos-05
+        split: train
+        prompt: Search the Abseil tips for guidance on optional values and sentinel states.
+      - id: cpp-tips-pos-06
+        split: train
+        prompt: Use Abseil's C++ Tip of the Week guidance to evaluate a factory function's return type.
+      - id: cpp-tips-pos-07
+        split: validation
+        prompt: Find the advanced Abseil tip relevant to overloaded calls and brace initialization.
+      - id: cpp-tips-pos-08
+        split: validation
+        prompt: Apply an Abseil C++ tip to reduce hidden work caused by temporary objects.
+      - id: cpp-tips-pos-09
+        split: validation
+        prompt: Locate Abseil guidance about enum design, scoping, and safe conversions.
+      - id: cpp-tips-pos-10
+        split: validation
+        prompt: Use the closest Abseil C++ tip to reason about API readability and call-site clarity.
+    negative:
+      - id: cpp-tips-neg-01
+        split: train
+        prompt: Teach me the syntax of my first C++ hello-world program.
+      - id: cpp-tips-neg-02
+        split: train
+        prompt: Format this C++ header according to the Google C++ Style Guide.
+      - id: cpp-tips-neg-03
+        split: train
+        prompt: Diagnose a Linux kernel panic from this stack trace.
+      - id: cpp-tips-neg-04
+        split: train
+        prompt: Choose between Java and Kotlin for an Android application.
+      - id: cpp-tips-neg-05
+        split: train
+        prompt: Benchmark two database indexes and decide which is faster.
+      - id: cpp-tips-neg-06
+        split: train
+        prompt: Explain the C language preprocessor to a beginner.
+      - id: cpp-tips-neg-07
+        split: validation
+        prompt: Configure CMake to cross-compile for an ARM board.
+      - id: cpp-tips-neg-08
+        split: validation
+        prompt: Review a Python function for Google naming conventions.
+      - id: cpp-tips-neg-09
+        split: validation
+        prompt: Design a protobuf schema for an event stream.
+      - id: cpp-tips-neg-10
+        split: validation
+        prompt: Fix a linker error caused by a missing third-party library.
