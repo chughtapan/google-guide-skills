@@ -24,8 +24,8 @@ uv run google-guides install \
 ```
 
 The SWE-book skills are local-only. Generate and link them to your own Codex and Claude Code
-homes with `google-guides install --include-swe-book`; do not copy them into a project or commit
-their generated files.
+homes with `uv run google-guides install --include-swe-book`; do not copy them into a project or
+commit their generated files.
 
 ## 3. Add one routing section
 

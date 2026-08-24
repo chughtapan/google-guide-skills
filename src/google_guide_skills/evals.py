@@ -1630,12 +1630,16 @@ def _routing_metrics(groups: dict[str, list[dict[str, object]]]) -> dict[str, ob
         for record in negatives
     )
     control_correct = sum(record.get("trigger_correct") is True for record in controls)
-    direct_exact = sum(record.get("trigger_correct") is True for record in direct)
+    direct_trace = [record for record in direct if record.get("observation_evidence") == "trace"]
+    direct_proxy = [
+        record for record in direct if record.get("observation_evidence") == "self-report-proxy"
+    ]
+    direct_exact = sum(record.get("trigger_correct") is True for record in direct_trace)
     direct_with_unexpected = sum(
-        bool(record.get("unexpected_loaded_skills", [])) for record in direct
+        bool(record.get("unexpected_loaded_skills", [])) for record in direct_trace
     )
     direct_unexpected_loads = sum(
-        len(record.get("unexpected_loaded_skills", [])) for record in direct
+        len(record.get("unexpected_loaded_skills", [])) for record in direct_trace
     )
     return {
         "positive_runs": len(positives),
@@ -1648,8 +1652,11 @@ def _routing_metrics(groups: dict[str, list[dict[str, object]]]) -> dict[str, ob
         "explicit_control_correct": control_correct,
         "explicit_control_accuracy": _ratio(control_correct, len(controls)),
         "direct_prompt_runs": len(direct),
+        "direct_prompt_trace_runs": len(direct_trace),
+        "direct_prompt_proxy_runs": len(direct_proxy),
+        "direct_prompt_unverified_runs": len(direct) - len(direct_trace) - len(direct_proxy),
         "direct_prompt_exact": direct_exact,
-        "direct_prompt_exact_rate": _ratio(direct_exact, len(direct)),
+        "direct_prompt_exact_rate": _ratio(direct_exact, len(direct_trace)),
         "direct_prompts_with_unexpected": direct_with_unexpected,
         "direct_unexpected_skill_loads": direct_unexpected_loads,
     }
@@ -1732,7 +1739,10 @@ def _markdown_report(report: dict[str, object]) -> str:
         f"- Positive recall: {summary.get('positive_recall')}",
         f"- Near-miss specificity: {summary.get('near_miss_specificity')}",
         f"- Explicit-control accuracy: {summary.get('explicit_control_accuracy')}",
-        f"- Direct-prompt exact rate: {summary.get('direct_prompt_exact_rate')}",
+        f"- Direct-prompt trace-exact rate: {summary.get('direct_prompt_exact_rate')}",
+        f"- Direct-prompt evidence: {summary.get('direct_prompt_trace_runs')} trace, "
+        f"{summary.get('direct_prompt_proxy_runs')} proxy, "
+        f"{summary.get('direct_prompt_unverified_runs')} unverified",
         f"- Manifest SHA-256: `{identity.get('manifest_sha256', 'unknown')}`",
         f"- Project commit: `{project_git.get('commit', 'unknown')}`",
         f"- Project dirty: `{project_git.get('dirty', 'unknown')}`",

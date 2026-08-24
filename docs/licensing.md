@@ -54,10 +54,10 @@ also catalog-only with `NOASSERTION`; publication on a Google page does not gran
 
 Every generated skill includes `references/LICENSE.txt` for its converted upstream prose and
 `references/LICENSE-Generator-Apache-2.0.txt` for the project-authored frontmatter, navigation,
-and source-record wrapper. The index includes its Apache-2.0 license and source record.
-These scopes are recorded separately in `source.json`; Apache-2.0 never replaces the upstream
-license. The JSON API style guide additionally includes `LICENSE-Apache-2.0.txt` for upstream code
-samples, whose page notice distinguishes them from the CC BY 3.0 prose.
+and source-record wrapper. These scopes are recorded separately in `source.json`; Apache-2.0
+never replaces the upstream license. The JSON API style guide additionally includes
+`LICENSE-Apache-2.0.txt` for upstream code samples, whose page notice distinguishes them from the
+CC BY 3.0 prose.
 
 ## Adding a source
 

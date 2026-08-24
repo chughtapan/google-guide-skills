@@ -34,7 +34,7 @@ smoke:
     prompt: Under Google's Go guidance, what conventions apply to API names, returned errors, package comments, and readable tests?
     expected: [google-go-style]
     rubric:
-      - ['naming']
+      - ['naming', 'API names?']
       - ['error']
       - ['package comments?']
       - ['test']

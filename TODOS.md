@@ -2,21 +2,25 @@
 
 ## Evaluation
 
-### Run and tune the cross-agent matrix
+### Run repeated specificity and quality cases
 
 **Priority:** P1
 
-Run the 23 full-pack smoke cases across Codex, Claude Code, OpenCode, OpenClaw, and Hermes. Fix
-only reproduced routing failures, then run the affected training and validation cases. Record the
-resolved models and denominators. Run quality A/Bs for guides whose layout or description changes.
+The one-pass full-pack smoke run reported the expected skill for all 115 client/case pairs. Of
+those, 69 routes were trace-proven and exact; 46 used verified self-report proxies. Before tuning
+a description, run that skill's positive and near-miss training cases with `--repeat 3`. After
+tuning, run the frozen validation split with `--repeat 3` once; do not retune on it. Extend quality
+rubrics only when they test source-specific claims.
 
 ### Reduce startup metadata and large inline skills
 
-**Priority:** P1
+**Priority:** P2
 
 The committed pack uses 7,361 of Codex's 8,000 fallback metadata characters at the recorded path.
-The Go guide now uses references after OpenClaw omitted its oversized inline form. Use routing and
-quality results before moving another guide; do not shorten source prose.
+The Go guide now uses references after OpenClaw omitted its oversized inline form; its follow-up
+routing passed 5/5 clients, and a retrospective rescore found no quality regression. The other
+large inline skills routed in the one-pass smoke run. Use a routing or quality comparison before
+moving another guide; do not shorten source prose.
 
 ## Sources
 

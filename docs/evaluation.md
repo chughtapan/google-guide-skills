@@ -94,16 +94,25 @@ models, and bounded redacted diagnostics for failed processes.
 ## Release gates
 
 - Static generation, validation, installation, and installed-file hash checks: 100%.
-- Explicit controls: 100% before interpreting implicit cases.
+- Client adapter probe: one explicit invocation must pass per client before interpreting implicit
+  cases.
 - Positive recall: at least 80%; repeated cases should pass at least two of three runs.
 - Near-miss specificity: at least 90%.
-- Direct full-pack routing: at least 90% exact matches, with unexpected loads reported separately.
+- Direct full-pack routing: at least 90% expected-skill recall and at least 90% exact matches among
+  trace-proven routes. Report the trace and proxy denominators separately.
 - Quality A/B: no correctness regression and a positive aggregate rubric delta.
 
-Version 0.1 ships the harness and cases. A one-case explicit-control probe completed correctly on
-all five clients (5/5). One implicit documentation case also routed exactly on all five clients;
-three loads were trace-proven and two used the installed-skill self-report proxy. A discarded
-routing index loaded on only two clients and changed no rubric scores, so it was removed. An
-OpenClaw Go probe scored a miss because the inline skill was oversized; the guide now uses
-references. These probes do not satisfy the routing or quality gates. See the
-[version 0.1 plan review](../reports/v0.1-plan-review.md).
+Version 0.1 ships the harness and cases. One explicit-control case passed on all five clients. In
+the one-pass full-pack smoke run, all 115 client/case pairs reported the expected skill. Of those,
+69 routes were trace-proven and exact, with no unrelated loads; 46 OpenClaw and Hermes routes used
+verified self-report proxies, which cannot prove that no second skill loaded. No process failed.
+This passes the stated one-pass thresholds; it does not replace repeated positive and near-miss
+validation.
+
+The saved outputs from a focused Go comparison were rescored after the naming rubric was aligned
+with the guide heading. The retrospective score was 4/4 concepts with and without the skill on
+all five clients, so it found no regression and no lift. The original run report remains unchanged
+at 32/40 and includes two negative deltas; this rescore is not an independent quality gate.
+OpenClaw included and selected the reference-based Go skill, fixing the earlier oversized-inline
+omission. A discarded routing index had loaded on only two clients and changed no rubric scores,
+so it was removed. See the [version 0.1 plan review](../reports/v0.1-plan-review.md).

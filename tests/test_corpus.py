@@ -10,7 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from google_guide_skills import __version__
-from google_guide_skills.evals import load_cases
+from google_guide_skills.evals import load_cases, score_output
 from google_guide_skills.git_safe import command as git_command
 from google_guide_skills.git_safe import environment as git_environment
 from google_guide_skills.manifest import load_manifest
@@ -102,6 +102,14 @@ def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
         "go--decisions.md",
         "go--guide.md",
     }
+
+
+def test_go_quality_rubric_matches_guide_headings() -> None:
+    manifest = load_manifest(ROOT / "corpus.yaml")
+    case = next(case for case in load_cases(manifest) if case.id == "smoke-go-style")
+    output = "API names\nReturned errors\nPackage comments\nReadable tests"
+
+    assert score_output(output, case.rubric) == (4, 4)
 
 
 def test_release_version_and_generated_provenance_are_aligned() -> None:

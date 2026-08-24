@@ -1564,6 +1564,9 @@ def test_summary_and_quality_comparisons_normalize_completed_records() -> None:
         "explicit_control_correct": 0,
         "explicit_control_accuracy": None,
         "direct_prompt_runs": 0,
+        "direct_prompt_trace_runs": 0,
+        "direct_prompt_proxy_runs": 0,
+        "direct_prompt_unverified_runs": 0,
         "direct_prompt_exact": 0,
         "direct_prompt_exact_rate": None,
         "direct_prompts_with_unexpected": 0,
@@ -1757,6 +1760,9 @@ def test_trigger_plan_only_creates_normalized_report_without_live_helpers(
         "explicit_control_correct": 0,
         "explicit_control_accuracy": None,
         "direct_prompt_runs": 0,
+        "direct_prompt_trace_runs": 0,
+        "direct_prompt_proxy_runs": 0,
+        "direct_prompt_unverified_runs": 0,
         "direct_prompt_exact": 0,
         "direct_prompt_exact_rate": None,
         "direct_prompts_with_unexpected": 0,
@@ -1945,9 +1951,36 @@ def test_full_pack_direct_smoke_reports_unexpected_skill_as_routing_failure(
     assert record["forbidden_avoided"] is False
     assert record["unexpected_loaded_skills"] == ["beta-review"]
     assert record["trigger_correct"] is False
+    assert report["summary"]["direct_prompt_trace_runs"] == 1
+    assert report["summary"]["direct_prompt_proxy_runs"] == 0
     assert report["summary"]["direct_prompt_exact_rate"] == 0.0
     assert report["summary"]["direct_prompts_with_unexpected"] == 1
     assert report["summary"]["direct_unexpected_skill_loads"] == 1
+
+
+def test_full_pack_proxy_counts_recall_but_not_exact_routing() -> None:
+    record = {
+        "status": "completed",
+        "stage": "smoke",
+        "profile": "all",
+        "polarity": "positive",
+        "expected_skills": ["alpha-style"],
+        "expected_loaded": True,
+        "forbidden_avoided": True,
+        "trigger_correct": True,
+        "observation_evidence": "self-report-proxy",
+        "unexpected_loaded_skills": [],
+        "exit_code": 0,
+    }
+
+    summary = _summary([record])
+
+    assert summary["positive_recall"] == 1.0
+    assert summary["direct_prompt_runs"] == 1
+    assert summary["direct_prompt_trace_runs"] == 0
+    assert summary["direct_prompt_proxy_runs"] == 1
+    assert summary["direct_prompt_exact"] == 0
+    assert summary["direct_prompt_exact_rate"] is None
 
 
 def test_codex_claim_for_known_but_uninstalled_skill_is_not_counted(

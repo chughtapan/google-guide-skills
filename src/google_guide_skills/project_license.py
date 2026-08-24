@@ -23,7 +23,7 @@ def wrapper_license_metadata(
         "name": "Apache License 2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0",
         "attribution": "Google Guide Skills contributors",
-        "scope": "Generator-authored skill wrapper, metadata, navigation, and index content.",
+        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
         "path": path,
         "sha256": PROJECT_LICENSE_SHA256,
     }

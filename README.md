@@ -12,8 +12,9 @@ Generated files go to one of two places:
 
 - `skills/` contains material that can be redistributed and committed.
 - `.generated/skills/` contains SWE-book output for local use and is ignored by git.
-- `corpus.yaml` records every source, revision, license, file pattern, output policy, and skill
-  description.
+
+`corpus.yaml` records every source, revision, license, file pattern, output policy, and skill
+description.
 
 This split is required for
 [`abseil/abseil.github.io`](https://github.com/abseil/abseil.github.io). Most files used here are
@@ -94,8 +95,10 @@ exceed the budget.
 Install only the skills a project needs. Use the full pack for discovery tests. Live evaluations
 are Linux-only in v0.1 and require Bubblewrap plus logged-in client CLIs. OpenCode, OpenClaw, and
 Hermes reuse the Codex ChatGPT login; Claude Code uses its own login. Use `--model AGENT=MODEL`
-only when a run needs an override. Live evaluations do not run in CI. See
-[`docs/evaluation.md`](docs/evaluation.md) for profiles, evidence, and gates.
+only when a run needs an override. In a one-pass full-pack smoke run, all 115 client/case pairs
+reported the expected skill; 69 routes were trace-proven and exact, while 46 used verified
+self-report proxies. Repeated near-miss and broader quality cases remain. Live evaluations do not
+run in CI. See [`docs/evaluation.md`](docs/evaluation.md) for profiles, evidence, and gates.
 
 ## Outputs
 
