@@ -1,7 +1,8 @@
 # Google Guide Skills
 
-Convert Google's public engineering guides into [Agent Skills](https://agentskills.io/) for Codex
-and Claude, install them, and test whether agents select them.
+Convert Google's public engineering guides into [Agent Skills](https://agentskills.io/), install
+them, and test whether agents select them. Project installation supports Codex and Claude Code.
+Evaluation supports Codex, Claude Code, OpenCode, OpenClaw, and Hermes.
 The generator copies Markdown and converts HTML/XML to Markdown. It adds skill metadata,
 navigation, source records, and license files. Version 0.1 does not bundle images or rewrite
 relative links. Open the source repository named in `source.json` to view missing diagrams or
@@ -89,9 +90,10 @@ The 24-skill pack uses 7,780 of Codex's 8,000 fallback startup-metadata characte
 reference path. That leaves 220 characters and supports an install-root path of at most 54
 characters before truncation; deeper projects or unrelated host skills can exceed the budget.
 Install only the skills a project needs. Use the full pack for discovery tests. Live evaluations
-are Linux-only in v0.1 and require Bubblewrap, model IDs, one-use provider keys,
-`--live --accept-cost`, and `--accept-credential-risk`; they do not run in CI. See
-[`docs/evaluation.md`](docs/evaluation.md) for profiles, evidence limitations, and gates.
+are Linux-only in v0.1 and require Bubblewrap plus logged-in client CLIs. OpenCode, OpenClaw, and
+Hermes reuse the Codex ChatGPT login; Claude Code uses its own login. Use `--model AGENT=MODEL`
+only when a run needs an override. Live evaluations do not run in CI. See
+[`docs/evaluation.md`](docs/evaluation.md) for profiles, evidence, and gates.
 
 ## Outputs
 
@@ -104,7 +106,7 @@ are Linux-only in v0.1 and require Bubblewrap, model IDs, one-use provider keys,
   comparison used to choose the pipeline.
 - [`reports/v0.1-plan-review.md`](reports/v0.1-plan-review.md): original goals, current status,
   deletions, and follow-up work.
-- [`evals/cases.yaml`](evals/cases.yaml): prompts and scoring rules for Codex and Claude tests.
+- [`evals/cases.yaml`](evals/cases.yaml): prompts and scoring rules for client evaluations.
 - [`docs/architecture.md`](docs/architecture.md): generation flow and output boundaries.
 - [`docs/agent-skills-research.md`](docs/agent-skills-research.md): format, installer, and creator
   findings.

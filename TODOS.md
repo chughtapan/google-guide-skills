@@ -7,9 +7,11 @@
 **Priority:** P1
 
 Run invocation controls, full-pack routing, paired `index-ab`, specificity cases, and quality A/Bs
-with pinned Codex and Claude model IDs. Tune descriptions and the index against the training split,
-then publish one validation run with denominators and costs. Treat the earlier Abseil over-selection
-and Claude budget failures as hypotheses until the current harness reproduces them.
+across Codex, Claude Code, OpenCode, OpenClaw, and Hermes. Record each resolved model, tune
+descriptions and the index against the training split, then publish one validation run with its
+denominators. Treat earlier Abseil over-selection and Claude timeouts as hypotheses until the
+current harness reproduces them. A one-case index probe loaded the index on 2/5 clients with no
+rubric lift; use the full training split before changing its description or contents.
 
 ### Reduce startup metadata and large inline skills
 
@@ -18,7 +20,8 @@ and Claude budget failures as hypotheses until the current harness reproduces th
 The full committed pack fits Codex's fallback metadata budget only when the skill install root is
 54 characters or shorter and no unrelated skills consume the same budget. After the routing run,
 shorten descriptions or split the pack without lowering recall. Move oversized inline guides into
-references and compare selection and answer quality before changing the default layout.
+references and compare selection and answer quality before changing the default layout. OpenClaw
+already omits `google-go-style` from its full-pack inventory because that `SKILL.md` is oversized.
 
 ## Distribution
 

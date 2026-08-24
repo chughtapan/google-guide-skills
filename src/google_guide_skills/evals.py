@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
-import math
 import os
 import re
 import shutil
@@ -23,13 +23,32 @@ from . import __version__
 from .errors import EvaluationError
 from .git_safe import command as git_command
 from .git_safe import environment as git_environment
-from .installer import SKILLS_CLI_PACKAGE, install_commands, minimal_process_env
+from .installer import minimal_process_env
 from .metrics import CODEX_FALLBACK_METADATA_CHARS, metadata_budget
 from .models import Manifest
 from .path_policy import checked_tree_hashes
 from .strict_yaml import strict_safe_load
 
-SUPPORTED_AGENTS = ("codex", "claude-code")
+SUPPORTED_AGENTS = ("codex", "claude-code", "opencode", "openclaw", "hermes")
+AGENT_BINARIES = {
+    "codex": "codex",
+    "claude-code": "claude",
+    "opencode": "opencode",
+    "openclaw": "openclaw",
+    "hermes": "hermes",
+}
+AGENT_SKILL_ROOTS = {
+    "codex": Path(".agents/skills"),
+    "claude-code": Path(".claude/skills"),
+    "opencode": Path(".agents/skills"),
+    "openclaw": Path(".agents/skills"),
+    "hermes": Path(".agents/skills"),
+}
+INVENTORY_AGENTS = frozenset({"claude-code", "openclaw"})
+CHATGPT_MODEL = "gpt-5.6-luna"
+OPENCLAW_PROVIDER_INSTALL_TIMEOUT = 600
+# Bubblewrap is the filesystem boundary; a nested Codex sandbox cannot read the `/w` bind.
+CODEX_SANDBOX_MODE = "danger-full-access"
 SUPPORTED_PROFILES = ("single", "all", "all-no-index", "index", "index-ab")
 SUPPORTED_STAGES = (
     "controls",
@@ -39,19 +58,112 @@ SUPPORTED_STAGES = (
     "index-experiment",
 )
 MARKER_RE = re.compile(r"\bEVAL_SKILL:\s*([a-z0-9-]+|none)\b", re.IGNORECASE)
-EVAL_KEY_ENV = {
-    "codex": ("GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "OPENAI_API_KEY"),
-    "claude-code": ("GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"),
-}
 EVAL_SANDBOX_PROJECT = Path("/w")
 EVAL_SANDBOX_OUTPUT = Path("/o")
 EVAL_SANDBOX_STATE = Path("/h")
 
 
+def _login_source(agent: str) -> Path:
+    """Return the existing client login used by an isolated evaluation run."""
+    home = Path.home()
+    if agent in {"codex", "opencode", "openclaw", "hermes"}:
+        codex_home = Path(os.environ.get("CODEX_HOME", home / ".codex")).expanduser()
+        return codex_home / "auth.json"
+    if agent == "claude-code":
+        claude_home = Path(os.environ.get("CLAUDE_CONFIG_DIR", home / ".claude")).expanduser()
+        return claude_home / ".credentials.json"
+    raise EvaluationError(f"Unsupported evaluation agent: {agent}")
+
+
+def _login_hint(agent: str) -> str:
+    if agent in {"codex", "opencode", "openclaw", "hermes"}:
+        return "run `codex login`"
+    if agent == "claude-code":
+        return "run `claude` and sign in"
+    raise EvaluationError(f"Unsupported evaluation agent: {agent}")
+
+
+def _openclaw_codex_package() -> Path:
+    """Find the installed official Codex provider beside OpenClaw."""
+    binary = shutil.which(AGENT_BINARIES["openclaw"])
+    if binary:
+        candidate = Path(binary).resolve().parents[1] / "@openclaw/codex"
+        if (candidate / "openclaw.plugin.json").is_file():
+            return candidate.resolve()
+    raise EvaluationError(
+        "OpenClaw's Codex provider is not installed; run `npm install -g @openclaw/codex`"
+    )
+
+
+def _openclaw_package_version(package: Path) -> str:
+    try:
+        metadata = json.loads((package / "package.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise EvaluationError("OpenClaw's Codex provider metadata is unreadable") from exc
+    version = metadata.get("version")
+    if not isinstance(version, str) or not version:
+        raise EvaluationError("OpenClaw's Codex provider has no package version")
+    return version
+
+
+def _openclaw_cache_root(version: str) -> Path:
+    return Path.home() / ".cache/google-guide-skills/openclaw" / version
+
+
+def _openclaw_runtime() -> tuple[Path, Path]:
+    """Return a managed Codex plugin and registry, installing them once if needed."""
+    source = _openclaw_codex_package()
+    version = _openclaw_package_version(source)
+    cache = _openclaw_cache_root(version)
+    state = cache / "state"
+    registry = state / "state/openclaw.sqlite"
+
+    def installed_package() -> Path | None:
+        for candidate in sorted(state.glob("npm/projects/*/node_modules/@openclaw/codex")):
+            if (candidate / "openclaw.plugin.json").is_file() and _openclaw_package_version(
+                candidate
+            ) == version:
+                return candidate.resolve()
+        return None
+
+    package = installed_package()
+    if package is not None and registry.is_file():
+        return package, registry
+
+    home = cache / "home"
+    home.mkdir(mode=0o700, parents=True, exist_ok=True)
+    state.mkdir(mode=0o700, parents=True, exist_ok=True)
+    env = minimal_process_env(home)
+    env.update(
+        {
+            "OPENCLAW_STATE_DIR": str(state),
+            "OPENCLAW_CONFIG_PATH": str(state / "openclaw.json"),
+        }
+    )
+    spec = f"@openclaw/codex@{version}"
+    try:
+        completed = subprocess.run(
+            [AGENT_BINARIES["openclaw"], "plugins", "install", spec, "--pin", "--force"],
+            env=env,
+            stdin=subprocess.DEVNULL,
+            text=True,
+            capture_output=True,
+            timeout=OPENCLAW_PROVIDER_INSTALL_TIMEOUT,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise EvaluationError(f"Could not install OpenClaw's Codex provider: {exc}") from exc
+    package = installed_package()
+    if completed.returncode or package is None or not registry.is_file():
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise EvaluationError(
+            "Could not install OpenClaw's Codex provider: " + _bounded_excerpt(detail)
+        )
+    return package, registry
+
+
 def _preflight_live(agents: list[str]) -> None:
-    """Fail once, before paid work, when live-run prerequisites are unavailable."""
-    if shutil.which("npx") is None:
-        raise EvaluationError("npx is required for evaluation installs")
+    """Fail once when a selected client or its existing login is unavailable."""
     bwrap = shutil.which("bwrap")
     if bwrap is None:
         raise EvaluationError("bwrap is required for filesystem-isolated live evaluations")
@@ -85,12 +197,16 @@ def _preflight_live(agents: list[str]) -> None:
             + (probe.stderr.strip() or f"exit {probe.returncode}")
         )
     for agent in agents:
-        binary = "codex" if agent == "codex" else "claude"
+        binary = AGENT_BINARIES[agent]
         if shutil.which(binary) is None:
             raise EvaluationError(f"Required agent CLI is not installed: {binary}")
-        source_key, _provider_key = EVAL_KEY_ENV[agent]
-        if not os.environ.get(source_key):
-            raise EvaluationError(f"{agent} evaluation requires a disposable key in {source_key}")
+        if agent == "openclaw":
+            _openclaw_runtime()
+        source = _login_source(agent)
+        if not source.is_file():
+            raise EvaluationError(
+                f"No existing {agent} login found at {source}; {_login_hint(agent)}"
+            )
 
 
 def _is_under(path: Path, parent: Path) -> bool:
@@ -133,10 +249,10 @@ def _sandbox_launch(
 ) -> tuple[list[str], list[Path]]:
     launch = [str(executable), *command[1:]]
     mounts: list[Path] = []
-    if agent == "codex" and executable.suffix == ".js":
+    if executable.suffix in {".js", ".mjs", ".cjs"}:
         node = shutil.which("node")
         if node is None:
-            raise EvaluationError("Codex isolation requires the Node.js executable")
+            raise EvaluationError(f"{agent} isolation requires the Node.js executable")
         node_path = Path(node).resolve()
         package_root = executable.parents[1]
         mounts.extend(
@@ -144,7 +260,54 @@ def _sandbox_launch(
             for candidate in (node_path, package_root)
             if not any(_is_under(candidate, root) for root in system_roots)
         )
+        if agent == "openclaw":
+            plugin, _registry = _openclaw_runtime()
+            if not any(_is_under(plugin, root) for root in system_roots):
+                mounts.append(plugin)
         return [str(node_path), str(executable), *command[1:]], mounts
+    try:
+        with executable.open("rb") as stream:
+            first_line = stream.readline(256).decode(errors="replace").strip()
+    except OSError:
+        first_line = ""
+    if first_line.startswith("#!"):
+        interpreter_name = first_line[2:].split()[0]
+        interpreter = Path(interpreter_name)
+        if interpreter.name == "env":
+            fields = first_line[2:].split()
+            resolved_interpreter = shutil.which(fields[-1]) if len(fields) > 1 else None
+            interpreter = Path(resolved_interpreter) if resolved_interpreter else interpreter
+        interpreter = interpreter.resolve()
+        candidates = [executable]
+        if agent == "hermes":
+            try:
+                wrapper = executable.read_text(encoding="utf-8")
+                quoted_paths = [Path(value) for value in re.findall(r'"(/[^"]+)"', wrapper)]
+            except OSError:
+                quoted_paths = []
+            if len(quoted_paths) >= 2:
+                python_link, script = quoted_paths[:2]
+                candidates.append(script.parent)
+                try:
+                    python_target = python_link.resolve(strict=True)
+                except OSError:
+                    python_target = python_link
+                if "uv" in python_target.parts and "python" in python_target.parts:
+                    python_root_index = python_target.parts.index("python")
+                    candidates.append(Path(*python_target.parts[: python_root_index + 1]))
+        if (
+            interpreter.parent.name == "bin"
+            and (interpreter.parent.parent / "pyvenv.cfg").is_file()
+        ):
+            candidates.append(interpreter.parent.parent)
+        else:
+            candidates.append(interpreter)
+        mounts.extend(
+            candidate
+            for candidate in candidates
+            if not any(_is_under(candidate, root) for root in system_roots)
+        )
+        return [str(interpreter), str(executable), *command[1:]], mounts
     if not any(_is_under(executable, root) for root in system_roots):
         mounts.append(executable)
     return launch, mounts
@@ -275,12 +438,10 @@ class _EvaluationSettings:
     repeat: int
     include_local: bool
     timeout: int
-    max_budget_usd: float
     models: dict[str, str]
     dry_run: bool
     keep_raw: bool
     results_root: Path | None
-    accept_credential_risk: bool
 
 
 @dataclass(frozen=True)
@@ -288,7 +449,6 @@ class _EvaluationContext:
     manifest: Manifest
     settings: _EvaluationSettings
     results_dir: Path
-    npx_home: Path | None
     known_skills: frozenset[str]
     corpus_identity: dict[str, object]
 
@@ -298,7 +458,6 @@ class _AgentRunSettings:
     agent: str
     prompt: str
     timeout: int
-    max_budget_usd: float
     model: str | None
 
 
@@ -309,7 +468,6 @@ class _AgentProcessResult:
     exit_code: int
     trace: str
     stderr: str
-    provider_secret: str
 
 
 def _strings(value: object, context: str) -> tuple[str, ...]:
@@ -618,6 +776,13 @@ def _walk(value: object) -> Iterator[object]:
 
 
 def _trace_events(trace: str) -> Iterator[dict[str, object]]:
+    try:
+        complete = json.loads(trace)
+    except json.JSONDecodeError:
+        complete = None
+    if isinstance(complete, dict):
+        yield complete
+        return
     for line in trace.splitlines():
         try:
             event = json.loads(line)
@@ -633,9 +798,15 @@ def _skill_path_pattern(known_skills: set[str]) -> re.Pattern[str]:
 
 
 def _visible_skills(event: dict[str, object], known_skills: set[str]) -> set[str]:
-    if event.get("type") != "system" or event.get("subtype") != "init":
-        return set()
-    inventory = event.get("skills", [])
+    inventory: object = None
+    if event.get("type") == "system" and event.get("subtype") == "init":
+        inventory = event.get("skills")
+    else:
+        meta = event.get("meta")
+        report = meta.get("systemPromptReport") if isinstance(meta, dict) else None
+        skills = report.get("skills") if isinstance(report, dict) else None
+        if isinstance(skills, dict):
+            inventory = skills.get("entries")
     if not isinstance(inventory, list):
         return set()
     visible: set[str] = set()
@@ -701,6 +872,23 @@ def _completed_tool_loads(items: list[dict[str, object]], pending: dict[str, set
     return loaded
 
 
+def _completed_opencode_loads(items: list[dict[str, object]], known_skills: set[str]) -> set[str]:
+    loaded: set[str] = set()
+    for item in items:
+        if item.get("type") != "tool" or str(item.get("tool", "")).lower() != "skill":
+            continue
+        state = item.get("state")
+        if not isinstance(state, dict) or state.get("status") not in {"completed", "success"}:
+            continue
+        tool_input = state.get("input")
+        if not isinstance(tool_input, dict):
+            continue
+        candidate = tool_input.get("name") or tool_input.get("skill")
+        if candidate in known_skills:
+            loaded.add(str(candidate))
+    return loaded
+
+
 def parse_trace(
     trace: str, final_output: str, known_skills: set[str]
 ) -> tuple[set[str], str | None, set[str]]:
@@ -720,6 +908,7 @@ def parse_trace(
                 tool_use_id, candidates = pending
                 pending_tool_loads[tool_use_id] = candidates
         loaded.update(_completed_tool_loads(event_items, pending_tool_loads))
+        loaded.update(_completed_opencode_loads(event_items, known_skills))
 
     marker = MARKER_RE.findall(final_output)
     claimed = marker[-1].lower() if marker else None
@@ -755,12 +944,18 @@ def trace_metadata(trace: str) -> dict[str, object]:
         "resolved_model": None,
         "skill_budget_warning": "skill descriptions were shortened" in trace.lower(),
     }
-    for line in trace.splitlines():
-        try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
-            continue
+    for event in _trace_events(trace):
         event_type = event.get("type")
+        if "final" in event and "status" in event:
+            metadata["usage"] = event.get("usage")
+            metadata["cost_usd"] = event.get("costUsd")
+            metadata["terminal_status"] = event.get("status")
+            metadata["resolved_model"] = event.get("model")
+            if event.get("provider"):
+                metadata["resolved_provider"] = event["provider"]
+            error = event.get("error")
+            if isinstance(error, dict) and error.get("message"):
+                metadata["terminal_error"] = _bounded_excerpt(str(error["message"]))
         if event_type == "system" and event.get("subtype") == "init":
             metadata["resolved_model"] = event.get("model")
         message = event.get("message")
@@ -785,6 +980,20 @@ def trace_metadata(trace: str) -> dict[str, object]:
                 metadata["terminal_error"] = _bounded_excerpt(
                     str(event.get("error") or event.get("message"))
                 )
+        elif event_type == "step_finish":
+            part = event.get("part")
+            if isinstance(part, dict):
+                metadata["usage"] = part.get("tokens")
+                metadata["cost_usd"] = part.get("cost")
+                metadata["terminal_status"] = "completed"
+        meta = event.get("meta")
+        if isinstance(meta, dict):
+            agent_meta = meta.get("agentMeta")
+            if isinstance(agent_meta, dict):
+                metadata["usage"] = agent_meta.get("usage")
+                metadata["resolved_model"] = agent_meta.get("model")
+                metadata["resolved_provider"] = agent_meta.get("provider")
+            metadata["terminal_status"] = "aborted" if meta.get("aborted") else "completed"
     return metadata
 
 
@@ -833,7 +1042,6 @@ def build_agent_command(
     prompt: str,
     output_path: Path,
     *,
-    max_budget_usd: float,
     model: str | None = None,
 ) -> list[str]:
     """Build a non-interactive command for one supported agent CLI."""
@@ -844,7 +1052,7 @@ def build_agent_command(
             "--ephemeral",
             "--json",
             "--sandbox",
-            "read-only",
+            CODEX_SANDBOX_MODE,
             "--ignore-user-config",
             "--ignore-rules",
             "--strict-config",
@@ -859,6 +1067,7 @@ def build_agent_command(
         command = [
             "claude",
             "--print",
+            prompt,
             "--output-format",
             "stream-json",
             "--verbose",
@@ -875,9 +1084,46 @@ def build_agent_command(
             "--no-chrome",
             "--tools",
             "Skill,Read,Glob,Grep",
-            "--max-budget-usd",
-            str(max_budget_usd),
         ]
+        if model:
+            command.extend(["--model", model])
+        return command
+    elif agent == "opencode":
+        command = [
+            "opencode",
+            "run",
+            "--pure",
+            "--format",
+            "json",
+            "--dir",
+            str(project),
+            "--auto",
+        ]
+    elif agent == "openclaw":
+        command = [
+            "openclaw",
+            "agent",
+            "--agent",
+            "main",
+            "--local",
+            "--json",
+            "--message",
+            prompt,
+        ]
+        command.extend(["--model", model or f"codex/{CHATGPT_MODEL}"])
+        return command
+    elif agent == "hermes":
+        command = [
+            "hermes",
+            "-z",
+            prompt,
+            "--provider",
+            "openai-codex",
+            "--ignore-user-config",
+            "--ignore-rules",
+        ]
+        command.extend(["--model", model or CHATGPT_MODEL])
+        return command
     else:
         raise EvaluationError(f"Unsupported evaluation agent: {agent}")
     if model:
@@ -886,8 +1132,166 @@ def build_agent_command(
     return command
 
 
+def _copy_login(source: Path, destination: Path) -> None:
+    destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    shutil.copyfile(source, destination)
+    destination.chmod(0o600)
+
+
+def _jwt_expiry_ms(token: str) -> int:
+    """Read the expiry from a JWT without logging or validating its contents."""
+    try:
+        encoded = token.split(".")[1]
+        encoded += "=" * (-len(encoded) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(encoded))
+        expiry = payload["exp"]
+    except (IndexError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise EvaluationError("Codex login has an unreadable access-token expiry") from exc
+    if not isinstance(expiry, int) or expiry <= 0:
+        raise EvaluationError("Codex login has an invalid access-token expiry")
+    return expiry * 1000
+
+
+def _codex_tokens(source: Path) -> dict[str, str]:
+    """Read the token pair shared by the ChatGPT-backed client adapters."""
+    try:
+        payload = json.loads(source.read_text(encoding="utf-8"))
+        tokens = payload["tokens"]
+        access = tokens["access_token"]
+        refresh = tokens["refresh_token"]
+    except (OSError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        raise EvaluationError("Codex login has an unsupported token shape") from exc
+    if not isinstance(access, str) or not isinstance(refresh, str):
+        raise EvaluationError("Codex login has an unsupported token shape")
+    return dict(tokens)
+
+
+def _stage_opencode_login(source: Path, destination: Path) -> None:
+    """Translate the existing Codex ChatGPT login into OpenCode's OAuth shape."""
+    tokens = _codex_tokens(source)
+    access = tokens["access_token"]
+    refresh = tokens["refresh_token"]
+    account_id = tokens.get("account_id")
+    auth = {
+        "openai": {
+            "type": "oauth",
+            "access": access,
+            "refresh": refresh,
+            "expires": _jwt_expiry_ms(access),
+            **({"accountId": account_id} if isinstance(account_id, str) else {}),
+        }
+    }
+    destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    destination.write_text(json.dumps(auth), encoding="utf-8")
+    destination.chmod(0o600)
+
+
+def _stage_hermes_login(source: Path, hermes_home: Path) -> None:
+    """Translate the existing Codex login into Hermes's provider store."""
+    auth = {
+        "version": 1,
+        "active_provider": "openai-codex",
+        "providers": {
+            "openai-codex": {
+                "tokens": _codex_tokens(source),
+                "auth_mode": "chatgpt",
+            }
+        },
+    }
+    destination = hermes_home / "auth.json"
+    destination.write_text(json.dumps(auth), encoding="utf-8")
+    destination.chmod(0o600)
+
+
+def _stage_openclaw_state(temporary: Path) -> None:
+    """Create a small OpenClaw state tree that uses the staged Codex login."""
+    state = temporary / "openclaw"
+    state.mkdir(mode=0o700)
+    codex_package, registry = _openclaw_runtime()
+    registry_target = state / "state/openclaw.sqlite"
+    registry_target.parent.mkdir(mode=0o700)
+    shutil.copyfile(registry, registry_target)
+    registry_target.chmod(0o600)
+    config = {
+        "agents": {
+            "defaults": {
+                "workspace": EVAL_SANDBOX_PROJECT.as_posix(),
+                "model": {"primary": f"codex/{CHATGPT_MODEL}"},
+            }
+        },
+        "plugins": {
+            "allow": ["codex"],
+            "load": {"paths": [codex_package.as_posix()]},
+            "entries": {
+                "codex": {
+                    "enabled": True,
+                    "config": {
+                        "appServer": {
+                            "transport": "stdio",
+                            "homeScope": "user",
+                            "sandbox": CODEX_SANDBOX_MODE,
+                            "approvalPolicy": "never",
+                        }
+                    },
+                }
+            },
+        },
+        # OpenClaw treats an empty allowlist as "allow all".
+        "skills": {"allowBundled": ["__google-guides-none__"]},
+    }
+    (state / "openclaw.json").write_text(json.dumps(config), encoding="utf-8")
+
+
+def _prime_openclaw_state(temporary: Path) -> None:
+    """Let OpenClaw persist the official plugin record before sandbox entry."""
+    state = temporary / "openclaw"
+    home = temporary / "home"
+    env = minimal_process_env(home)
+    env.update(
+        {
+            "CODEX_HOME": str(home / ".codex"),
+            "OPENCLAW_STATE_DIR": str(state),
+            "OPENCLAW_CONFIG_PATH": str(state / "openclaw.json"),
+        }
+    )
+    try:
+        completed = subprocess.run(
+            [AGENT_BINARIES["openclaw"], "plugins", "list", "--json"],
+            env=env,
+            stdin=subprocess.DEVNULL,
+            text=True,
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise EvaluationError(f"Could not prepare OpenClaw's Codex provider: {exc}") from exc
+    if completed.returncode:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise EvaluationError(
+            "Could not prepare OpenClaw's Codex provider: " + _bounded_excerpt(detail)
+        )
+
+
+def _stage_hermes_skills(temporary: Path, project: Path | None) -> None:
+    hermes_home = temporary / "hermes"
+    skill_root = hermes_home / "skills"
+    skill_root.mkdir(mode=0o700, parents=True)
+    (hermes_home / ".no-bundled-skills").touch(mode=0o600)
+    source_root = project / AGENT_SKILL_ROOTS["hermes"] if project else None
+    if source_root is None or not source_root.is_dir():
+        return
+    for source in source_root.iterdir():
+        if source.is_dir():
+            shutil.copytree(source, skill_root / source.name)
+
+
 def _isolated_agent_env(
-    agent: str, temporary: Path, *, visible_root: Path | None = None
+    agent: str,
+    temporary: Path,
+    *,
+    project: Path | None = None,
+    visible_root: Path | None = None,
 ) -> dict[str, str]:
     passthrough = {
         "PATH",
@@ -913,19 +1317,32 @@ def _isolated_agent_env(
     env["XDG_CONFIG_HOME"] = str(visible_home / ".config")
     env["XDG_CACHE_HOME"] = str(visible_home / ".cache")
     env["XDG_DATA_HOME"] = str(visible_home / ".local" / "share")
-    source_key, provider_key = EVAL_KEY_ENV[agent]
-    value = os.environ.get(source_key)
-    if not value:
-        raise EvaluationError(f"{agent} evaluation requires a disposable key in {source_key}")
-    env[provider_key] = value
+    source = _login_source(agent)
+    if not source.is_file():
+        raise EvaluationError(f"No existing {agent} login found at {source}; {_login_hint(agent)}")
     if agent == "codex":
         codex_home = temporary / "codex"
         codex_home.mkdir(mode=0o700)
+        _copy_login(source, codex_home / "auth.json")
         env["CODEX_HOME"] = str(visible / "codex")
-    else:
+    elif agent == "claude-code":
         claude_config = temporary / "claude"
         claude_config.mkdir(mode=0o700)
+        _copy_login(source, claude_config / ".credentials.json")
         env["CLAUDE_CONFIG_DIR"] = str(visible / "claude")
+    elif agent == "opencode":
+        _stage_opencode_login(source, home / ".local/share/opencode/auth.json")
+    elif agent in {"openclaw", "hermes"}:
+        _copy_login(source, home / ".codex/auth.json")
+        env["CODEX_HOME"] = str(visible_home / ".codex")
+        if agent == "openclaw":
+            _stage_openclaw_state(temporary)
+            env["OPENCLAW_STATE_DIR"] = str(visible / "openclaw")
+            env["OPENCLAW_CONFIG_PATH"] = str(visible / "openclaw/openclaw.json")
+        else:
+            _stage_hermes_skills(temporary, project)
+            _stage_hermes_login(source, temporary / "hermes")
+            env["HERMES_HOME"] = str(visible / "hermes")
     return env
 
 
@@ -939,6 +1356,42 @@ def _final_from_claude_trace(trace: str) -> str:
         if event.get("type") == "result" and isinstance(event.get("result"), str):
             result = event["result"]
     return result
+
+
+def _final_from_opencode_trace(trace: str) -> str:
+    parts: list[str] = []
+    for event in _trace_events(trace):
+        part = event.get("part")
+        if event.get("type") == "text" and isinstance(part, dict):
+            value = part.get("text")
+            if isinstance(value, str):
+                parts.append(value)
+    return "".join(parts)
+
+
+def _final_from_openclaw_trace(trace: str) -> str:
+    try:
+        event = json.loads(trace)
+    except json.JSONDecodeError:
+        return ""
+    if not isinstance(event, dict):
+        return ""
+    value = event.get("final")
+    if isinstance(value, str):
+        return value
+    payloads = event.get("payloads")
+    if isinstance(payloads, list):
+        text_parts = [
+            payload.get("text")
+            for payload in payloads
+            if isinstance(payload, dict) and isinstance(payload.get("text"), str)
+        ]
+        if text_parts:
+            return "\n".join(text_parts)
+    meta = event.get("meta")
+    if isinstance(meta, dict) and isinstance(meta.get("finalAssistantVisibleText"), str):
+        return str(meta["finalAssistantVisibleText"])
+    return ""
 
 
 def _timeout_text(value: str | bytes | None) -> str:
@@ -956,13 +1409,19 @@ def _invoke_agent_process(
     started = time.monotonic()
     with tempfile.TemporaryDirectory(prefix=".agent-home-", dir=sandbox_root) as temp:
         state_root = Path(temp)
-        env = _isolated_agent_env(settings.agent, state_root, visible_root=EVAL_SANDBOX_STATE)
+        env = _isolated_agent_env(
+            settings.agent,
+            state_root,
+            project=project,
+            visible_root=EVAL_SANDBOX_STATE,
+        )
+        if settings.agent == "openclaw":
+            _prime_openclaw_state(state_root)
         command = build_agent_command(
             settings.agent,
             EVAL_SANDBOX_PROJECT,
             settings.prompt,
             EVAL_SANDBOX_OUTPUT / "final.txt",
-            max_budget_usd=settings.max_budget_usd,
             model=settings.model,
         )
         command = _filesystem_sandbox_command(
@@ -999,29 +1458,22 @@ def _invoke_agent_process(
         exit_code=exit_code,
         trace=trace,
         stderr=stderr,
-        provider_secret=env.get(EVAL_KEY_ENV[settings.agent][1], ""),
     )
 
 
-def _redact_process_result(result: _AgentProcessResult) -> _AgentProcessResult:
-    if not result.provider_secret:
-        return result
-    return replace(
-        result,
-        trace=result.trace.replace(result.provider_secret, "[REDACTED_EVAL_KEY]"),
-        stderr=result.stderr.replace(result.provider_secret, "[REDACTED_EVAL_KEY]"),
-    )
-
-
-def _agent_final_output(agent: str, output_path: Path, trace: str, provider_secret: str) -> str:
+def _agent_final_output(agent: str, output_path: Path, trace: str) -> str:
     if output_path.is_file():
         output = output_path.read_text(encoding="utf-8")
     elif agent == "claude-code":
         output = _final_from_claude_trace(trace)
+    elif agent == "opencode":
+        output = _final_from_opencode_trace(trace)
+    elif agent == "openclaw":
+        output = _final_from_openclaw_trace(trace)
+    elif agent == "hermes":
+        output = trace.strip()
     else:
         output = ""
-    if provider_secret:
-        output = output.replace(provider_secret, "[REDACTED_EVAL_KEY]")
     output_path.write_text(output, encoding="utf-8")
     return output
 
@@ -1033,22 +1485,19 @@ def _run_agent(
     raw_dir: Path,
     *,
     timeout: int,
-    max_budget_usd: float,
     model: str | None,
     isolation_root: Path | None = None,
 ) -> dict[str, object]:
     raw_dir.mkdir(parents=True, exist_ok=True)
-    binary = "codex" if agent == "codex" else "claude"
+    binary = AGENT_BINARIES[agent]
     if shutil.which(binary) is None:
         raise EvaluationError(f"Required agent CLI is not installed: {binary}")
     sandbox_root = (isolation_root or project.parent).resolve()
-    settings = _AgentRunSettings(agent, prompt, timeout, max_budget_usd, model)
-    result = _redact_process_result(_invoke_agent_process(settings, project, raw_dir, sandbox_root))
+    settings = _AgentRunSettings(agent, prompt, timeout, model)
+    result = _invoke_agent_process(settings, project, raw_dir, sandbox_root)
     (raw_dir / "trace.jsonl").write_text(result.trace, encoding="utf-8")
     (raw_dir / "stderr.txt").write_text(result.stderr, encoding="utf-8")
-    final_output = _agent_final_output(
-        agent, raw_dir / "final.txt", result.trace, result.provider_secret
-    )
+    final_output = _agent_final_output(agent, raw_dir / "final.txt", result.trace)
     return {
         "command": result.command,
         "duration_seconds": round(result.duration_seconds, 3),
@@ -1065,15 +1514,10 @@ def _evaluation_prompt(case: EvalCase, agent: str) -> str:
         prefix = "$" if agent == "codex" else "/"
         case_prompt = case_prompt.format(invocation=f"{prefix}{case.expected_skills[0]}")
     prompt = f"{case_prompt}\n\nDo not edit files. Give a concise answer."
-    if agent == "codex":
-        # Codex 0.147 does not expose a stable Skill tool event in JSONL. Keep the task itself
-        # implicit, but request a separate self-report so the proxy cannot be mistaken for an
-        # authoritative trace event.
-        prompt += (
-            " For run instrumentation only, end with exactly "
-            "`EVAL_SKILL: <skill-name-or-none>` to report any repository skill actually used."
-        )
-    return prompt
+    return prompt + (
+        " For run instrumentation only, end with exactly "
+        "`EVAL_SKILL: <skill-name-or-none>` to report any repository skill actually used."
+    )
 
 
 def _version(command: list[str], *, home: Path | None = None) -> str | None:
@@ -1133,64 +1577,6 @@ def _profile_selection(manifest: Manifest, profile: str, case: EvalCase) -> list
     raise EvaluationError(f"Unsupported evaluation profile: {profile}")
 
 
-def _run_install_commands(
-    commands: list[list[str]], project: Path, timeout: int, npx_home: Path | None
-) -> None:
-    def run(home: Path) -> None:
-        home.mkdir(mode=0o700, parents=True, exist_ok=True)
-        for command in commands:
-            try:
-                completed = subprocess.run(
-                    command,
-                    cwd=project,
-                    env=minimal_process_env(home),
-                    stdin=subprocess.DEVNULL,
-                    text=True,
-                    capture_output=True,
-                    timeout=timeout,
-                    check=False,
-                )
-            except subprocess.TimeoutExpired as exc:
-                raise EvaluationError(f"Skill installation timed out: {' '.join(command)}") from exc
-            if completed.returncode:
-                raise EvaluationError(
-                    f"Skill installation failed: {' '.join(command)}\n"
-                    f"{completed.stdout}\n{completed.stderr}".rstrip()
-                )
-
-    if npx_home is not None:
-        run(npx_home)
-        return
-    with tempfile.TemporaryDirectory(prefix="google-guides-npx-home-") as temporary:
-        run(Path(temporary))
-
-
-def _verify_installer_side_effects(project: Path, agent: str) -> None:
-    namespace_name = ".agents" if agent == "codex" else ".claude"
-    allowed_top_level = {".git", namespace_name, "skills-lock.json"}
-    unexpected = sorted(
-        candidate.name for candidate in project.iterdir() if candidate.name not in allowed_top_level
-    )
-    if unexpected:
-        raise EvaluationError(
-            "Skill installer added unexpected project files: " + ", ".join(unexpected)
-        )
-    namespace = project / namespace_name
-    if namespace.is_symlink():
-        raise EvaluationError("Skill installer created a symlinked agent namespace")
-    if namespace.is_dir():
-        extras = sorted(
-            candidate.name for candidate in namespace.iterdir() if candidate.name != "skills"
-        )
-        if extras:
-            raise EvaluationError(
-                "Skill installer added unexpected agent configuration: " + ", ".join(extras)
-            )
-    lock_path = project / "skills-lock.json"
-    if lock_path.exists() and (lock_path.is_symlink() or not lock_path.is_file()):
-        raise EvaluationError("Skill installer created an unsafe skills-lock.json")
-
-
 def _committed_skill_inventory(manifest: Manifest) -> set[str]:
     return {
         artifact.name
@@ -1206,18 +1592,18 @@ def _verify_installed_skills(
     expected: set[str],
 ) -> dict[str, str]:
     if install_root.is_symlink():
-        raise EvaluationError("Skill installer created a symlinked skills root")
+        raise EvaluationError("Evaluation created a symlinked skills root")
     entries = list(install_root.iterdir()) if install_root.is_dir() else []
     unsafe = sorted(path.name for path in entries if path.is_symlink() or not path.is_dir())
     if unsafe:
-        raise EvaluationError("Skill installer created unsafe skill entries: " + ", ".join(unsafe))
+        raise EvaluationError("Evaluation created unsafe skill entries: " + ", ".join(unsafe))
     actual = {path.name for path in entries}
     missing = sorted(name for name in expected if not (install_root / name / "SKILL.md").is_file())
     if missing:
-        raise EvaluationError(f"Installer omitted expected skills: {', '.join(missing)}")
+        raise EvaluationError(f"Evaluation omitted expected skills: {', '.join(missing)}")
     extras = sorted(actual - expected)
     if extras:
-        raise EvaluationError(f"Installer added undeclared skills: {', '.join(extras)}")
+        raise EvaluationError(f"Evaluation added undeclared skills: {', '.join(extras)}")
 
     digests: dict[str, str] = {}
     for name in sorted(expected):
@@ -1240,8 +1626,11 @@ def _verify_installed_skills(
 def _installed_metadata(
     agent: str, install_root: Path, expected: set[str]
 ) -> tuple[Path, dict[str, object]]:
-    relative = ".agents/skills" if agent == "codex" else ".claude/skills"
-    visible_root = EVAL_SANDBOX_PROJECT / relative
+    visible_root = (
+        EVAL_SANDBOX_STATE / "hermes/skills"
+        if agent == "hermes"
+        else EVAL_SANDBOX_PROJECT / AGENT_SKILL_ROOTS[agent]
+    )
     budget = metadata_budget(
         [install_root / name for name in sorted(expected)],
         install_root=visible_root.as_posix(),
@@ -1261,56 +1650,26 @@ def _install_profile(
     agent: str,
     profile: str,
     case: EvalCase,
-    *,
-    timeout: int,
-    npx_home: Path | None = None,
 ) -> dict[str, object]:
     if profile == "baseline":
         return {
-            "commands": [],
+            "method": "none",
             "installed_skills": [],
             "hashes_verified": True,
             "installed_skill_sha256": {},
             "installed_pack_sha256": _canonical_digest({}),
         }
-    if shutil.which("npx") is None:
-        raise EvaluationError("npx is required for evaluation installs")
     selected = _profile_selection(manifest, profile, case)
-    commands = install_commands(
-        manifest,
-        project,
-        [agent],
-        skills=selected,
-        copy=True,
-    )
-    git_dir = project / ".git"
-    git_before = (
-        checked_tree_hashes(
-            git_dir,
-            context="Evaluation Git metadata",
-            error_type=EvaluationError,
-        )
-        if git_dir.exists()
-        else None
-    )
-    _run_install_commands(commands, project, timeout, npx_home)
-    if (
-        git_before is not None
-        and checked_tree_hashes(
-            git_dir,
-            context="Evaluation Git metadata",
-            error_type=EvaluationError,
-        )
-        != git_before
-    ):
-        raise EvaluationError("Skill installer modified evaluation Git metadata")
-    _verify_installer_side_effects(project, agent)
     expected = _committed_skill_inventory(manifest) if selected is None else set(selected)
-    install_root = project / (".agents/skills" if agent == "codex" else ".claude/skills")
+    install_root = project / AGENT_SKILL_ROOTS[agent]
+    install_root.mkdir(mode=0o700, parents=True)
+    for name in sorted(expected):
+        source = manifest.root_for("committed") / name
+        shutil.copytree(source, install_root / name)
     installed_skill_sha256 = _verify_installed_skills(manifest, install_root, expected)
     visible_install_root, installed_budget = _installed_metadata(agent, install_root, expected)
     return {
-        "commands": commands,
+        "method": "direct-copy",
         "installed_skills": sorted(expected),
         "hashes_verified": True,
         "installed_skill_sha256": installed_skill_sha256,
@@ -1542,27 +1901,14 @@ def _validate_evaluation_request(
         raise EvaluationError("Repeat must be positive")
     if settings.timeout < 1:
         raise EvaluationError("Timeout must be positive")
-    if not math.isfinite(settings.max_budget_usd) or settings.max_budget_usd <= 0:
-        raise EvaluationError("Claude budget must be finite and positive")
-    _validate_live_settings(settings)
+    unknown_models = sorted(set(settings.models) - set(settings.agents))
+    if unknown_models:
+        raise EvaluationError(
+            "Models were provided for unselected agents: " + ", ".join(unknown_models)
+        )
     _validate_case_distribution(manifest, cases, settings)
     if not settings.dry_run:
         _preflight_live(list(settings.agents))
-
-
-def _validate_live_settings(settings: _EvaluationSettings) -> None:
-    if settings.dry_run:
-        return
-    if not settings.accept_credential_risk:
-        raise EvaluationError(
-            "Live evaluations require explicit acceptance of disposable credential risk"
-        )
-    missing_models = sorted(set(settings.agents) - set(settings.models))
-    if missing_models:
-        raise EvaluationError(
-            "Live evaluations require an explicit model for every agent: "
-            + ", ".join(missing_models)
-        )
 
 
 def _validate_case_distribution(
@@ -1698,16 +2044,16 @@ def _observed_skills(
     loaded: set[str],
     claimed: str | None,
     installed: set[str],
+    visible: set[str],
 ) -> tuple[set[str], str]:
-    """Add Codex's proxy marker only when it names an installed skill."""
+    """Accept a proxy marker only for an installed skill visible to the client."""
     observed = set(loaded)
     evidence = "trace"
-    if agent != "codex" or not claimed:
+    if not claimed or claimed in loaded:
         return observed, evidence
-    if claimed in installed:
+    if claimed in installed and (agent not in INVENTORY_AGENTS or claimed in visible):
         observed.add(claimed)
-        if claimed not in loaded:
-            evidence = "self-report-proxy"
+        evidence = "self-report-proxy"
     else:
         evidence = "unverified-self-report"
     return observed, evidence
@@ -1715,7 +2061,13 @@ def _observed_skills(
 
 def _run_succeeded(invocation: dict[str, object], metadata: dict[str, object]) -> bool:
     terminal_status = str(metadata.get("terminal_status") or "").lower()
-    terminal_failed = terminal_status in {"failed", "error"} or terminal_status.startswith("error_")
+    terminal_failed = terminal_status in {
+        "aborted",
+        "cancelled",
+        "error",
+        "failed",
+        "timeout",
+    } or terminal_status.startswith("error_")
     return invocation["exit_code"] == 0 and not terminal_failed
 
 
@@ -1734,7 +2086,7 @@ def _completed_record(
     loaded, claimed, visible = parse_trace(trace, final_output, set(context.known_skills))
     earned, total = score_output(final_output, case.rubric)
     installed = set(install_run["installed_skills"])
-    observed, evidence = _observed_skills(agent, loaded, claimed, installed)
+    observed, evidence = _observed_skills(agent, loaded, claimed, installed, visible)
     expected = set(record["expected_skills"])
     forbidden = set(record["forbidden_skills"])
     expected_loaded = expected.issubset(observed)
@@ -1742,7 +2094,7 @@ def _completed_record(
     record.update(
         {
             "status": "completed" if _run_succeeded(invocation, metadata) else "failed",
-            "install_commands": install_run["commands"],
+            "install_method": install_run["method"],
             "installed_skills": install_run["installed_skills"],
             "install_hashes_verified": install_run["hashes_verified"],
             "installed_skill_sha256": install_run.get("installed_skill_sha256", {}),
@@ -1794,17 +2146,13 @@ def _execute_record(
                 agent,
                 profile,
                 case,
-                timeout=context.settings.timeout,
-                npx_home=context.npx_home,
             )
-            (workspace / "skills-lock.json").unlink(missing_ok=True)
             invocation = _run_agent(
                 agent,
                 workspace,
                 _evaluation_prompt(case, agent),
                 raw_dir,
                 timeout=context.settings.timeout,
-                max_budget_usd=context.settings.max_budget_usd,
                 model=context.settings.models.get(agent),
                 isolation_root=isolation_root,
             )
@@ -1822,17 +2170,10 @@ def _execute_record(
         return _completed_record(context, case, agent, record, install_run, invocation, raw_path)
 
 
-def _tool_versions(dry_run: bool, npx_home: Path | None) -> dict[str, str | None]:
+def _tool_versions(dry_run: bool) -> dict[str, str | None]:
     if dry_run:
-        return {"codex": None, "claude-code": None, "skills": None}
-    return {
-        "codex": _version(["codex", "--version"], home=npx_home),
-        "claude-code": _version(["claude", "--version"], home=npx_home),
-        "skills": _version(
-            ["npx", "--yes", SKILLS_CLI_PACKAGE, "--version"],
-            home=npx_home,
-        ),
-    }
+        return dict.fromkeys(SUPPORTED_AGENTS)
+    return {agent: _version([binary, "--version"]) for agent, binary in AGENT_BINARIES.items()}
 
 
 def _evaluation_report(
@@ -1853,18 +2194,12 @@ def _evaluation_report(
         "repeat": settings.repeat,
         "execution_plan": {
             "processes": profile_runs * len(settings.agents),
-            "claude_calls": profile_runs if "claude-code" in settings.agents else 0,
-            "claude_soft_cap_sum_usd": round(
-                profile_runs
-                * settings.max_budget_usd
-                * (1 if "claude-code" in settings.agents else 0),
-                4,
-            ),
+            "calls_by_agent": {agent: profile_runs for agent in settings.agents},
         },
         "raw_traces_kept": settings.keep_raw,
         "corpus_identity": context.corpus_identity,
         "requested_models": settings.models,
-        "tool_versions": _tool_versions(settings.dry_run, context.npx_home),
+        "tool_versions": _tool_versions(settings.dry_run),
         "cases": [asdict(case) for case in cases],
         "records": records,
         "summary": _summary(records),
@@ -1898,12 +2233,10 @@ def run_evaluation(
     repeat: int = 1,
     include_local: bool = False,
     timeout: int = 180,
-    max_budget_usd: float = 0.25,
     models: dict[str, str] | None = None,
     dry_run: bool = False,
     keep_raw: bool = False,
     results_root: Path | None = None,
-    accept_credential_risk: bool = False,
 ) -> tuple[dict[str, object], Path]:
     """Run each case in a new project and each agent in a fresh process/home."""
     settings = _EvaluationSettings(
@@ -1913,12 +2246,10 @@ def run_evaluation(
         repeat=repeat,
         include_local=include_local,
         timeout=timeout,
-        max_budget_usd=max_budget_usd,
         models=dict(models or {}),
         dry_run=dry_run,
         keep_raw=keep_raw,
         results_root=results_root,
-        accept_credential_risk=accept_credential_risk,
     )
     _validate_evaluation_request(manifest, cases, settings)
     corpus_identity = _corpus_identity(manifest, cases)
@@ -1936,7 +2267,6 @@ def run_evaluation(
         manifest=manifest,
         settings=settings,
         results_dir=root,
-        npx_home=None if dry_run else root / ".npx-home",
         known_skills=known_skills,
         corpus_identity=corpus_identity,
     )
@@ -1955,7 +2285,5 @@ def run_evaluation(
                     checkpoint(_execute_record(context, case, agent, current_profile, run_number))
 
     report = _evaluation_report(context, cases, profiles, records)
-    if context.npx_home is not None:
-        shutil.rmtree(context.npx_home, ignore_errors=True)
     _write_report(report, root)
     return report, root

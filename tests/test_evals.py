@@ -231,7 +231,8 @@ def test_load_cases_expands_controls_and_profile_specific_index_expectations(
 
     control = by_id["control-alpha-style"]
     assert _evaluation_prompt(control, "codex").startswith("$alpha-style\n")
-    assert _evaluation_prompt(control, "claude-code").startswith("/alpha-style\n")
+    for agent in ("claude-code", "opencode", "openclaw", "hermes"):
+        assert _evaluation_prompt(control, agent).startswith("/alpha-style\n")
     assert by_id["smoke-alpha"].expectations_for("all") == (
         ("alpha-style",),
         ("google-guides-index",),
@@ -529,6 +530,67 @@ def test_parse_trace_requires_successful_claude_tool_results() -> None:
     assert loaded == set()
 
 
+def test_parse_trace_reads_only_completed_opencode_skill_tools() -> None:
+    trace = "\n".join(
+        [
+            json.dumps(
+                {
+                    "type": "tool_use",
+                    "part": {
+                        "type": "tool",
+                        "tool": "skill",
+                        "state": {
+                            "status": "completed",
+                            "input": {"name": "alpha-style"},
+                        },
+                    },
+                }
+            ),
+            json.dumps(
+                {
+                    "type": "tool_use",
+                    "part": {
+                        "type": "tool",
+                        "tool": "skill",
+                        "state": {
+                            "status": "error",
+                            "input": {"name": "beta-review"},
+                        },
+                    },
+                }
+            ),
+        ]
+    )
+
+    loaded, _claimed, _visible = parse_trace(trace, "", {"alpha-style", "beta-review"})
+
+    assert loaded == {"alpha-style"}
+
+
+def test_parse_trace_reads_openclaw_skill_inventory() -> None:
+    trace = json.dumps(
+        {
+            "payloads": [],
+            "meta": {
+                "systemPromptReport": {
+                    "skills": {
+                        "entries": [
+                            {"name": "alpha-style", "blockChars": 120},
+                            {"name": "unrelated-bundled-skill", "blockChars": 80},
+                        ]
+                    }
+                }
+            },
+        }
+    )
+
+    loaded, claimed, visible = parse_trace(trace, "", {"alpha-style", "beta-review"})
+
+    assert loaded == set()
+    assert claimed is None
+    assert visible == {"alpha-style"}
+
+
 def test_parse_trace_normalizes_none_marker_and_ignores_unknowns() -> None:
     loaded, claimed, visible = parse_trace(
         '{"name":"Skill","input":{"skill":"unknown"}}',
@@ -624,19 +686,66 @@ def test_trace_metadata_normalizes_codex_claude_and_budget_events() -> None:
     )
 
 
-def test_build_codex_command_is_ephemeral_read_only_and_model_pinned(tmp_path: Path) -> None:
+def test_trace_metadata_normalizes_opencode_and_openclaw_events() -> None:
+    opencode = json.dumps(
+        {
+            "type": "step_finish",
+            "part": {"tokens": {"input": 12, "output": 4}, "cost": 0.01},
+        }
+    )
+    openclaw = json.dumps(
+        {
+            "ok": True,
+            "status": "ok",
+            "final": "done",
+            "usage": {"input": 5, "output": 2},
+            "costUsd": 0.02,
+            "model": "gpt-test",
+            "provider": "openai",
+        },
+        indent=2,
+    )
+
+    assert trace_metadata(opencode)["usage"] == {"input": 12, "output": 4}
+    assert trace_metadata(opencode)["terminal_status"] == "completed"
+    assert trace_metadata(openclaw)["resolved_model"] == "gpt-test"
+    assert trace_metadata(openclaw)["resolved_provider"] == "openai"
+    assert trace_metadata(openclaw)["terminal_status"] == "ok"
+
+    current_openclaw = json.dumps(
+        {
+            "payloads": [{"text": "answer"}],
+            "meta": {
+                "aborted": False,
+                "agentMeta": {
+                    "provider": "codex",
+                    "model": "gpt-current",
+                    "usage": {"input": 10, "output": 2},
+                },
+            },
+        }
+    )
+    current_metadata = trace_metadata(current_openclaw)
+    assert current_metadata["resolved_model"] == "gpt-current"
+    assert current_metadata["resolved_provider"] == "codex"
+    assert current_metadata["terminal_status"] == "completed"
+
+    aborted = trace_metadata(json.dumps({"payloads": [], "meta": {"aborted": True}}))
+    assert aborted["terminal_status"] == "aborted"
+
+
+def test_build_codex_command_uses_outer_sandbox_and_pins_model(tmp_path: Path) -> None:
     output = tmp_path / "final.txt"
     command = build_agent_command(
         "codex",
         tmp_path,
         "review prompt",
         output,
-        max_budget_usd=1.0,
         model="gpt-test",
     )
 
     assert command[:3] == ["codex", "exec", "--ephemeral"]
-    assert command[command.index("--sandbox") + 1] == "read-only"
+    assert command[command.index("--sandbox") + 1] == "danger-full-access"
     assert "--ignore-user-config" in command
     assert "--ignore-rules" in command
     assert "--strict-config" in command
@@ -654,7 +763,6 @@ def test_build_claude_command_disables_mutating_tools_and_external_configuration
         tmp_path,
         "review prompt",
         tmp_path / "unused.txt",
-        max_budget_usd=0.125,
     )
 
     assert command[0] == "claude"
@@ -665,46 +773,197 @@ def test_build_claude_command_disables_mutating_tools_and_external_configuration
     assert command[command.index("--mcp-config") + 1] == '{"mcpServers":{}}'
     assert "--no-chrome" in command
     assert command[command.index("--tools") + 1] == "Skill,Read,Glob,Grep"
-    assert command[command.index("--max-budget-usd") + 1] == "0.125"
-    assert command[-1] == "review prompt"
+    assert "--max-budget-usd" not in command
+    assert command[command.index("--print") + 1] == "review prompt"
+
+
+@pytest.mark.parametrize(
+    ("agent", "prefix", "required"),
+    [
+        ("opencode", ["opencode", "run"], {"--pure", "--format", "json", "--auto"}),
+        ("openclaw", ["openclaw", "agent"], {"--local", "--json", "--message"}),
+        ("hermes", ["hermes", "-z", "review prompt"], {"openai-codex"}),
+    ],
+)
+def test_build_additional_agent_commands(
+    tmp_path: Path, agent: str, prefix: list[str], required: set[str]
+) -> None:
+    command = build_agent_command(
+        agent,
+        tmp_path,
+        "review prompt",
+        tmp_path / "unused.txt",
+        model="test-model",
+    )
+
+    assert command[: len(prefix)] == prefix
+    assert required.issubset(command)
+    assert command[command.index("--model") + 1] == "test-model"
 
 
 def test_build_agent_command_rejects_unknown_agent(tmp_path: Path) -> None:
     with pytest.raises(EvaluationError, match="Unsupported evaluation agent"):
-        build_agent_command("unknown", tmp_path, "prompt", tmp_path / "out", max_budget_usd=1.0)
+        build_agent_command("unknown", tmp_path, "prompt", tmp_path / "out")
 
 
-def test_isolated_agent_env_uses_only_disposable_codex_key(
+def _existing_login(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, agent: str) -> Path:
+    if agent in {"codex", "opencode", "openclaw", "hermes"}:
+        root = tmp_path / "source-codex"
+        monkeypatch.setenv("CODEX_HOME", str(root))
+        path = root / "auth.json"
+    elif agent == "claude-code":
+        root = tmp_path / "source-claude"
+        monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(root))
+        path = root / ".credentials.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if agent in {"codex", "opencode", "openclaw", "hermes"}:
+        access = "header.eyJleHAiOjQxMDI0NDQ4MDB9.signature"
+        path.write_text(
+            json.dumps(
+                {
+                    "tokens": {
+                        "access_token": access,
+                        "refresh_token": "refresh",
+                        "account_id": "account",
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+    else:
+        path.write_text(f"{agent}-login\n", encoding="utf-8")
+    return path
+
+
+def test_isolated_agent_env_reuses_codex_login_without_ambient_secrets(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     target = tmp_path / "isolated"
     target.mkdir()
+    source = _existing_login(tmp_path, monkeypatch, "codex")
     monkeypatch.setenv("SENTINEL_SECRET", "must-not-leak")
     monkeypatch.setenv("OPENAI_API_KEY", "ambient-key-must-not-win")
-    monkeypatch.setenv("GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "disposable-key")
 
     env = _isolated_agent_env("codex", target)
 
     assert env["CODEX_HOME"] == str(target / "codex")
-    assert env["OPENAI_API_KEY"] == "disposable-key"
-    assert not (target / "codex/auth.json").exists()
+    assert (target / "codex/auth.json").read_bytes() == source.read_bytes()
     assert env["HOME"] == str(target / "home")
     assert "SENTINEL_SECRET" not in env
+    assert "OPENAI_API_KEY" not in env
 
 
-def test_isolated_agent_env_supports_claude_api_key_without_copy(
+def test_isolated_agent_env_reuses_claude_login_without_api_key(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     target = tmp_path / "isolated"
     target.mkdir()
+    source = _existing_login(tmp_path, monkeypatch, "claude-code")
     monkeypatch.setenv("ANTHROPIC_API_KEY", "ambient-key-must-not-win")
-    monkeypatch.setenv("GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY", "disposable-key")
 
     env = _isolated_agent_env("claude-code", target)
 
     assert env["CLAUDE_CONFIG_DIR"] == str(target / "claude")
-    assert env["ANTHROPIC_API_KEY"] == "disposable-key"
-    assert not (target / "claude/.credentials.json").exists()
+    assert (target / "claude/.credentials.json").read_bytes() == source.read_bytes()
+    assert "ANTHROPIC_API_KEY" not in env
+
+
+@pytest.mark.parametrize(
+    ("agent", "copied_path"),
+    [
+        ("opencode", "home/.local/share/opencode/auth.json"),
+        ("openclaw", "home/.codex/auth.json"),
+        ("hermes", "home/.codex/auth.json"),
+    ],
+)
+def test_isolated_agent_env_stages_other_client_logins(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    agent: str,
+    copied_path: str,
+) -> None:
+    target = tmp_path / "isolated"
+    target.mkdir()
+    source = _existing_login(tmp_path, monkeypatch, agent)
+    plugin = tmp_path / "codex-plugin"
+    plugin.mkdir()
+    (plugin / "openclaw.plugin.json").write_text("{}", encoding="utf-8")
+    (plugin / "package.json").write_text('{"version":"1.2.3"}', encoding="utf-8")
+    registry = tmp_path / "openclaw-registry.sqlite"
+    registry.write_text("registry", encoding="utf-8")
+    monkeypatch.setattr(eval_module, "_openclaw_runtime", lambda: (plugin, registry))
+
+    env = _isolated_agent_env(agent, target)
+
+    if agent == "opencode":
+        auth = json.loads((target / copied_path).read_text(encoding="utf-8"))
+        assert auth["openai"]["type"] == "oauth"
+        assert auth["openai"]["accountId"] == "account"
+    else:
+        assert (target / copied_path).read_bytes() == source.read_bytes()
+    if agent == "openclaw":
+        assert env["OPENCLAW_STATE_DIR"] == str(target / "openclaw")
+        config = json.loads((target / "openclaw/openclaw.json").read_text(encoding="utf-8"))
+        assert config["plugins"]["load"]["paths"] == [plugin.as_posix()]
+        assert (target / "openclaw/state/openclaw.sqlite").read_text(encoding="utf-8") == (
+            "registry"
+        )
+        assert config["plugins"]["entries"]["codex"]["config"]["appServer"] == {
+            "transport": "stdio",
+            "homeScope": "user",
+            "sandbox": "danger-full-access",
+            "approvalPolicy": "never",
+        }
+        assert config["agents"]["defaults"]["model"]["primary"].startswith("codex/")
+        assert config["skills"]["allowBundled"] == ["__google-guides-none__"]
+    if agent == "hermes":
+        assert env["HERMES_HOME"] == str(target / "hermes")
+        assert (target / "hermes/.no-bundled-skills").is_file()
+        auth = json.loads((target / "hermes/auth.json").read_text(encoding="utf-8"))
+        assert auth["active_provider"] == "openai-codex"
+        assert auth["providers"]["openai-codex"]["tokens"]["refresh_token"] == "refresh"
+
+
+def test_hermes_state_contains_only_the_evaluation_skill_pack(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    target = tmp_path / "isolated"
+    target.mkdir()
+    project = tmp_path / "project"
+    skill = project / ".agents/skills/alpha-style"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text("# Alpha\n", encoding="utf-8")
+    _existing_login(tmp_path, monkeypatch, "hermes")
+
+    _isolated_agent_env("hermes", target, project=project)
+
+    assert (target / "hermes/skills/alpha-style/SKILL.md").read_text(encoding="utf-8") == (
+        "# Alpha\n"
+    )
+    assert {path.name for path in (target / "hermes/skills").iterdir()} == {"alpha-style"}
+
+
+def test_prime_openclaw_state_uses_only_the_staged_home(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "home/.codex").mkdir(parents=True)
+    (tmp_path / "openclaw").mkdir()
+    (tmp_path / "openclaw/openclaw.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setenv("SENTINEL_SECRET", "must-not-leak")
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        env = kwargs["env"]
+        assert isinstance(env, dict)
+        assert command == ["openclaw", "plugins", "list", "--json"]
+        assert env["HOME"] == str(tmp_path / "home")
+        assert env["CODEX_HOME"] == str(tmp_path / "home/.codex")
+        assert env["OPENCLAW_STATE_DIR"] == str(tmp_path / "openclaw")
+        assert "SENTINEL_SECRET" not in env
+        return subprocess.CompletedProcess(command, 0, stdout="{}", stderr="")
+
+    monkeypatch.setattr(eval_module.subprocess, "run", fake_run)
+
+    eval_module._prime_openclaw_state(tmp_path)
 
 
 def test_isolated_agent_env_can_publish_only_short_sandbox_paths(
@@ -712,7 +971,7 @@ def test_isolated_agent_env_can_publish_only_short_sandbox_paths(
 ) -> None:
     target = tmp_path / ("very-long-host-path-" * 4)
     target.mkdir()
-    monkeypatch.setenv("GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "disposable-key")
+    _existing_login(tmp_path, monkeypatch, "codex")
 
     env = _isolated_agent_env("codex", target, visible_root=Path("/h"))
 
@@ -752,15 +1011,14 @@ def test_run_agent_passes_minimal_env_and_deletes_temporary_home(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/fake")
-    monkeypatch.setenv("GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "provider-key")
+    _existing_login(tmp_path, monkeypatch, "codex")
     monkeypatch.setenv("SENTINEL_SECRET", "must-not-leak")
-    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "no-auth-file"))
     seen_home: list[Path] = []
 
     def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         env = kwargs["env"]
         assert isinstance(env, dict)
-        assert env["OPENAI_API_KEY"] == "provider-key"
+        assert "OPENAI_API_KEY" not in env
         assert "SENTINEL_SECRET" not in env
         assert env["HOME"] == "/h/home"
         assert env["CODEX_HOME"] == "/h/codex"
@@ -771,12 +1029,10 @@ def test_run_agent_passes_minimal_env_and_deletes_temporary_home(
         ]
         state_root = next(source for source, target in bind_pairs if target == "/h")
         assert (state_root / "home").is_dir()
-        assert (state_root / "codex").is_dir()
+        assert (state_root / "codex/auth.json").is_file()
         seen_home.append(state_root)
-        (tmp_path / "raw-isolated/final.txt").write_text("answer provider-key", encoding="utf-8")
-        return subprocess.CompletedProcess(
-            command, 0, stdout='{"leak":"provider-key"}\n', stderr="provider-key"
-        )
+        (tmp_path / "raw-isolated/final.txt").write_text("answer", encoding="utf-8")
+        return subprocess.CompletedProcess(command, 0, stdout='{"type":"done"}\n', stderr="")
 
     monkeypatch.setattr(eval_module.subprocess, "run", fake_run)
     result = _run_agent(
@@ -785,49 +1041,35 @@ def test_run_agent_passes_minimal_env_and_deletes_temporary_home(
         "prompt",
         tmp_path / "raw-isolated",
         timeout=5,
-        max_budget_usd=0.25,
         model="test-model",
     )
 
     assert result["exit_code"] == 0
-    assert "provider-key" not in str(result)
-    assert "[REDACTED_EVAL_KEY]" in str(result)
-    assert result["stderr_excerpt"] == "[REDACTED_EVAL_KEY]"
+    assert result["final_output"] == "answer"
+    assert result["stderr_excerpt"] == ""
     assert seen_home
     assert not seen_home[0].exists()
 
 
-@pytest.mark.parametrize(
-    ("agent", "env_name", "config_name"),
-    [
-        ("codex", "GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "CODEX_HOME"),
-        (
-            "claude-code",
-            "GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY",
-            "CLAUDE_CONFIG_DIR",
-        ),
-    ],
-)
-def test_isolated_agent_env_requires_credentials(
+@pytest.mark.parametrize("agent", ["codex", "claude-code", "opencode", "openclaw", "hermes"])
+def test_isolated_agent_env_requires_existing_login(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     agent: str,
-    env_name: str,
-    config_name: str,
 ) -> None:
     temporary = tmp_path / "temporary"
     temporary.mkdir()
-    monkeypatch.delenv(env_name, raising=False)
-    monkeypatch.setenv(config_name, str(tmp_path / "missing"))
+    monkeypatch.setattr(eval_module, "_login_source", lambda _agent: tmp_path / "missing")
 
-    with pytest.raises(EvaluationError, match="requires a disposable key"):
+    with pytest.raises(EvaluationError, match="No existing .* login"):
         _isolated_agent_env(agent, temporary)
 
 
-def test_live_preflight_checks_every_binary_and_disposable_key(
+def test_live_preflight_checks_every_binary_and_existing_login(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
-    available = {"npx", "bwrap", "codex", "claude"}
+    available = {"bwrap", "codex", "claude", "opencode", "openclaw", "hermes"}
     monkeypatch.setattr(
         eval_module.shutil,
         "which",
@@ -838,25 +1080,155 @@ def test_live_preflight_checks_every_binary_and_disposable_key(
         "run",
         lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, stdout="", stderr=""),
     )
-    monkeypatch.setenv("GOOGLE_GUIDES_EVAL_OPENAI_API_KEY", "codex-key")
-    monkeypatch.setenv("GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY", "claude-key")
-
-    _preflight_live(["codex", "claude-code"])
+    login = tmp_path / "auth.json"
+    login.write_text("login\n", encoding="utf-8")
+    monkeypatch.setattr(eval_module, "_login_source", lambda _agent: login)
+    monkeypatch.setattr(eval_module, "_openclaw_runtime", lambda: (tmp_path, login))
+    _preflight_live(list(eval_module.SUPPORTED_AGENTS))
 
     available.remove("claude")
     with pytest.raises(EvaluationError, match="agent CLI is not installed: claude"):
         _preflight_live(["claude-code"])
     available.add("claude")
-    monkeypatch.delenv("GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY")
-    with pytest.raises(EvaluationError, match="requires a disposable key"):
+    login.unlink()
+    with pytest.raises(EvaluationError, match="No existing claude-code login"):
         _preflight_live(["claude-code"])
 
 
-def test_live_preflight_requires_npx(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_live_preflight_requires_bubblewrap(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: None)
 
-    with pytest.raises(EvaluationError, match="npx is required"):
+    with pytest.raises(EvaluationError, match="bwrap is required"):
         _preflight_live(["codex"])
+
+
+def _fake_openclaw_package(path: Path, version: str = "1.2.3") -> Path:
+    path.mkdir(parents=True)
+    (path / "openclaw.plugin.json").write_text("{}", encoding="utf-8")
+    (path / "package.json").write_text(json.dumps({"version": version}), encoding="utf-8")
+    return path
+
+
+def test_openclaw_provider_discovery_uses_the_global_node_modules_tree(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    entrypoint = tmp_path / "node_modules/openclaw/openclaw.mjs"
+    entrypoint.parent.mkdir(parents=True)
+    entrypoint.write_text("", encoding="utf-8")
+    package = _fake_openclaw_package(tmp_path / "node_modules/@openclaw/codex")
+    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: str(entrypoint))
+
+    assert eval_module._openclaw_codex_package() == package.resolve()
+
+    (package / "openclaw.plugin.json").unlink()
+    with pytest.raises(EvaluationError, match="npm install -g @openclaw/codex"):
+        eval_module._openclaw_codex_package()
+
+
+def test_openclaw_runtime_reuses_managed_provider_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = _fake_openclaw_package(tmp_path / "global/@openclaw/codex")
+    cache = tmp_path / "cache"
+    package = _fake_openclaw_package(
+        cache / "state/npm/projects/codex/node_modules/@openclaw/codex"
+    )
+    registry = cache / "state/state/openclaw.sqlite"
+    registry.parent.mkdir(parents=True)
+    registry.write_text("registry", encoding="utf-8")
+    monkeypatch.setattr(eval_module, "_openclaw_codex_package", lambda: source)
+    monkeypatch.setattr(eval_module, "_openclaw_cache_root", lambda _version: cache)
+    monkeypatch.setattr(
+        eval_module.subprocess,
+        "run",
+        lambda *_args, **_kwargs: pytest.fail("cached provider should not be reinstalled"),
+    )
+
+    assert eval_module._openclaw_runtime() == (package.resolve(), registry)
+
+
+def test_openclaw_runtime_installs_provider_with_reduced_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = _fake_openclaw_package(tmp_path / "global/@openclaw/codex")
+    cache = tmp_path / "cache"
+    monkeypatch.setattr(eval_module, "_openclaw_codex_package", lambda: source)
+    monkeypatch.setattr(eval_module, "_openclaw_cache_root", lambda _version: cache)
+    monkeypatch.setenv("SENTINEL_SECRET", "must-not-leak")
+
+    def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        env = kwargs["env"]
+        assert isinstance(env, dict)
+        assert command == [
+            "openclaw",
+            "plugins",
+            "install",
+            "@openclaw/codex@1.2.3",
+            "--pin",
+            "--force",
+        ]
+        assert env["HOME"] == str(cache / "home")
+        assert "SENTINEL_SECRET" not in env
+        _fake_openclaw_package(cache / "state/npm/projects/codex/node_modules/@openclaw/codex")
+        registry = cache / "state/state/openclaw.sqlite"
+        registry.parent.mkdir(parents=True)
+        registry.write_text("registry", encoding="utf-8")
+        return subprocess.CompletedProcess(command, 0, stdout="installed", stderr="")
+
+    monkeypatch.setattr(eval_module.subprocess, "run", fake_run)
+
+    package, registry = eval_module._openclaw_runtime()
+
+    assert package.name == "codex"
+    assert registry.read_text(encoding="utf-8") == "registry"
+
+
+def test_openclaw_runtime_reports_install_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = _fake_openclaw_package(tmp_path / "global/@openclaw/codex")
+    monkeypatch.setattr(eval_module, "_openclaw_codex_package", lambda: source)
+    monkeypatch.setattr(eval_module, "_openclaw_cache_root", lambda _version: tmp_path / "cache")
+    monkeypatch.setattr(
+        eval_module.subprocess,
+        "run",
+        lambda command, **_kwargs: subprocess.CompletedProcess(
+            command, 1, stdout="", stderr="install failed"
+        ),
+    )
+
+    with pytest.raises(EvaluationError, match="install failed"):
+        eval_module._openclaw_runtime()
+
+
+def test_sandbox_launch_mounts_hermes_wrapper_and_python_runtime(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    wrapper = tmp_path / ".local/bin/hermes"
+    wrapper.parent.mkdir(parents=True)
+    script = tmp_path / ".hermes/hermes-agent/hermes"
+    script.parent.mkdir(parents=True)
+    script.write_text("entry", encoding="utf-8")
+    python = tmp_path / ".local/share/uv/python/cpython/bin/python3.11"
+    python.parent.mkdir(parents=True)
+    python.write_text("runtime", encoding="utf-8")
+    python_link = script.parent / "venv/bin/python"
+    python_link.parent.mkdir(parents=True)
+    python_link.symlink_to(python)
+    wrapper.write_text(
+        f'#!/usr/bin/env bash\nexec "{python_link}" "{script}" "$@"\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/usr/bin/bash")
+
+    launch, mounts = eval_module._sandbox_launch(
+        "hermes", ["hermes", "--version"], wrapper, [Path("/usr")]
+    )
+
+    assert launch == ["/usr/bin/bash", str(wrapper), "--version"]
+    assert wrapper in mounts
+    assert script.parent in mounts
+    assert tmp_path / ".local/share/uv/python" in mounts
 
 
 def test_filesystem_sandbox_hides_sibling_canary_from_agent_run(tmp_path: Path) -> None:
@@ -906,6 +1278,22 @@ def test_final_from_claude_trace_uses_last_result_event() -> None:
     assert _final_from_claude_trace(trace) == "last"
 
 
+def test_additional_clients_final_output_formats() -> None:
+    opencode = "\n".join(
+        [
+            json.dumps({"type": "step_start", "part": {}}),
+            json.dumps({"type": "text", "part": {"text": "first "}}),
+            json.dumps({"type": "text", "part": {"text": "second"}}),
+        ]
+    )
+    openclaw = json.dumps({"ok": True, "status": "ok", "final": "claw answer"}, indent=2)
+    current_openclaw = json.dumps({"payloads": [{"text": "first"}, {"text": "second"}], "meta": {}})
+
+    assert eval_module._final_from_opencode_trace(opencode) == "first second"
+    assert eval_module._final_from_openclaw_trace(openclaw) == "claw answer"
+    assert eval_module._final_from_openclaw_trace(current_openclaw) == "first\nsecond"
+
+
 def test_run_agent_records_codex_trace_and_final_output(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -930,7 +1318,6 @@ def test_run_agent_records_codex_trace_and_final_output(
         "prompt",
         tmp_path / "raw",
         timeout=5,
-        max_budget_usd=0.25,
         model=None,
     )
 
@@ -961,7 +1348,6 @@ def test_run_agent_extracts_claude_final_from_canned_trace(
         "prompt",
         tmp_path / "raw-claude",
         timeout=5,
-        max_budget_usd=0.25,
         model="claude-test",
     )
 
@@ -988,7 +1374,6 @@ def test_run_agent_normalizes_timeout_bytes(
         "prompt",
         tmp_path / "raw-timeout",
         timeout=1,
-        max_budget_usd=0.25,
         model=None,
     )
 
@@ -1009,9 +1394,13 @@ def test_run_agent_rejects_missing_binary(tmp_path: Path, monkeypatch: pytest.Mo
             "prompt",
             tmp_path / "raw",
             timeout=1,
-            max_budget_usd=0.25,
             model=None,
         )
+
+
+@pytest.mark.parametrize("terminal_status", ["aborted", "cancelled", "error", "failed", "timeout"])
+def test_terminal_failures_do_not_count_as_completed(terminal_status: str) -> None:
+    assert not eval_module._run_succeeded({"exit_code": 0}, {"terminal_status": terminal_status})
 
 
 def test_version_normalizes_stdout_stderr_and_failures(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1038,76 +1427,23 @@ def test_version_normalizes_stdout_stderr_and_failures(monkeypatch: pytest.Monke
     assert _version(["missing"]) is None
 
 
-def _fake_profile_installer(
-    manifest: Manifest,
-    captured: dict[str, object],
-    *,
-    corrupt: bool = False,
-    extra: bool = False,
-):
-    def install_commands(
-        _manifest: Manifest,
-        project: Path,
-        agents: list[str],
-        *,
-        skills: list[str] | None,
-        copy: bool,
-    ) -> list[list[str]]:
-        captured.update(
-            {
-                "agents": agents,
-                "skills": skills,
-                "copy": copy,
-            }
-        )
-        available = ["alpha-style", "beta-review", "google-guides-index"]
-        names = available if skills is None else skills
-        install_root = project / (".agents/skills" if agents == ["codex"] else ".claude/skills")
-        for name in names:
-            shutil.copytree(manifest.root_for("committed") / name, install_root / name)
-        if corrupt and names:
-            (install_root / names[0] / "SKILL.md").write_text("corrupt", encoding="utf-8")
-        if extra:
-            rogue = install_root / "rogue-skill"
-            rogue.mkdir()
-        return [["npx", "fake-install"]]
-
-    return install_commands
-
-
 @pytest.mark.parametrize(
-    ("profile", "expected_selection", "expected_installed"),
+    ("profile", "expected_installed"),
     [
-        (
-            "single",
-            ["alpha-style", "beta-review"],
-            ["alpha-style", "beta-review"],
-        ),
-        ("index", ["google-guides-index"], ["google-guides-index"]),
-        ("all-no-index", ["alpha-style", "beta-review"], ["alpha-style", "beta-review"]),
-        ("all", None, ["alpha-style", "beta-review", "google-guides-index"]),
+        ("single", ["alpha-style", "beta-review"]),
+        ("index", ["google-guides-index"]),
+        ("all-no-index", ["alpha-style", "beta-review"]),
+        ("all", ["alpha-style", "beta-review", "google-guides-index"]),
     ],
 )
 def test_install_profile_selects_and_verifies_exact_skill_copies(
     manifest: Manifest,
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
     profile: str,
-    expected_selection: list[str] | None,
     expected_installed: list[str],
 ) -> None:
     project = tmp_path / f"project-{profile}"
     project.mkdir()
-    captured: dict[str, object] = {}
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
-    monkeypatch.setattr(
-        eval_module, "install_commands", _fake_profile_installer(manifest, captured)
-    )
-    monkeypatch.setattr(
-        eval_module.subprocess,
-        "run",
-        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, stdout="", stderr=""),
-    )
 
     result = _install_profile(
         manifest,
@@ -1115,11 +1451,9 @@ def test_install_profile_selects_and_verifies_exact_skill_copies(
         "codex",
         profile,
         _case(forbidden=("beta-review",)),
-        timeout=10,
     )
 
-    assert captured["skills"] == expected_selection
-    assert captured["copy"] is True
+    assert result["method"] == "direct-copy"
     assert result["installed_skills"] == expected_installed
     assert result["hashes_verified"] is True
     assert set(result["installed_skill_sha256"]) == set(expected_installed)
@@ -1131,55 +1465,57 @@ def test_install_profile_selects_and_verifies_exact_skill_copies(
     assert budget["codex_list_chars"] <= budget["codex_fallback_limit_chars"]
 
 
-def test_install_profile_baseline_never_checks_or_invokes_npx(
-    manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(
-        eval_module.shutil,
-        "which",
-        lambda _binary: pytest.fail("baseline must not inspect npx"),
-    )
-
+def test_install_profile_baseline_creates_no_skill_tree(manifest: Manifest, tmp_path: Path) -> None:
     assert _install_profile(
         manifest,
         tmp_path,
         "codex",
         "baseline",
         _case(),
-        timeout=1,
     ) == {
-        "commands": [],
+        "method": "none",
         "installed_skills": [],
         "hashes_verified": True,
         "installed_skill_sha256": {},
         "installed_pack_sha256": eval_module._canonical_digest({}),
     }
+    assert not (tmp_path / ".agents").exists()
 
 
-def test_install_profile_rejects_missing_npx_and_invalid_profiles(
-    manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize(
+    ("agent", "relative", "visible"),
+    [
+        ("codex", ".agents/skills", "/w/.agents/skills"),
+        ("claude-code", ".claude/skills", "/w/.claude/skills"),
+        ("opencode", ".agents/skills", "/w/.agents/skills"),
+        ("openclaw", ".agents/skills", "/w/.agents/skills"),
+        ("hermes", ".agents/skills", "/h/hermes/skills"),
+    ],
+)
+def test_install_profile_uses_each_clients_skill_root(
+    manifest: Manifest,
+    tmp_path: Path,
+    agent: str,
+    relative: str,
+    visible: str,
 ) -> None:
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: None)
-    with pytest.raises(EvaluationError, match="npx is required"):
-        _install_profile(
-            manifest,
-            tmp_path,
-            "codex",
-            "all",
-            _case(),
-            timeout=1,
-        )
+    project = tmp_path / agent
+    project.mkdir()
 
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
+    result = _install_profile(manifest, project, agent, "index", _case())
+
+    assert (project / relative / "google-guides-index/SKILL.md").is_file()
+    assert result["agent_visible_install_root"] == visible
+
+
+def test_install_profile_rejects_invalid_profiles(manifest: Manifest, tmp_path: Path) -> None:
+    invalid = tmp_path / "invalid"
+    invalid.mkdir()
     with pytest.raises(EvaluationError, match="Unsupported evaluation profile"):
-        _install_profile(
-            manifest,
-            tmp_path,
-            "codex",
-            "bad",
-            _case(),
-            timeout=1,
-        )
+        _install_profile(manifest, invalid, "codex", "bad", _case())
+
+    empty = tmp_path / "empty"
+    empty.mkdir()
     with pytest.raises(EvaluationError, match="no candidate skill"):
         _install_profile(
             manifest,
@@ -1187,202 +1523,24 @@ def test_install_profile_rejects_missing_npx_and_invalid_profiles(
             "codex",
             "single",
             _case(expected=(), rubric=()),
-            timeout=1,
         )
 
 
-def test_install_profile_detects_failed_install_and_hash_mismatch(
+def test_install_profile_detects_copy_hash_mismatch(
     manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
-    project = tmp_path / "failed"
-    project.mkdir()
-    monkeypatch.setattr(eval_module, "install_commands", lambda *_args, **_kwargs: [["npx"]])
-    monkeypatch.setattr(
-        eval_module.subprocess,
-        "run",
-        lambda command, **_kwargs: subprocess.CompletedProcess(
-            command, 1, stdout="install output", stderr="install error"
-        ),
-    )
-    with pytest.raises(EvaluationError, match="Skill installation failed"):
-        _install_profile(
-            manifest,
-            project,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
-
     mismatch = tmp_path / "mismatch"
     mismatch.mkdir()
-    captured: dict[str, object] = {}
-    monkeypatch.setattr(
-        eval_module,
-        "install_commands",
-        _fake_profile_installer(manifest, captured, corrupt=True),
-    )
-    monkeypatch.setattr(
-        eval_module.subprocess,
-        "run",
-        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, stdout="", stderr=""),
-    )
+    copytree = shutil.copytree
+
+    def corrupt(source: Path, destination: Path) -> Path:
+        result = copytree(source, destination)
+        (destination / "SKILL.md").write_text("corrupt", encoding="utf-8")
+        return result
+
+    monkeypatch.setattr(eval_module.shutil, "copytree", corrupt)
     with pytest.raises(EvaluationError, match="Installed copy does not match"):
-        _install_profile(
-            manifest,
-            mismatch,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
-
-    extra_project = tmp_path / "extra"
-    extra_project.mkdir()
-    monkeypatch.setattr(
-        eval_module,
-        "install_commands",
-        _fake_profile_installer(manifest, captured, extra=True),
-    )
-    with pytest.raises(EvaluationError, match="undeclared skills"):
-        _install_profile(
-            manifest,
-            extra_project,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
-
-
-def test_install_profile_rejects_symlinks_and_project_configuration(
-    manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
-    monkeypatch.setattr(
-        eval_module.subprocess,
-        "run",
-        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, stdout="", stderr=""),
-    )
-
-    symlink_project = tmp_path / "symlink-install"
-    symlink_project.mkdir()
-
-    def symlink_installer(
-        _manifest: Manifest,
-        project: Path,
-        _agents: list[str],
-        **_kwargs: object,
-    ) -> list[list[str]]:
-        install_root = project / ".agents" / "skills"
-        install_root.mkdir(parents=True)
-        (install_root / "google-guides-index").symlink_to(
-            manifest.root_for("committed") / "google-guides-index",
-            target_is_directory=True,
-        )
-        return [["npx", "fake-install"]]
-
-    monkeypatch.setattr(eval_module, "install_commands", symlink_installer)
-    with pytest.raises(EvaluationError, match="unsafe skill entries"):
-        _install_profile(
-            manifest,
-            symlink_project,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
-
-    configured_project = tmp_path / "configured-install"
-    configured_project.mkdir()
-
-    def configured_installer(
-        _manifest: Manifest,
-        project: Path,
-        _agents: list[str],
-        **_kwargs: object,
-    ) -> list[list[str]]:
-        shutil.copytree(
-            manifest.root_for("committed") / "google-guides-index",
-            project / ".agents" / "skills" / "google-guides-index",
-        )
-        (project / "AGENTS.md").write_text("injected instructions\n", encoding="utf-8")
-        return [["npx", "fake-install"]]
-
-    monkeypatch.setattr(eval_module, "install_commands", configured_installer)
-    with pytest.raises(EvaluationError, match="unexpected project files: AGENTS.md"):
-        _install_profile(
-            manifest,
-            configured_project,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
-
-
-def test_install_profile_rejects_empty_directory_git_drift(
-    manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    project = tmp_path / "git-drift"
-    (project / ".git").mkdir(parents=True)
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
-
-    def drift_installer(
-        _manifest: Manifest,
-        _target: Path,
-        agents: list[str],
-        *,
-        skills: list[str] | None,
-        copy: bool,
-    ) -> list[list[str]]:
-        assert agents == ["codex"]
-        assert skills == ["google-guides-index"]
-        assert copy is True
-        return [["npx", "fake-install"]]
-
-    def run_installer(command: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        shutil.copytree(
-            manifest.root_for("committed") / "google-guides-index",
-            project / ".agents/skills/google-guides-index",
-        )
-        (project / ".git/added-directory").mkdir()
-        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
-
-    monkeypatch.setattr(eval_module, "install_commands", drift_installer)
-    monkeypatch.setattr(eval_module.subprocess, "run", run_installer)
-
-    with pytest.raises(EvaluationError, match="modified evaluation Git metadata"):
-        _install_profile(
-            manifest,
-            project,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
-
-
-def test_install_profile_reports_timeout(
-    manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr(eval_module.shutil, "which", lambda _binary: "/bin/npx")
-    monkeypatch.setattr(eval_module, "install_commands", lambda *_args, **_kwargs: [["npx"]])
-
-    def timeout(command: list[str], **_kwargs: object) -> None:
-        raise subprocess.TimeoutExpired(command, 1)
-
-    monkeypatch.setattr(eval_module.subprocess, "run", timeout)
-    with pytest.raises(EvaluationError, match="installation timed out"):
-        _install_profile(
-            manifest,
-            tmp_path,
-            "codex",
-            "index",
-            _case(),
-            timeout=1,
-        )
+        _install_profile(manifest, mismatch, "codex", "index", _case())
 
 
 def test_summary_and_quality_comparisons_normalize_completed_records() -> None:
@@ -1533,10 +1691,7 @@ def test_markdown_report_normalizes_missing_observations() -> None:
         ({"profile": "baseline"}, "Profile must be"),
         ({"repeat": 0}, "Repeat must be positive"),
         ({"timeout": 0}, "Timeout must be positive"),
-        ({"max_budget_usd": 0}, "budget must be finite and positive"),
-        ({"max_budget_usd": float("nan")}, "budget must be finite and positive"),
-        ({"max_budget_usd": float("inf")}, "budget must be finite and positive"),
-        ({"max_budget_usd": float("-inf")}, "budget must be finite and positive"),
+        ({"models": {"opencode": "test"}}, "unselected agents"),
     ],
 )
 def test_run_evaluation_validates_configuration_before_any_calls(
@@ -1548,7 +1703,6 @@ def test_run_evaluation_validates_configuration_before_any_calls(
         "profile": "single",
         "repeat": 1,
         "timeout": 1,
-        "max_budget_usd": 0.25,
         "dry_run": True,
         "results_root": tmp_path / "results",
     }
@@ -1556,20 +1710,6 @@ def test_run_evaluation_validates_configuration_before_any_calls(
 
     with pytest.raises(EvaluationError, match=message):
         run_evaluation(manifest, [_case()], **kwargs)
-
-
-def test_live_evaluation_requires_explicit_models(manifest: Manifest, tmp_path: Path) -> None:
-    with pytest.raises(EvaluationError, match="explicit model"):
-        run_evaluation(
-            manifest,
-            [_case()],
-            mode="triggers",
-            agents=["codex"],
-            profile="single",
-            dry_run=False,
-            accept_credential_risk=True,
-            results_root=tmp_path / "results",
-        )
 
 
 def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
@@ -1619,7 +1759,6 @@ def test_local_only_evaluations_stay_ignored_and_never_run_hosted(
             include_local=True,
             dry_run=False,
             models={"codex": "test-model"},
-            accept_credential_risk=True,
         )
 
 
@@ -1699,7 +1838,7 @@ def test_trigger_plan_only_creates_normalized_report_without_live_helpers(
         "index_broad_recall": None,
     }
     assert {record["status"] for record in report["records"]} == {"planned"}
-    assert report["tool_versions"] == {"codex": None, "claude-code": None, "skills": None}
+    assert report["tool_versions"] == dict.fromkeys(eval_module.SUPPORTED_AGENTS)
     persisted = json.loads((output / "report.json").read_text(encoding="utf-8"))
     assert persisted["cases"][0]["expected_skills"] == ["alpha-style"]
     assert (output / "report.md").is_file()
@@ -1772,13 +1911,11 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
         raw_dir: Path,
         *,
         timeout: int,
-        max_budget_usd: float,
         model: str | None,
         isolation_root: Path | None = None,
     ) -> dict[str, object]:
         assert workspace.name == "w"
         assert timeout == 180
-        assert max_budget_usd == 0.25
         assert model == "test-model"
         assert isolation_root == workspace.parent
         raw_dir.mkdir(parents=True)
@@ -1809,17 +1946,12 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
         agent: str,
         profile: str,
         _case_value: EvalCase,
-        *,
-        timeout: int,
-        npx_home: Path | None = None,
     ) -> dict[str, object]:
         assert workspace.name == "w"
         assert agent == "codex"
         assert profile == "single"
-        assert timeout == 180
-        assert npx_home is not None
         return {
-            "commands": [["npx", "fake"]],
+            "method": "direct-copy",
             "installed_skills": ["alpha-style"],
             "hashes_verified": True,
         }
@@ -1835,7 +1967,6 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
         agents=["codex"],
         profile="single",
         models={"codex": "test-model"},
-        accept_credential_risk=True,
         dry_run=False,
         keep_raw=False,
         results_root=tmp_path / "live-results",
@@ -1863,7 +1994,7 @@ def test_full_pack_direct_smoke_reports_unexpected_skill_as_routing_failure(
         eval_module,
         "_install_profile",
         lambda *_args, **_kwargs: {
-            "commands": [],
+            "method": "direct-copy",
             "installed_skills": [
                 "alpha-style",
                 "beta-review",
@@ -1914,7 +2045,6 @@ def test_full_pack_direct_smoke_reports_unexpected_skill_as_routing_failure(
         profile="all",
         dry_run=False,
         models={"codex": "test-model"},
-        accept_credential_risk=True,
         results_root=tmp_path / "exact-routing-results",
     )
 
@@ -1937,7 +2067,7 @@ def test_codex_claim_for_known_but_uninstalled_skill_is_not_counted(
         eval_module,
         "_install_profile",
         lambda *_args, **_kwargs: {
-            "commands": [],
+            "method": "direct-copy",
             "installed_skills": ["google-guides-index"],
             "hashes_verified": True,
         },
@@ -1963,7 +2093,6 @@ def test_codex_claim_for_known_but_uninstalled_skill_is_not_counted(
         profile="index",
         dry_run=False,
         models={"codex": "test-model"},
-        accept_credential_risk=True,
         keep_raw=True,
         results_root=tmp_path / "proxy-results",
     )
@@ -1975,6 +2104,35 @@ def test_codex_claim_for_known_but_uninstalled_skill_is_not_counted(
     assert record["trigger_correct"] is False
 
 
+@pytest.mark.parametrize(
+    ("agent", "loaded", "visible", "expected_observed", "expected_evidence"),
+    [
+        ("hermes", set(), set(), {"alpha-style"}, "self-report-proxy"),
+        ("openclaw", set(), {"alpha-style"}, {"alpha-style"}, "self-report-proxy"),
+        ("openclaw", set(), set(), set(), "unverified-self-report"),
+        ("openclaw", set(), {"beta-review"}, set(), "unverified-self-report"),
+        ("openclaw", {"alpha-style"}, set(), {"alpha-style"}, "trace"),
+    ],
+)
+def test_self_report_proxy_requires_visibility_when_inventory_is_available(
+    agent: str,
+    loaded: set[str],
+    visible: set[str],
+    expected_observed: set[str],
+    expected_evidence: str,
+) -> None:
+    observed, evidence = eval_module._observed_skills(
+        agent,
+        loaded,
+        "alpha-style",
+        {"alpha-style"},
+        visible,
+    )
+
+    assert observed == expected_observed
+    assert evidence == expected_evidence
+
+
 def test_failed_agent_process_is_excluded_from_accuracy(
     manifest: Manifest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1984,7 +2142,7 @@ def test_failed_agent_process_is_excluded_from_accuracy(
         eval_module,
         "_install_profile",
         lambda *_args, **_kwargs: {
-            "commands": [],
+            "method": "direct-copy",
             "installed_skills": ["alpha-style"],
             "hashes_verified": True,
         },
@@ -2010,7 +2168,6 @@ def test_failed_agent_process_is_excluded_from_accuracy(
         profile="single",
         dry_run=False,
         models={"codex": "test-model"},
-        accept_credential_risk=True,
         keep_raw=True,
         results_root=tmp_path / "failed-results",
     )
@@ -2039,7 +2196,6 @@ def test_infrastructure_errors_are_checkpointed_and_do_not_abort_matrix(
         profile="single",
         dry_run=False,
         models={"codex": "test-model"},
-        accept_credential_risk=True,
         results_root=tmp_path / "checkpoint-results",
     )
 
@@ -2062,7 +2218,7 @@ def test_quality_live_report_compares_canned_baseline_and_skilled_outputs(
         eval_module,
         "_install_profile",
         lambda *_args, **_kwargs: {
-            "commands": [],
+            "method": "direct-copy",
             "installed_skills": ["alpha-style"] if _args[3] == "single" else [],
             "hashes_verified": True,
         },
@@ -2112,7 +2268,6 @@ def test_quality_live_report_compares_canned_baseline_and_skilled_outputs(
         agents=["codex"],
         profile="single",
         models={"codex": "test-model"},
-        accept_credential_risk=True,
         dry_run=False,
         keep_raw=True,
         results_root=tmp_path / "quality-live",
@@ -2166,7 +2321,7 @@ def _patch_cli_eval(
     return selected, invoked
 
 
-def test_cli_eval_defaults_to_plan_only_smoke_for_both_agents(
+def test_cli_eval_defaults_to_plan_only_smoke_for_all_agents(
     manifest: Manifest,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2180,7 +2335,7 @@ def test_cli_eval_defaults_to_plan_only_smoke_for_both_agents(
     assert result == 0
     assert selected["stages"] == ["smoke"]
     assert selected["require_rubric"] is False
-    assert invoked["agents"] == ["codex", "claude-code"]
+    assert invoked["agents"] == list(eval_module.SUPPORTED_AGENTS)
     assert invoked["profile"] == "all"
     assert invoked["dry_run"] is True
     assert invoked["models"] == {}
@@ -2204,8 +2359,8 @@ def test_cli_quality_defaults_to_representative_rubrics_and_passes_options(
             "single",
             "--repeat",
             "3",
-            "--codex-model",
-            "gpt-test",
+            "--model",
+            "codex=gpt-test",
             "--keep-raw",
         ]
     )
@@ -2220,43 +2375,7 @@ def test_cli_quality_defaults_to_representative_rubrics_and_passes_options(
     assert invoked["dry_run"] is True
 
 
-def test_cli_live_eval_requires_explicit_cost_acknowledgement(
-    manifest: Manifest,
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    monkeypatch.setattr(cli, "_manifest", lambda _path: manifest)
-    monkeypatch.setattr(
-        cli,
-        "run_evaluation",
-        lambda *_args, **_kwargs: pytest.fail("unacknowledged live eval must not run"),
-    )
-
-    result = cli.main(["eval", "triggers", "--live"])
-
-    assert result == 2
-    assert "Live evaluations require --accept-cost" in capsys.readouterr().err
-
-
-def test_cli_live_eval_requires_credential_risk_acknowledgement(
-    manifest: Manifest,
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    monkeypatch.setattr(cli, "_manifest", lambda _path: manifest)
-    monkeypatch.setattr(
-        cli,
-        "run_evaluation",
-        lambda *_args, **_kwargs: pytest.fail("unacknowledged live eval must not run"),
-    )
-
-    result = cli.main(["eval", "triggers", "--live", "--accept-cost"])
-
-    assert result == 2
-    assert "--accept-credential-risk" in capsys.readouterr().err
-
-
-def test_cli_cost_acknowledgement_enables_live_mode(
+def test_cli_live_eval_uses_existing_client_login_without_acknowledgements(
     manifest: Manifest, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     output = manifest.project_root / "evals/results/live"
@@ -2269,50 +2388,34 @@ def test_cli_cost_acknowledgement_enables_live_mode(
             "--agent",
             "codex",
             "--live",
-            "--accept-cost",
-            "--accept-credential-risk",
-            "--codex-model",
-            "gpt-test",
-            "--max-budget-usd",
-            "0.5",
+            "--model",
+            "codex=gpt-test",
         ]
     )
 
     assert result == 0
     assert invoked["dry_run"] is False
-    assert invoked["accept_credential_risk"] is True
     assert invoked["models"] == {"codex": "gpt-test"}
-    assert invoked["max_budget_usd"] == 0.5
 
 
-def test_cli_live_claude_requires_explicit_soft_cap(
+@pytest.mark.parametrize(
+    "value",
+    ["missing-separator", "unknown=model", "codex="],
+)
+def test_cli_rejects_invalid_model_override(
     manifest: Manifest,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    value: str,
 ) -> None:
     monkeypatch.setattr(cli, "_manifest", lambda _path: manifest)
-    monkeypatch.setattr(
-        cli,
-        "run_evaluation",
-        lambda *_args, **_kwargs: pytest.fail("missing cap must fail before evaluation"),
-    )
+    monkeypatch.setattr(cli, "load_cases", lambda _manifest: [_case()])
+    monkeypatch.setattr(cli, "select_cases", lambda cases, **_kwargs: cases)
 
-    result = cli.main(
-        [
-            "eval",
-            "triggers",
-            "--agent",
-            "claude-code",
-            "--claude-model",
-            "claude-test",
-            "--live",
-            "--accept-cost",
-            "--accept-credential-risk",
-        ]
-    )
+    result = cli.main(["eval", "triggers", "--agent", "codex", "--model", value])
 
     assert result == 2
-    assert "explicit --max-budget-usd" in capsys.readouterr().err
+    assert "--model must use AGENT=MODEL" in capsys.readouterr().err
 
 
 def test_cli_index_ab_preflight_reports_both_profile_calls(
@@ -2332,19 +2435,15 @@ def test_cli_index_ab_preflight_reports_both_profile_calls(
             "--profile",
             "index-ab",
             "--live",
-            "--accept-cost",
-            "--accept-credential-risk",
-            "--claude-model",
-            "claude-test",
-            "--max-budget-usd",
-            "0.5",
+            "--model",
+            "claude-code=claude-test",
         ]
     )
 
     assert result == 0
     output_text = capsys.readouterr().out
     assert "Executing 2 isolated process(es)" in output_text
-    assert "Claude soft-cap sum $1.00" in output_text
+    assert "existing client login(s)" in output_text
 
 
 @pytest.mark.parametrize("failure_key", ["failed_processes", "infrastructure_errors"])
@@ -2381,10 +2480,8 @@ def test_cli_live_eval_returns_failure_for_nonpassing_run(
             "--agent",
             "codex",
             "--live",
-            "--accept-cost",
-            "--accept-credential-risk",
-            "--codex-model",
-            "gpt-test",
+            "--model",
+            "codex=gpt-test",
         ]
     )
 

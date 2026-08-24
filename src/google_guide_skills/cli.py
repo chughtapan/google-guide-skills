@@ -30,7 +30,9 @@ from .validation import has_errors, validate
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="google-guides",
-        description="Convert pinned, licensed Google guides into Agent Skills.",
+        description=(
+            "Convert licensed Google guides into Agent Skills, install them, and test selection."
+        ),
     )
     parser.add_argument(
         "--manifest",
@@ -88,22 +90,19 @@ def _parser() -> argparse.ArgumentParser:
         mode_parser.add_argument("--limit", type=int)
         mode_parser.add_argument("--include-swe-book", action="store_true", dest="include_local")
         mode_parser.add_argument("--timeout", type=int, default=180)
-        mode_parser.add_argument("--max-budget-usd", type=float)
-        mode_parser.add_argument("--codex-model")
-        mode_parser.add_argument("--claude-model")
+        mode_parser.add_argument(
+            "--model",
+            action="append",
+            metavar="AGENT=MODEL",
+            help="Override one client's configured/default model",
+        )
         mode_parser.add_argument("--results-root", type=Path)
         mode_parser.add_argument(
-            "--live", action="store_true", help="Execute model calls (default: plan only)"
-        )
-        mode_parser.add_argument(
-            "--accept-cost", action="store_true", help="Acknowledge live model-call cost"
+            "--live",
+            action="store_true",
+            help="Run with the selected clients' existing logins (default: plan only)",
         )
         mode_parser.add_argument("--keep-raw", action="store_true")
-        mode_parser.add_argument(
-            "--accept-credential-risk",
-            action="store_true",
-            help="Confirm use of dedicated disposable provider API keys",
-        )
 
     all_parser = subparsers.add_parser("all", help="Sync, build, catalog, measure, and validate")
     all_parser.add_argument("--include-swe-book", action="store_true", dest="include_local")
@@ -223,46 +222,31 @@ def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
 
 
 def _evaluation_models(args: argparse.Namespace) -> dict[str, str]:
-    return {
-        agent: model
-        for agent, model in {
-            "codex": args.codex_model,
-            "claude-code": args.claude_model,
-        }.items()
-        if model
-    }
+    models: dict[str, str] = {}
+    for value in args.model or []:
+        agent, separator, model = value.partition("=")
+        if not separator or agent not in SUPPORTED_AGENTS or not model:
+            raise GoogleGuideSkillsError("--model must use AGENT=MODEL with a supported agent name")
+        if agent in models:
+            raise GoogleGuideSkillsError(f"Model specified more than once for {agent}")
+        models[agent] = model
+    return models
 
 
 def _print_evaluation_plan(
     args: argparse.Namespace,
     agents: list[str],
     case_count: int,
-    max_budget_usd: float,
 ) -> None:
     if not args.live:
         return
     profile_count = 2 if args.eval_mode == "quality" or args.profile == "index-ab" else 1
     processes = case_count * len(agents) * args.repeat * profile_count
-    claude_calls = case_count * args.repeat * profile_count if "claude-code" in agents else 0
-    print(
-        f"Executing {processes} isolated process(es); Claude soft-cap sum "
-        f"${claude_calls * max_budget_usd:.2f} (individual calls may overshoot)."
-    )
+    print(f"Executing {processes} isolated process(es) with existing client login(s).")
 
 
 def _run_eval(args: argparse.Namespace, manifest: Manifest) -> int:
-    if args.live and not args.accept_cost:
-        raise GoogleGuideSkillsError("Live evaluations require --accept-cost")
-    if args.live and not args.accept_credential_risk:
-        raise GoogleGuideSkillsError(
-            "Live evaluations require --accept-credential-risk and disposable API keys"
-        )
     agents = args.agent or list(SUPPORTED_AGENTS)
-    if args.live and "claude-code" in agents and args.max_budget_usd is None:
-        raise GoogleGuideSkillsError(
-            "Live Claude evaluations require an explicit --max-budget-usd soft cap"
-        )
-    max_budget_usd = 0.25 if args.max_budget_usd is None else args.max_budget_usd
     stages = args.stages or (["smoke"] if args.eval_mode == "triggers" else ["representative"])
     cases = select_cases(
         load_cases(manifest),
@@ -272,7 +256,7 @@ def _run_eval(args: argparse.Namespace, manifest: Manifest) -> int:
         require_rubric=args.eval_mode == "quality",
         limit=args.limit,
     )
-    _print_evaluation_plan(args, agents, len(cases), max_budget_usd)
+    _print_evaluation_plan(args, agents, len(cases))
     report, output = run_evaluation(
         manifest,
         cases,
@@ -282,12 +266,10 @@ def _run_eval(args: argparse.Namespace, manifest: Manifest) -> int:
         repeat=args.repeat,
         include_local=args.include_local,
         timeout=args.timeout,
-        max_budget_usd=max_budget_usd,
         models=_evaluation_models(args),
         dry_run=not args.live,
         keep_raw=args.keep_raw,
         results_root=args.results_root,
-        accept_credential_risk=args.accept_credential_risk,
     )
     print(json.dumps(report["summary"], indent=2, sort_keys=True))
     try:

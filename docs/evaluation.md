@@ -1,11 +1,10 @@
 # Discoverability and quality evaluation
 
-For each case, the harness creates a Git repository in an OS temporary directory, installs the
-selected profile with pinned `skills@1.5.23` in copy mode, and starts an agent without a saved
-session. On Linux, Bubblewrap exposes only the system runtime and the run directory. It does not
-mount the source checkout, case labels, saved results, previous answers, user homes, or other
-skills. The harness deletes the workspace after recording the result. `--keep-raw` copies the
-trace into ignored results after the agent exits.
+For each case, the harness creates a Git repository in an OS temporary directory, copies the
+selected skills into it, and starts a client without a saved session. Bubblewrap exposes the
+system runtime and that run directory, but not the source checkout, case labels, earlier answers,
+user homes, or other skills. The harness deletes the workspace after recording the result.
+`--keep-raw` preserves the trace under the ignored results directory.
 
 Every run mounts its workspace at the same short agent-visible path, `/w`. Codex therefore sees
 installed skills under `/w/.agents/skills`, regardless of the host temporary-directory name or
@@ -13,46 +12,46 @@ profile. Before model invocation, the harness recomputes the rendered metadata l
 path and rejects an over-budget install. This prevents profile-dependent paths or truncation from
 confounding the `all-no-index` versus `all` comparison.
 
-Live evaluation is Linux-only in v0.1 and requires `bwrap`. The harness creates agent homes, drops
-ambient environment variables, does not copy session files, and limits the environment passed to
-the npm installer. Set one-use keys in `GOOGLE_GUIDES_EVAL_OPENAI_API_KEY` and
-`GOOGLE_GUIDES_EVAL_ANTHROPIC_API_KEY`; cap and revoke them after the run.
+Live evaluation is Linux-only in v0.1 and requires `bwrap` plus the selected client binaries. It
+uses existing OAuth logins, copied into temporary client homes for each run:
 
-Evaluation is plan-only by default. Live model calls require model IDs and both risk
-acknowledgements:
+| Client | Login used |
+| --- | --- |
+| Codex | Codex ChatGPT login |
+| Claude Code | Claude Code login |
+| OpenCode | Codex ChatGPT login, translated to OpenCode's local format |
+| OpenClaw | Codex ChatGPT login through OpenClaw's Codex provider |
+| Hermes | Codex ChatGPT login, translated to Hermes's local format |
+
+OpenClaw needs the official `@openclaw/codex` package. The harness registers it once under
+`~/.cache/google-guide-skills/` and reuses that provider while keeping run state separate.
+
+Evaluation is plan-only by default. Add `--live` to run the selected clients:
 
 ```bash
 uv run google-guides eval triggers --stage smoke --profile all
 uv run google-guides eval triggers --stage controls --profile all
 uv run google-guides eval triggers --stage index-experiment --profile index-ab
 uv run google-guides eval triggers --stage smoke --profile all --limit 2 \
-  --agent codex --codex-model MODEL_ID \
-  --live --accept-cost --accept-credential-risk
+  --agent codex --live
 uv run google-guides eval quality --profile single \
-  --agent claude-code --claude-model MODEL_ID \
-  --max-budget-usd BUDGET_USD \
-  --live --accept-cost --accept-credential-risk
+  --agent claude-code --model claude-code=haiku --live
 ```
 
-Replace `MODEL_ID` and `BUDGET_USD`. Every live Claude run requires a per-case spending cap. Test
-the cap on one case before launching a matrix. A `$0.25` full-smoke run exhausted its cap on 7/24
-calls. Raw traces are discarded unless `--keep-raw` is passed. Reports and kept traces live under
-mode-0700 `evals/results/`, which Git ignores. They can contain answers based on complete skill
-text; never commit them. The cap is soft: Claude may report an overrun after producing an answer.
-The report records process status and model evidence separately, and failed runs do not count
-toward accuracy.
+Without `--agent`, the plan and live run target all five clients. Missing binaries matter only for
+selected live clients. `--model AGENT=MODEL` is optional and repeatable. Use `--limit` before a
+large matrix. Raw traces are discarded unless `--keep-raw` is passed. Reports and kept traces live
+under mode-0700 `evals/results/`, which Git ignores. Failed runs do not count toward accuracy.
 
-Codex runs with `shell_environment_policy.inherit=none`; both adapters receive a reduced process
-environment, and reports redact exact key values. Redaction may miss transformed keys, so use
-capped, one-use keys and pass `--accept-credential-risk`. The harness does not send SWE-book
-output to hosted agents; `local-smoke` supports planning and offline tests only.
+Each client receives a reduced process environment. Codex shell commands inherit none of it. The
+harness does not send SWE-book output to hosted agents; `local-smoke` supports planning and
+offline tests only.
 
 ## Test cases
 
 [`evals/cases.yaml`](../evals/cases.yaml) contains:
 
-- 24 explicit invocation controls, rendered as `$skill-name` for Codex and `/skill-name` for
-  Claude Code;
+- 24 explicit invocation controls, rendered for each client adapter;
 - 24 implicit smoke prompts, one for every committed guide plus the index;
 - 8 local-only smoke plans, one for every restricted SWE-book recipe;
 - 80 representative cases across Python style, reviewer workflow, documentation, and the
@@ -62,8 +61,8 @@ output to hosted agents; `local-smoke` supports planning and offline tests only.
   train/validation split;
 - concept-check rubrics for a quality A/B subset.
 
-Use `--repeat 3` only after the one-pass smoke stage passes. Tune descriptions against
-`--split train`, then evaluate once against the frozen `--split validation`. Paid live evals never
+Use `--repeat 3` after the one-pass smoke stage passes. Tune descriptions against
+`--split train`, then evaluate once against the frozen `--split validation`. Live evals never
 run in CI.
 
 ## Installation profiles
@@ -81,10 +80,10 @@ the change in rubric score. Keyword checks do not fully judge answer quality.
 
 ## How skill loads are counted
 
-Claude Code emits a `Skill` tool-use event and a skill inventory; the harness records both. Codex
-0.147 does not expose a skill-selection event in JSONL. A `SKILL.md` read proves that Codex loaded
-the skill. Without one, the report uses a terminal self-report proxy and checks the answer against
-the rubric in quality mode. These evidence types are not equivalent.
+The harness records client tool events when available. It also asks each client for a terminal
+skill marker and accepts it only when the named skill was installed for that run. A `SKILL.md`
+read or successful skill-tool event is stronger evidence than the marker, so the report keeps the
+evidence source.
 
 Infrastructure failures, nonzero terminal status, installed-file hash verification, visible
 inventory, loaded skills, self-reported skills, expected-skill recall, forbidden-skill avoidance,
@@ -106,9 +105,11 @@ models, and bounded redacted diagnostics for failed processes.
   `all-no-index`, and a 0% index steal rate on direct smoke prompts.
 - Quality A/B: no correctness regression and a positive aggregate rubric delta.
 
-Three repetitions provide little statistical evidence. Reports keep the denominators; larger
-runs should add Wilson intervals before making claims about model behavior.
-
-Version 0.1 ships the harness and cases, but the live-model gates have not passed. Runs from older
-versions of the harness are not release evidence. The current status and next work are recorded in
-the [version 0.1 plan review](../reports/v0.1-plan-review.md).
+Version 0.1 ships the harness and cases. A one-case explicit-control probe completed correctly on
+all five clients (5/5). One implicit documentation case also routed exactly on all five clients;
+three loads were trace-proven and two used the installed-skill self-report proxy. In one paired
+broad-routing case, the index loaded on Codex and OpenCode (2/5 clients) and changed no rubric
+scores. An OpenClaw Go probe scored a miss because OpenClaw omitted the oversized skill from its
+inventory; the harness rejected the model's unverified self-report. These probes do not satisfy
+the routing or quality gates. See the
+[version 0.1 plan review](../reports/v0.1-plan-review.md).
