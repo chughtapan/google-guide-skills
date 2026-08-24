@@ -1,9 +1,25 @@
 # Project instructions
 
-This file is the source of truth for skill routing. Use only the skills that match the task. Do
-not add another lifecycle document or a wrapper around `$ship`.
+## Communication
+
+Read this section before routing or acting. It applies to every task.
+
+- Lead with the answer, decision, or result.
+- Say what you mean simply and directly. Prefer concrete terms, and define terms that could be
+  read more than one way.
+- Separate facts, inferences, decisions, and remaining work. Do not turn a bounded result into a
+  broad claim.
+- Keep updates short. Cut filler, hype, unnecessary adjectives, and process narration.
+- Be cooperative. Discuss the work, not the person; listen, admit uncertainty, and make criticism
+  specific and actionable.
+
+Use `$google-documentation-guide` for substantial technical writing. Use
+`$google-swe-culture-and-leadership` for collaboration, feedback, or knowledge sharing.
 
 ## Routing
+
+This file is the source of truth for skill routing. Use only the skills that match the task. Do
+not add another lifecycle document or a wrapper around `$ship`.
 
 | Work | Skills |
 | --- | --- |
