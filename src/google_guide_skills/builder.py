@@ -55,6 +55,15 @@ class _PreparedSources:
     matched_path_policies: tuple[dict[str, str], ...]
 
 
+@dataclass(frozen=True)
+class _SelectedExcerpt:
+    """Source-authored blocks selected for one rendered section."""
+
+    source_title: str
+    heading: str
+    blocks: tuple[str, ...]
+
+
 def assert_canonical_runtime(manifest: Manifest) -> str:
     """Reject non-canonical generation before source sync or output mutation."""
     running_python = platform.python_version()
@@ -161,21 +170,8 @@ def _expand_inputs(checkout: Path, artifact: Artifact) -> list[Path]:
             raise BuildError(f"{artifact.name}: input pattern matched no files: {pattern}")
         for match in matches:
             relative = match.relative_to(checkout).as_posix()
-            found[relative] = match
-    return [found[key] for key in sorted(found)]
-
-
-def _reference_name(relative_path: str) -> str:
-    value = relative_path.replace("/", "--")
-    value = re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip("-.")
-    suffix = Path(value).suffix.lower()
-    if suffix in {".html", ".htm", ".xml", ".xhtml"}:
-        value = f"{value[: -len(suffix)]}.md"
-    elif suffix != ".md":
-        value = f"{value}.md"
-    if not value:
-        raise BuildError(f"Could not derive a reference filename from {relative_path!r}")
-    return value
+            found.setdefault(relative, match)
+    return list(found.values())
 
 
 def _matches_policy(relative: str, pattern: str) -> bool:
@@ -300,54 +296,173 @@ def verify_license_evidence(
     return license_info
 
 
-def _render_inline(artifact: Artifact, converted: list[tuple[str, str, str]]) -> str:
-    sections = [
-        _frontmatter(artifact.name, artifact.description),
-        f"# {artifact.title}\n",
-        "Apply the mechanically converted source guidance below when it is relevant to the task. "
-        "Keep project-specific requirements and newer authoritative rules in force.\n",
-        "The source prose is not summarized or editorially rewritten. HTML and XML inputs are "
-        "converted mechanically to Markdown.\n",
-        "## Source material\n",
-    ]
-    for relative, content, _mode in converted:
-        sections.extend([f"### `{relative}`\n", content.rstrip() + "\n"])
-    sections.extend(
-        [
-            "## Provenance\n",
-            "Read [source metadata](references/source.json) and "
-            "[the source license](references/LICENSE.txt) when attribution, revision, or reuse "
-            "terms matter.\n",
-        ]
+def _recipe(manifest: Manifest, artifact: Artifact) -> tuple[str, dict[str, str]]:
+    """Read a curated recipe and return its content and provenance."""
+    if artifact.recipe is None:
+        raise BuildError(f"{artifact.name}: committed skill has no recipe")
+    path = require_safe_project_path(
+        manifest.project_root,
+        manifest.project_root / artifact.recipe,
+        context="Skill recipe",
+        error_type=BuildError,
     )
-    return "\n".join(section.rstrip() for section in sections).rstrip() + "\n"
+    if path.is_symlink() or not path.is_file():
+        raise BuildError(f"{artifact.name}: missing skill recipe: {artifact.recipe}")
+    content = path.read_text(encoding="utf-8").strip()
+    if not content:
+        raise BuildError(f"{artifact.name}: skill recipe is empty")
+    if content.startswith("---"):
+        raise BuildError(f"{artifact.name}: recipes must not contain frontmatter")
+    return content, {"path": artifact.recipe, "sha256": _sha256(path)}
 
 
-def _render_references(artifact: Artifact, references: list[tuple[str, str]]) -> str:
+def _render_recipe(artifact: Artifact, recipe: str) -> str:
+    return f"{_frontmatter(artifact.name, artifact.description).rstrip()}\n\n{recipe.rstrip()}\n"
+
+
+HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
+IMAGE_RE = re.compile(r"!\[([^]]*)\]\(([^)]+)\)")
+LINK_RE = re.compile(r"(?<!!)\[([^]]+)\]\(([^)]+)\)")
+
+
+def _heading_text(value: str) -> str:
+    return " ".join(value.split())
+
+
+def _markdown_blocks(lines: list[str]) -> tuple[str, ...]:
+    """Split a Markdown section into stable paragraph, list, table, or code blocks."""
+    blocks: list[str] = []
+    current: list[str] = []
+    fence: str | None = None
+
+    def finish() -> None:
+        text = "\n".join(current).strip()
+        if text:
+            blocks.append(text)
+        current.clear()
+
+    for line in lines:
+        stripped = line.lstrip()
+        marker = stripped[:3] if stripped.startswith(("```", "~~~")) else None
+        if marker:
+            if fence is None:
+                fence = marker
+            elif marker == fence:
+                fence = None
+        if not line.strip() and fence is None:
+            finish()
+        else:
+            current.append(line.rstrip())
+    finish()
+    return tuple(blocks)
+
+
+def _section_blocks(markdown: str, heading: str, source: str) -> tuple[str, tuple[str, ...]]:
+    """Return the document title and direct content blocks under one exact heading."""
+    lines = markdown.splitlines()
+    headings = [
+        (index, _heading_text(match.group(2)))
+        for index, line in enumerate(lines)
+        if (match := HEADING_RE.match(line))
+    ]
+    if not headings:
+        raise BuildError(f"{source}: converted source has no Markdown headings")
+    wanted = _heading_text(heading).casefold()
+    matches = [item for item in headings if item[1].casefold() == wanted]
+    if len(matches) != 1:
+        raise BuildError(f"{source}: expected one heading {heading!r}, found {len(matches)}")
+    start = matches[0][0] + 1
+    end = next((index for index, _value in headings if index >= start), len(lines))
+    blocks = _markdown_blocks(lines[start:end])
+    if not blocks:
+        raise BuildError(f"{source}: heading {heading!r} has no direct content blocks")
+    return headings[0][1], blocks
+
+
+def _sanitize_excerpt(block: str) -> str:
+    """Remove links that would break outside the source site while retaining their text."""
+    block = IMAGE_RE.sub(lambda match: match.group(1).strip(), block)
+
+    def replace_link(match: re.Match[str]) -> str:
+        label, target = match.groups()
+        if target.startswith(("https://", "http://", "mailto:")):
+            return match.group(0)
+        if label.strip().isdigit():
+            return ""
+        return label
+
+    return LINK_RE.sub(replace_link, block).strip()
+
+
+def _selected_excerpts(
+    artifact: Artifact, inputs: tuple[Path, ...], checkout: Path
+) -> tuple[list[_SelectedExcerpt], dict[str, str]]:
+    """Convert source files and resolve manifest-declared excerpt selectors."""
+    input_paths = {path.relative_to(checkout).as_posix(): path for path in inputs}
+    converted: dict[str, str] = {}
+    conversions: dict[str, str] = {}
+    sections: list[_SelectedExcerpt] = []
+    for selector in artifact.excerpts:
+        source_path = input_paths.get(selector.input)
+        if source_path is None:
+            raise BuildError(f"{artifact.name}: excerpt input was not expanded: {selector.input}")
+        if selector.input not in converted:
+            converted[selector.input], conversions[selector.input] = source_to_markdown(source_path)
+        source_title, available = _section_blocks(
+            converted[selector.input], selector.heading, selector.input
+        )
+        invalid = [index for index in selector.blocks if index >= len(available)]
+        if invalid:
+            raise BuildError(
+                f"{selector.input}: heading {selector.heading!r} has {len(available)} blocks; "
+                f"cannot select {invalid}"
+            )
+        blocks = tuple(
+            cleaned for index in selector.blocks if (cleaned := _sanitize_excerpt(available[index]))
+        )
+        if not blocks:
+            raise BuildError(
+                f"{selector.input}: heading {selector.heading!r} selected no usable content"
+            )
+        sections.append(
+            _SelectedExcerpt(
+                source_title=_sanitize_excerpt(source_title),
+                heading=_sanitize_excerpt(selector.heading),
+                blocks=blocks,
+            )
+        )
+    return sections, conversions
+
+
+def _render_excerpts(artifact: Artifact, sections: list[_SelectedExcerpt]) -> str:
+    """Render selected source blocks as one self-contained operational skill."""
     lines = [
         _frontmatter(artifact.name, artifact.description).rstrip(),
         "",
         f"# {artifact.title}",
         "",
-        "Read only the source references needed for the task. Search reference filenames and "
-        "headings first when the collection is large. Apply the source guidance without "
-        "silently inventing new rules.",
+        "Apply this guidance to the actual project. Repository requirements and newer "
+        "authoritative guidance take precedence.",
         "",
-        "The reference prose is not summarized or editorially rewritten. HTML and XML inputs "
-        "are converted mechanically to Markdown.",
+        "## Workflow",
         "",
-        "## References",
-        "",
+        "1. Identify the decision, affected users, constraints, expected lifetime, and scale.",
+        "2. Inspect the relevant code, tests, documents, metrics, and operating evidence.",
+        "3. Apply the source guidance below and record material tradeoffs or exceptions.",
+        "4. Recommend a concrete action and a way to verify the result.",
     ]
-    lines.extend(f"- [{source}](references/{filename})" for source, filename in references)
+    previous_source: str | None = None
+    for section in sections:
+        if section.source_title != previous_source:
+            lines.extend(["", f"## {section.source_title}", ""])
+            previous_source = section.source_title
+        lines.extend([f"### {section.heading}", "", *section.blocks, ""])
     lines.extend(
         [
+            "## Deliverable",
             "",
-            "## Provenance",
-            "",
-            "Read [source metadata](references/source.json) and "
-            "[the source license](references/LICENSE.txt) when attribution, revision, or reuse "
-            "terms matter.",
+            "State the recommendation first. Tie material findings to observed evidence, then "
+            "name the action, validation step, and remaining risk.",
         ]
     )
     return "\n".join(lines).rstrip() + "\n"
@@ -364,11 +479,64 @@ def _replace_generated_directory(staged: Path, target: Path, output_root: Path) 
     if target.parent.resolve() != output_root.resolve():
         raise BuildError(f"Refusing to replace output outside {output_root}: {target}")
     if target.exists():
-        marker = target / "references" / "source.json"
-        if not marker.is_file():
-            raise BuildError(f"Refusing to replace unrecognized directory without {marker}")
+        markers = (target / "source.json", target / "references" / "source.json")
+        if not any(marker.is_file() for marker in markers):
+            raise BuildError(
+                f"Refusing to replace unrecognized directory without generated source metadata: "
+                f"{target}"
+            )
         shutil.rmtree(target)
     staged.replace(target)
+
+
+def _generated_provenance(skill_dir: Path, manifest: Manifest) -> dict[str, object] | None:
+    """Read current or legacy provenance only from a physically safe generated directory."""
+    for candidate in (skill_dir / "source.json", skill_dir / "references" / "source.json"):
+        try:
+            marker = require_safe_project_path(
+                manifest.project_root,
+                candidate,
+                context="Generated source metadata",
+                error_type=BuildError,
+            )
+        except BuildError:
+            continue
+        if marker.is_symlink() or not marker.is_file():
+            continue
+        try:
+            value = json.loads(marker.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(value, dict):
+            return value
+    return None
+
+
+def _prune_stale_generated_skills(
+    manifest: Manifest,
+    collections: list[Collection],
+) -> None:
+    """Remove obsolete directories that carry this generator's trusted provenance."""
+    for collection in collections:
+        output_root = _assert_safe_output_root(manifest, collection.distribution)
+        if not output_root.is_dir():
+            continue
+        expected = {artifact.name for artifact in collection.artifacts}
+        for skill_dir in sorted(output_root.iterdir()):
+            if skill_dir.name in expected or skill_dir.is_symlink() or not skill_dir.is_dir():
+                continue
+            provenance = _generated_provenance(skill_dir, manifest)
+            generated_by = provenance.get("generated_by") if provenance else None
+            if (
+                provenance is None
+                or provenance.get("artifact") != skill_dir.name
+                or provenance.get("collection") != collection.id
+                or provenance.get("distribution") != collection.distribution
+                or not isinstance(generated_by, str)
+                or not generated_by.startswith("google-guide-skills/")
+            ):
+                continue
+            shutil.rmtree(skill_dir)
 
 
 def _verified_checkout(manifest: Manifest, collection: Collection) -> tuple[Repository, Path]:
@@ -424,39 +592,28 @@ def _prepare_sources(
     )
 
 
-def _convert_inputs(
-    artifact: Artifact,
-    inputs: tuple[Path, ...],
-    checkout: Path,
-    references_dir: Path,
-) -> tuple[list[tuple[str, str, str]], list[dict[str, str]], list[tuple[str, str]]]:
-    converted: list[tuple[str, str, str]] = []
-    provenance_inputs: list[dict[str, str]] = []
-    reference_links: list[tuple[str, str]] = []
-    used_reference_names: set[str] = set()
+def _input_provenance(
+    inputs: tuple[Path, ...], checkout: Path, conversions: dict[str, str] | None = None
+) -> list[dict[str, str]]:
+    """Describe pinned source inputs without exposing them as skill references."""
+    records: list[dict[str, str]] = []
     for source_path in inputs:
         relative = source_path.relative_to(checkout).as_posix()
-        markdown, mode = source_to_markdown(source_path)
-        converted.append((relative, markdown, mode))
-        provenance_inputs.append(
-            {"path": relative, "sha256": _sha256(source_path), "conversion": mode}
+        records.append(
+            {
+                "path": relative,
+                "sha256": _sha256(source_path),
+                "conversion": (conversions or {}).get(relative, "not-rendered"),
+            }
         )
-        if artifact.layout != "references":
-            continue
-        reference_name = _reference_name(relative)
-        if reference_name in used_reference_names:
-            raise BuildError(f"{artifact.name}: reference filename collision for {relative}")
-        used_reference_names.add(reference_name)
-        (references_dir / reference_name).write_text(markdown, encoding="utf-8")
-        reference_links.append((relative, reference_name))
-    return converted, provenance_inputs, reference_links
+    return records
 
 
 def _write_licenses(
     manifest: Manifest,
     artifact: Artifact,
     prepared: _PreparedSources,
-    references_dir: Path,
+    output_dir: Path,
 ) -> None:
     license_notice = _license_notice(prepared.license_info, prepared.checkout)
     if artifact.license_note:
@@ -464,10 +621,10 @@ def _write_licenses(
             f"{license_notice.rstrip()}\n\n"
             f"Artifact-specific license note: {artifact.license_note}\n"
         )
-    (references_dir / "LICENSE.txt").write_text(license_notice, encoding="utf-8")
+    (output_dir / "LICENSE.txt").write_text(license_notice, encoding="utf-8")
     shutil.copyfile(
         verified_project_license(manifest.project_root, error_type=BuildError),
-        references_dir / WRAPPER_LICENSE_FILENAME,
+        output_dir / WRAPPER_LICENSE_FILENAME,
     )
     for supplemental in artifact.supplemental_licenses:
         source = _project_license_file(
@@ -477,7 +634,7 @@ def _write_licenses(
             supplemental.sha256,
             artifact.name,
         )
-        shutil.copyfile(source, references_dir / f"LICENSE-{supplemental.spdx}.txt")
+        shutil.copyfile(source, output_dir / f"LICENSE-{supplemental.spdx}.txt")
 
 
 def _source_metadata(
@@ -485,6 +642,7 @@ def _source_metadata(
     artifact: Artifact,
     prepared: _PreparedSources,
     provenance_inputs: list[dict[str, str]],
+    recipe: dict[str, str] | None,
 ) -> dict[str, object]:
     return {
         "artifact": artifact.name,
@@ -498,6 +656,9 @@ def _source_metadata(
             "markdownify": importlib.metadata.version("markdownify"),
         },
         "inputs": provenance_inputs,
+        "recipe": recipe,
+        "excerpts": [excerpt.to_dict() for excerpt in artifact.excerpts],
+        "rendering": "curated" if recipe else "source-excerpts",
         "license": prepared.license_info.to_dict(),
         "license_note": artifact.license_note,
         "wrapper_license": wrapper_license_metadata(),
@@ -520,30 +681,31 @@ def _stage_skill(
     prepared: _PreparedSources,
     staged: Path,
 ) -> list[dict[str, str]]:
-    references_dir = staged / "references"
-    references_dir.mkdir(parents=True)
-    converted, provenance_inputs, reference_links = _convert_inputs(
-        artifact, prepared.inputs, prepared.checkout, references_dir
-    )
-    skill_text = (
-        _render_inline(artifact, converted)
-        if artifact.layout == "inline"
-        else _render_references(artifact, reference_links)
-    )
+    staged.mkdir(parents=True)
+    recipe_metadata: dict[str, str] | None = None
+    if artifact.recipe:
+        recipe_text, recipe_metadata = _recipe(manifest, artifact)
+        skill_text = _render_recipe(artifact, recipe_text)
+        provenance_inputs = _input_provenance(prepared.inputs, prepared.checkout)
+    else:
+        sections, conversions = _selected_excerpts(artifact, prepared.inputs, prepared.checkout)
+        skill_text = _render_excerpts(artifact, sections)
+        provenance_inputs = _input_provenance(prepared.inputs, prepared.checkout, conversions)
     (staged / "SKILL.md").write_text(skill_text, encoding="utf-8")
     _write_licenses(
         manifest,
         artifact,
         prepared,
-        references_dir,
+        staged,
     )
     _write_json(
-        references_dir / "source.json",
+        staged / "source.json",
         _source_metadata(
             collection,
             artifact,
             prepared,
             provenance_inputs,
+            recipe_metadata,
         ),
     )
     return provenance_inputs
@@ -667,4 +829,8 @@ def build(
         repository_ids = list(dict.fromkeys(pair[0].repository for pair in build_pairs))
         sync(manifest, repository_ids)
 
-    return [build_skill(manifest, collection, artifact) for collection, artifact in build_pairs]
+    results = [build_skill(manifest, collection, artifact) for collection, artifact in build_pairs]
+    if not artifact_names:
+        built_collections = list(dict.fromkeys(collection for collection, _artifact in build_pairs))
+        _prune_stale_generated_skills(manifest, built_collections)
+    return results

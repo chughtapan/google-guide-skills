@@ -80,15 +80,29 @@ class Repository:
 
 
 @dataclass(frozen=True)
+class SourceExcerpt:
+    """Source blocks selected for a local-only skill."""
+
+    input: str
+    heading: str
+    blocks: tuple[int, ...]
+
+    def to_dict(self) -> dict[str, object]:
+        """Return the excerpt selector in provenance format."""
+        return {"input": self.input, "heading": self.heading, "blocks": list(self.blocks)}
+
+
+@dataclass(frozen=True)
 class Artifact:
-    """One skill recipe within a source collection."""
+    """One generated skill within a source collection."""
 
     name: str
     title: str
     description: str
     tags: tuple[str, ...]
-    layout: str
     inputs: tuple[str, ...]
+    recipe: str | None = None
+    excerpts: tuple[SourceExcerpt, ...] = ()
     license_note: str | None = None
     supplemental_licenses: tuple[SupplementalLicense, ...] = ()
 

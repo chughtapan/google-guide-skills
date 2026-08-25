@@ -1,5 +1,14 @@
 # Skill generator comparison
 
+Use the manifest pipeline for corpus generation. It records pinned source files, per-path license
+rules, output boundaries, a catalog, metrics, and evaluation inputs. Existing skill creators still
+serve as format, authoring, and packaging references, but they do not replace that corpus record.
+
+The choice is driven by corpus-wide source and license tracking. Given the same `corpus.yaml`, a
+reviewer must be able to identify the commit for every input, the license evidence for every
+output, the reviewed recipe or exact excerpt selectors used, and the rule that keeps SWE-book
+files in an ignored directory. A conversational generator does not record all of this by itself.
+
 Status: capability comparison. On 2026-08-22, `npx skills init` 1.5.23 was run against an ignored
 fixture. It produced a `SKILL.md`, but no corpus manifest, source record,
 license evidence, distribution policy, catalog, or metrics. The Codex creator documentation was
@@ -13,17 +22,7 @@ generator and should be updated when creator tools change.
 | `npx skills init` | Creates a `SKILL.md` scaffold for several agents | Scaffold only; no source conversion, attribution, or reproducibility | Compatibility fixture and installer ecosystem |
 | Codex Record & Replay | Drafts a skill from a demonstrated workflow | Suited to interactive procedures, not a content corpus; demonstration can hide source/license state | Not used for first-cut conversion |
 | OpenAI plugin packaging | Installs multiple skills and connectors as one package | OpenAI-specific distribution layer; does not solve cross-agent generation or source licensing | Not needed for the source-checkout installer |
-| This manifest pipeline | Pinned commits, repeatable conversion, path-level licenses, output rules, catalog, metrics, and evaluations | Does not rewrite or optimize upstream prose in v0.1 | Used here |
-
-## Decision
-
-Use a Python pipeline that writes an Agent Skills tree. Use existing creators for format checks,
-evaluation methods, or packaging, not for source and license tracking across the corpus.
-
-The choice is driven by source and license tracking, not conversion quality. Given the same
-`corpus.yaml`, a reviewer must be able to identify the commit for every input, the license evidence
-for every committed output, and the rule that keeps SWE-book files in an ignored directory. A
-conversational generator does not record all of this by itself.
+| This manifest pipeline | Pinned commits, reviewed recipes or exact excerpt selectors, path-level licenses, output rules, catalog, metrics, and evaluations | Requires human review of what each skill should retain | Used here |
 
 ## Tests
 
@@ -32,6 +31,7 @@ Repository tests exercise the manifest generator on:
 - Agent Skills frontmatter;
 - identical output from repeated builds;
 - source records and input hashes;
+- recipe hashes and exact source-excerpt selectors;
 - license checks;
 - committed and local-only output rules;
 - token reports.

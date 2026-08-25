@@ -1,7 +1,10 @@
 # Add Google guide skills to a new repository
 
-Install only the guides the repository needs, then name them in `AGENTS.md`. Agents route from the
-installed descriptions and the repository's instructions.
+Use this guide when a new repository should apply the same engineering guidance across agent
+sessions. The result is a small set of installed skills and a short `AGENTS.md` routing section.
+
+Install only the guides the repository needs. A smaller set uses less startup context and makes
+routing easier to predict.
 
 ## 1. Choose the first skills
 
@@ -13,8 +16,8 @@ project that maintains user documentation and reviews every change, start with:
 - `google-code-review-author`
 - `google-code-review-reviewer`
 
-Use [`catalog/catalog.md`](../catalog/catalog.md) to find other guides. Do not install the full
-pack unless the repository uses it; every installed description consumes agent startup context.
+Use [`catalog/catalog.md`](../catalog/catalog.md) to find other guides. A project should install
+only the skills it plans to route because every installed description consumes startup context.
 
 ## 2. Install them
 
@@ -30,12 +33,17 @@ uv run google-guides install \
   --skill google-code-review-reviewer
 ```
 
-Add `--project /path/to/new-repository --copy` when the repository should contain the public
-skills. Select only the agents the repository supports. Use `--dry-run` to inspect the install.
+Per-user installs link back to this checkout. Keep it at the same path or reinstall after moving
+it.
 
-Add `--include-swe-book` to install the Software Engineering at Google skills. The installer asks
-you to accept their CC BY-NC-ND 4.0 license before it generates them. A project install links those
-skills back to this checkout; keep the links out of version control.
+With Node.js/npm installed, add `--project /path/to/new-repository --copy` when the repository
+should contain the public skills. Select only the agents the repository supports. Use `--dry-run`
+to inspect the install.
+
+Select *Software Engineering at Google* skills with `--skill` like any other guide. For example,
+add `--skill google-swe-testing` for test-strategy work. The installer asks you to accept the CC
+BY-NC-ND 4.0 license before generating it. A project install links that skill back to this
+checkout; keep the link out of version control.
 
 ## 3. Route work in `AGENTS.md`
 

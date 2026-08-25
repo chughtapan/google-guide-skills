@@ -14,7 +14,7 @@ Read this section before routing or acting. It applies to every task.
   specific and actionable.
 
 Use `$google-documentation-guide` for substantial technical writing. Use
-`$google-swe-culture-and-leadership` for collaboration, feedback, or knowledge sharing.
+`$google-swe-teamwork-and-leadership` for collaboration, feedback, or knowledge sharing.
 
 ## Routing
 
@@ -24,19 +24,22 @@ not add another lifecycle document or a wrapper around `$ship`.
 | Work | Skills |
 | --- | --- |
 | Product, requirements, architecture, or project plan | `$plan-eng-review` |
-| Python, shell, JSON, or documentation | The matching Google language or format skill |
-| Code structure and readability | `$google-swe-style-and-readability` |
+| Python or shell | The matching Google language skill |
+| Code structure and readability | `$google-code-review-reviewer` and the matching language skill |
 | Tests | `$google-swe-testing` |
-| Documentation | `$google-documentation-guide` and `$google-swe-documentation` |
-| Infrastructure | `$google-swe-infrastructure` |
-| Builds, dependencies, CI, installation, or release | `$google-swe-maintenance-and-delivery` |
-| Ownership or team practice | `$google-swe-culture-and-leadership` |
+| Documentation | `$google-documentation-guide` |
+| Organization-wide standards or static analysis | `$google-swe-engineering-standards` |
+| Developer-productivity measurement or code search | `$google-swe-developer-productivity` |
+| Infrastructure or compute platforms | `$google-swe-compute-platforms` |
+| Builds, dependencies, version control, or CI | `$google-swe-builds-dependencies-and-ci` |
+| Deprecation, migration, rollout, or release | `$google-swe-change-management` |
+| Ownership or team practice | `$google-swe-teamwork-and-leadership` |
+| Code-review policy or tooling | `$google-swe-code-review-systems` |
 | Review preparation | `$google-code-review-author` |
-| Code review | `$google-code-review-reviewer`, `$google-swe-code-review`, readability, testing, and any diff-specific guide |
+| Code review | `$google-code-review-reviewer`, testing, and any diff-specific guide |
 | Ship, push, or pull request | Complete the review above, then use `$ship` |
 
-Use `$google-swe-book-front-matter` only for the book's scope, authorship, navigation, or
-attribution. Do not use the safer skills unless the user asks.
+Do not use the safer skills unless the user asks.
 
 ## Project rules
 

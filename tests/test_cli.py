@@ -122,7 +122,19 @@ def test_install_uses_default_agents_for_project_install(
 
     monkeypatch.setattr(cli, "install", fake_install)
     monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
-    assert cli.main(["install", "--project", str(tmp_path), "--dry-run"]) == 0
+    assert (
+        cli.main(
+            [
+                "install",
+                "--project",
+                str(tmp_path),
+                "--skill",
+                "public-guide",
+                "--dry-run",
+            ]
+        )
+        == 0
+    )
     assert captured["manifest"] is fake_manifest
     assert captured["agents"] == ["codex", "claude-code"]
     assert captured["skills"] == ["public-guide"]
@@ -171,7 +183,6 @@ def test_user_install_routes_swe_book_skills_to_links(
         cli.main(
             [
                 "install",
-                "--include-swe-book",
                 "--agent",
                 "codex",
                 "--dry-run",
@@ -218,7 +229,6 @@ def test_project_install_rejects_missing_target_before_generation(
                 "install",
                 "--project",
                 str(tmp_path / "missing"),
-                "--include-swe-book",
                 "--accept-swe-book-license",
             ]
         )
@@ -269,7 +279,6 @@ def test_project_install_routes_swe_book_skills_to_links(
                 "install",
                 "--project",
                 str(tmp_path),
-                "--include-swe-book",
                 "--copy",
                 "--dry-run",
             ]
@@ -313,7 +322,6 @@ def test_swe_book_install_generates_before_linking(
         cli.main(
             [
                 "install",
-                "--include-swe-book",
                 "--accept-swe-book-license",
                 "--agent",
                 "codex",
@@ -382,7 +390,6 @@ def test_selected_swe_book_install_builds_collection_and_links_selection(
         cli.main(
             [
                 "install",
-                "--include-swe-book",
                 "--accept-swe-book-license",
                 "--skill",
                 "restricted-guide",
@@ -407,18 +414,10 @@ def test_swe_book_install_requires_license_acceptance_before_building(
         lambda *_args, **_kwargs: pytest.fail("build must follow license acceptance"),
     )
 
-    assert cli.main(["install", "--include-swe-book", "--agent", "codex"]) == 2
+    assert cli.main(["install", "--agent", "codex"]) == 2
     error = capsys.readouterr().err
     assert "requires license acceptance" in error
     assert "--accept-swe-book-license" in error
-
-
-def test_swe_book_skill_selection_requires_include_flag(
-    fake_manifest: SimpleNamespace,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    assert cli.main(["install", "--skill", "restricted-guide", "--dry-run"]) == 2
-    assert "require --include-swe-book" in capsys.readouterr().err
 
 
 def test_sync_catalog_metrics_and_handled_manifest_failure(

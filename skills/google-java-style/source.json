@@ -1,0 +1,51 @@
+{
+  "artifact": "google-java-style",
+  "collection": "google-style-guides",
+  "distribution": "committed",
+  "excerpts": [],
+  "generated_by": "google-guide-skills/0.2.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "not-rendered",
+      "path": "javaguide.html",
+      "sha256": "9cc671f4c74d8bb4ea4c93861f4ec0e88d0f21267c73abe46817c14bdeb6d6b2"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Google Style Guides contributors",
+    "audited": "2026-08-22",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 3.0 Unported",
+    "spdx": "CC-BY-3.0",
+    "url": "https://creativecommons.org/licenses/by/3.0/"
+  },
+  "license_note": null,
+  "recipe": {
+    "path": "recipes/google-java-style.md",
+    "sha256": "d89c2ecc07a26e7e1c09f3700a345fcb5f3a4818c489c8634c692b247a530c16"
+  },
+  "rendering": "curated",
+  "repository": {
+    "id": "styleguide",
+    "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
+    "url": "https://github.com/google/styleguide.git"
+  },
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

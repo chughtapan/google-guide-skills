@@ -2,173 +2,23 @@
   "schema_version": 1,
   "skills": [
     {
-      "collection": "abseil-documentation",
-      "description": "Use when evaluating C++ library design tradeoffs covered by Abseil design notes, including Swiss tables, B-trees, mutexes, random APIs, formatting, char conversion, and drop-in types. Do not use for unrelated application architecture.",
-      "distribution": "committed",
-      "generated": true,
-      "id": "abseil-cpp-design-notes",
-      "license": "Apache-2.0",
-      "path": "skills/abseil-cpp-design-notes",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "language",
-        "cpp",
-        "abseil",
-        "design"
-      ],
-      "title": "Abseil C++ Design Notes",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "abseil-documentation",
-      "description": "Use when implementing or reviewing C++ that uses Abseil libraries, including strings, status, time, flags, logging, containers, synchronization, hashing, formatting, and random utilities. Do not use as the Google C++ style guide.",
-      "distribution": "committed",
-      "generated": true,
-      "id": "abseil-cpp-guides",
-      "license": "Apache-2.0",
-      "path": "skills/abseil-cpp-guides",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "language",
-        "cpp",
-        "abseil",
-        "api"
-      ],
-      "title": "Abseil C++ Guides",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "abseil-documentation",
-      "description": "Use when an advanced C++ design, API, readability, performance, ownership, type, or language-feature question matches Google's Abseil C++ Tips of the Week. Search the focused references before inventing a local rule.",
-      "distribution": "committed",
-      "generated": true,
-      "id": "abseil-cpp-tips",
-      "license": "Apache-2.0",
-      "path": "skills/abseil-cpp-tips",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "language",
-        "cpp",
-        "abseil",
-        "readability",
-        "design"
-      ],
-      "title": "Abseil C++ Tips of the Week",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "abseil-documentation",
-      "description": "Use when diagnosing or reviewing C++ performance and optimization choices covered by Abseil's FAST guidance. Do not use to justify optimization without measurement.",
-      "distribution": "committed",
-      "generated": true,
-      "id": "abseil-performance-tips",
-      "license": "Apache-2.0",
-      "path": "skills/abseil-performance-tips",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "language",
-        "cpp",
-        "abseil",
-        "performance"
-      ],
-      "title": "Abseil Performance Tips",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "abseil-documentation",
-      "description": "Use when building Python programs with Abseil's app, flags, logging, and testing libraries or following Abseil's Python guidance. Do not use as a general Python style guide when google-python-style is more relevant.",
-      "distribution": "committed",
-      "generated": true,
-      "id": "abseil-python-guides",
-      "license": "Apache-2.0",
-      "path": "skills/abseil-python-guides",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "language",
-        "python",
-        "abseil",
-        "testing"
-      ],
-      "title": "Abseil Python Guides",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "google-style-guides",
-      "description": "Use when maintaining AngularJS 1.x code under Google's conventions for modules, controllers, directives, services, templates, events, and testing. Do not use for modern Angular projects unless they deliberately follow this legacy guide.",
-      "distribution": "committed",
-      "generated": true,
+      "collection": "catalog-only",
+      "description": "Last updated in 2013 and written for AngularJS 1.x, Closure, IE8, and internal Google tooling. Keep it discoverable without loading obsolete defaults into modern agents.",
+      "distribution": "catalog-only",
+      "generated": false,
       "id": "google-angularjs-style",
       "license": "CC-BY-3.0",
-      "path": "skills/google-angularjs-style",
-      "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
-      "source": "https://github.com/google/styleguide.git",
-      "supplemental_licenses": [],
+      "path": null,
+      "revision": null,
+      "source": "https://google.github.io/styleguide/angularjs-google-style.html",
+      "status": "historical-guide-not-packaged",
       "tags": [
         "language",
         "javascript",
         "angularjs",
         "style"
       ],
-      "title": "Google AngularJS Style Guide",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
+      "title": "Google AngularJS Style Guide"
     },
     {
       "collection": "google-engineering-practices",
@@ -191,8 +41,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -219,8 +69,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -247,8 +97,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -275,8 +125,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -303,8 +153,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -349,8 +199,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -378,8 +228,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -407,8 +257,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -435,8 +285,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -444,7 +294,7 @@
     },
     {
       "collection": "google-style-guides",
-      "description": "Use when writing or reviewing JavaScript under Google's source formatting, naming, module, language-feature, JSDoc, and policy conventions. Do not use for TypeScript; use google-typescript-style instead.",
+      "description": "Use when maintaining existing JavaScript under Google's source formatting, naming, module, language-feature, JSDoc, and policy conventions. The upstream guide is no longer updated. For TypeScript, use google-typescript-style instead.",
       "distribution": "committed",
       "generated": true,
       "id": "google-javascript-style",
@@ -463,51 +313,31 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
       }
     },
     {
-      "collection": "google-style-guides",
-      "description": "Use when designing or reviewing JSON APIs and JSON-formatted data under Google's property naming, structure, value, date, and consistency conventions. Do not use for arbitrary JavaScript object style.",
-      "distribution": "committed",
-      "generated": true,
+      "collection": "catalog-only",
+      "description": "Revision 0.9 centers retired Google Data and YouTube API v2 response envelopes. Modern API contracts should follow current product requirements rather than this historical protocol.",
+      "distribution": "catalog-only",
+      "generated": false,
       "id": "google-json-style",
-      "license": "CC-BY-3.0",
-      "path": "skills/google-json-style",
-      "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
-      "source": "https://github.com/google/styleguide.git",
-      "supplemental_licenses": [
-        {
-          "attribution": "Google LLC and the Google JSON Style Guide contributors",
-          "evidence_contains": "code samples are licensed under the",
-          "license_file": "LICENSE",
-          "name": "Apache License 2.0",
-          "scope": "Embedded code samples in jsoncstyleguide.xml",
-          "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-          "spdx": "Apache-2.0",
-          "url": "https://www.apache.org/licenses/LICENSE-2.0"
-        }
-      ],
+      "license": "CC-BY-3.0-with-Apache-2.0-code",
+      "path": null,
+      "revision": null,
+      "source": "https://google.github.io/styleguide/jsoncstyleguide.xml",
+      "status": "historical-guide-not-packaged",
       "tags": [
         "language",
         "json",
         "api",
         "style"
       ],
-      "title": "Google JSON Style Guide",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
+      "title": "Google JSON Style Guide"
     },
     {
       "collection": "google-style-guides",
@@ -530,8 +360,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -578,8 +408,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -626,8 +456,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -635,27 +465,28 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use when book-level context, scope, authorship, publication, navigation, or the afterword from Software Engineering at Google is specifically needed.",
+      "description": "Use when designing or reviewing version-control policy, build systems, module boundaries, dependency policy, hermetic builds, presubmit, post-submit, or CI failure handling.",
       "distribution": "local-only",
       "generated": false,
-      "id": "google-swe-book-front-matter",
+      "id": "google-swe-builds-dependencies-and-ci",
       "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-book-front-matter",
+      "path": ".generated/skills/google-swe-builds-dependencies-and-ci",
       "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
       "source": "https://github.com/abseil/abseil.github.io.git",
       "supplemental_licenses": [],
       "tags": [
         "engineering",
-        "book",
-        "context",
-        "attribution"
+        "version-control",
+        "build",
+        "dependencies",
+        "ci"
       ],
-      "title": "Software Engineering at Google: Front Matter and Afterword",
+      "title": "Software Engineering at Google: Builds, Dependencies, and CI",
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -663,27 +494,56 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use for code-review policy, process, tooling, reviewer, author, and readability questions covered by Software Engineering at Google.",
+      "description": "Use when planning or reviewing deprecation, migration, large-scale change, feature flags, staged rollout, release cadence, or rollback. Do not use for ordinary small code changes.",
       "distribution": "local-only",
       "generated": false,
-      "id": "google-swe-code-review",
+      "id": "google-swe-change-management",
       "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-code-review",
+      "path": ".generated/skills/google-swe-change-management",
+      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
+      "source": "https://github.com/abseil/abseil.github.io.git",
+      "supplemental_licenses": [],
+      "tags": [
+        "engineering",
+        "deprecation",
+        "migration",
+        "rollout",
+        "delivery"
+      ],
+      "title": "Software Engineering at Google: Change Management",
+      "wrapper_license": {
+        "attribution": "Google Guide Skills contributors",
+        "name": "Apache License 2.0",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+        "spdx": "Apache-2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0"
+      }
+    },
+    {
+      "collection": "software-engineering-at-google",
+      "description": "Use when designing or auditing a team's code-review policy, workflow, culture, or tooling. To prepare or review one change, use google-code-review-author or google-code-review-reviewer.",
+      "distribution": "local-only",
+      "generated": false,
+      "id": "google-swe-code-review-systems",
+      "license": "CC-BY-NC-ND-4.0",
+      "path": ".generated/skills/google-swe-code-review-systems",
       "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
       "source": "https://github.com/abseil/abseil.github.io.git",
       "supplemental_licenses": [],
       "tags": [
         "engineering",
         "code-review",
-        "readability",
+        "workflow",
         "tooling"
       ],
-      "title": "Software Engineering at Google: Code Review",
+      "title": "Software Engineering at Google: Code Review Systems",
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -691,67 +551,12 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use for questions about software engineering over time, teamwork, knowledge sharing, equity, leadership, and engineering productivity covered by Software Engineering at Google.",
+      "description": "Use when choosing or reviewing a managed-compute model, hosted service, deployment abstraction, state model, failure model, multitenancy boundary, autoscaling policy, or cloud migration.",
       "distribution": "local-only",
       "generated": false,
-      "id": "google-swe-culture-and-leadership",
+      "id": "google-swe-compute-platforms",
       "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-culture-and-leadership",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "engineering",
-        "culture",
-        "leadership",
-        "productivity"
-      ],
-      "title": "Software Engineering at Google: Culture and Leadership",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "software-engineering-at-google",
-      "description": "Use for documentation purpose, audience, quality, review, maintenance, and documentation-as-code questions covered by Software Engineering at Google.",
-      "distribution": "local-only",
-      "generated": false,
-      "id": "google-swe-documentation",
-      "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-documentation",
-      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
-      "source": "https://github.com/abseil/abseil.github.io.git",
-      "supplemental_licenses": [],
-      "tags": [
-        "engineering",
-        "documentation",
-        "maintenance"
-      ],
-      "title": "Software Engineering at Google: Documentation",
-      "wrapper_license": {
-        "attribution": "Google Guide Skills contributors",
-        "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
-        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
-        "spdx": "Apache-2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0"
-      }
-    },
-    {
-      "collection": "software-engineering-at-google",
-      "description": "Use for questions about compute infrastructure, hosted services, deployment, multitenancy, and infrastructure abstractions covered by Software Engineering at Google.",
-      "distribution": "local-only",
-      "generated": false,
-      "id": "google-swe-infrastructure",
-      "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-infrastructure",
+      "path": ".generated/skills/google-swe-compute-platforms",
       "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
       "source": "https://github.com/abseil/abseil.github.io.git",
       "supplemental_licenses": [],
@@ -759,14 +564,15 @@
         "engineering",
         "infrastructure",
         "compute",
+        "cloud",
         "deployment"
       ],
-      "title": "Software Engineering at Google: Compute as a Service",
+      "title": "Software Engineering at Google: Compute Platforms",
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -774,29 +580,27 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use for deprecation, version control, code search, builds, static analysis, dependencies, large changes, continuous integration, and continuous delivery covered by Software Engineering at Google.",
+      "description": "Use when defining developer-productivity goals and metrics or designing code-search and code-navigation capabilities. Do not use lines of code or activity counts as default productivity measures.",
       "distribution": "local-only",
       "generated": false,
-      "id": "google-swe-maintenance-and-delivery",
+      "id": "google-swe-developer-productivity",
       "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-maintenance-and-delivery",
+      "path": ".generated/skills/google-swe-developer-productivity",
       "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
       "source": "https://github.com/abseil/abseil.github.io.git",
       "supplemental_licenses": [],
       "tags": [
         "engineering",
-        "maintenance",
-        "build",
-        "ci",
-        "cd",
-        "dependencies"
+        "developer-productivity",
+        "metrics",
+        "code-search"
       ],
-      "title": "Software Engineering at Google: Maintenance and Delivery",
+      "title": "Software Engineering at Google: Developer Productivity",
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -804,26 +608,27 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use for engineering-wide style-guide, consistency, rule, and readability questions covered by Software Engineering at Google.",
+      "description": "Use when creating, changing, enforcing, or measuring organization-wide coding rules, readability standards, formatters, linters, or static analysis. For one language's syntax and formatting, use its language skill.",
       "distribution": "local-only",
       "generated": false,
-      "id": "google-swe-style-and-readability",
+      "id": "google-swe-engineering-standards",
       "license": "CC-BY-NC-ND-4.0",
-      "path": ".generated/skills/google-swe-style-and-readability",
+      "path": ".generated/skills/google-swe-engineering-standards",
       "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
       "source": "https://github.com/abseil/abseil.github.io.git",
       "supplemental_licenses": [],
       "tags": [
         "engineering",
-        "style",
-        "readability"
+        "standards",
+        "readability",
+        "static-analysis"
       ],
-      "title": "Software Engineering at Google: Style Guides and Rules",
+      "title": "Software Engineering at Google: Engineering Standards",
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -831,7 +636,35 @@
     },
     {
       "collection": "software-engineering-at-google",
-      "description": "Use for testing strategy, test size and scope, unit tests, test doubles, and larger-test questions covered by Software Engineering at Google.",
+      "description": "Use when improving an engineering team's collaboration, psychological safety, knowledge sharing, equity, leadership, feedback, or decision making. Do not use for ordinary code changes or individual style questions.",
+      "distribution": "local-only",
+      "generated": false,
+      "id": "google-swe-teamwork-and-leadership",
+      "license": "CC-BY-NC-ND-4.0",
+      "path": ".generated/skills/google-swe-teamwork-and-leadership",
+      "revision": "e9e24835cb889fe25251cb9ec6d51b79233e358d",
+      "source": "https://github.com/abseil/abseil.github.io.git",
+      "supplemental_licenses": [],
+      "tags": [
+        "engineering",
+        "teamwork",
+        "culture",
+        "leadership"
+      ],
+      "title": "Software Engineering at Google: Teamwork and Leadership",
+      "wrapper_license": {
+        "attribution": "Google Guide Skills contributors",
+        "name": "Apache License 2.0",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+        "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+        "spdx": "Apache-2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0"
+      }
+    },
+    {
+      "collection": "software-engineering-at-google",
+      "description": "Use when designing or reviewing a risk-based test strategy, test size and scope, unit tests, test doubles, integration tests, or end-to-end tests.",
       "distribution": "local-only",
       "generated": false,
       "id": "google-swe-testing",
@@ -850,8 +683,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -896,8 +729,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -924,8 +757,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -952,8 +785,8 @@
       "wrapper_license": {
         "attribution": "Google Guide Skills contributors",
         "name": "Apache License 2.0",
-        "path": "references/LICENSE-Generator-Apache-2.0.txt",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "path": "LICENSE-Generator-Apache-2.0.txt",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
         "spdx": "Apache-2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0"

@@ -14,16 +14,14 @@ WRAPPER_LICENSE_FILENAME = "LICENSE-Generator-Apache-2.0.txt"
 ErrorType = TypeVar("ErrorType", bound=Exception)
 
 
-def wrapper_license_metadata(
-    path: str = f"references/{WRAPPER_LICENSE_FILENAME}",
-) -> dict[str, str]:
+def wrapper_license_metadata(path: str = WRAPPER_LICENSE_FILENAME) -> dict[str, str]:
     """Return the license metadata embedded in generated wrappers."""
     return {
         "spdx": "Apache-2.0",
         "name": "Apache License 2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0",
         "attribution": "Google Guide Skills contributors",
-        "scope": "Generator-authored skill wrapper, metadata, and navigation.",
+        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
         "path": path,
         "sha256": PROJECT_LICENSE_SHA256,
     }

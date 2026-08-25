@@ -1,11 +1,15 @@
 # Add Google guide skills to an existing repository
 
+Use this guide to add Google guide skills without replacing an existing repository's conventions
+or changing several workflows at once. A small pilot shows whether a skill improves real work and
+is easy to remove if it does not.
+
 Migrate one workflow at a time. Keep project rules in force while you test the skill.
 
 ## 1. Pick a small pilot
 
-Choose one repeated task, such as Python review, README maintenance, test
-design, or change review. Find the matching guide in
+Choose one repeated task, such as Python review, README maintenance, test design, or change
+review. Find the matching guide in
 [`catalog/catalog.md`](../catalog/catalog.md). Avoid changing generated code, formatting the whole
 repository, or adopting several new processes in the same change.
 
@@ -21,10 +25,13 @@ uv run google-guides install \
   --skill google-code-review-reviewer
 ```
 
-Add `--project /path/to/existing-repository --copy` when the repository should contain the public
-skills. Add `--include-swe-book` when the pilot needs the Software Engineering at Google guides;
-the installer asks for license acceptance. Project SWE-book installs are links to this checkout
-and should remain untracked.
+Per-user installs link back to this checkout. Keep it at the same path or reinstall after moving
+it.
+
+With Node.js/npm installed, add `--project /path/to/existing-repository --copy` when the repository
+should contain the public skills. Select a *Software Engineering at Google* skill such as
+`google-swe-testing` when the pilot needs it; the installer asks for license acceptance. Project
+SWE-book installs are links to this checkout and should remain untracked.
 
 ## 3. Add one routing section
 

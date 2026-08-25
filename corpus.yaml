@@ -68,7 +68,7 @@ collections:
           including headers, naming, classes, functions, ownership, exceptions, and formatting.
           Do not use as a general C++ language tutorial.
         tags: [language, cpp, style, review]
-        layout: inline
+        recipe: recipes/google-cpp-style.md
         inputs: [cppguide.html]
 
       - name: google-csharp-style
@@ -78,18 +78,8 @@ collections:
           formatting, language features, and source organization. Do not use for unrelated
           .NET architecture or framework selection.
         tags: [language, csharp, style, review]
-        layout: inline
+        recipe: recipes/google-csharp-style.md
         inputs: [csharp-style.md]
-
-      - name: google-angularjs-style
-        title: Google AngularJS Style Guide
-        description: >-
-          Use when maintaining AngularJS 1.x code under Google's conventions for modules,
-          controllers, directives, services, templates, events, and testing. Do not use for
-          modern Angular projects unless they deliberately follow this legacy guide.
-        tags: [language, javascript, angularjs, style]
-        layout: inline
-        inputs: [angularjs-google-style.html]
 
       - name: google-documentation-guide
         title: Google Documentation Guide
@@ -98,7 +88,7 @@ collections:
           and documentation maintenance using Google's documentation philosophy and practices.
           Do not use for prose that is not technical documentation.
         tags: [documentation, markdown, readme, review]
-        layout: inline
+        recipe: recipes/google-documentation-guide.md
         inputs:
           - docguide/README.md
           - docguide/philosophy.md
@@ -113,7 +103,7 @@ collections:
           practices, including naming, APIs, errors, documentation, tests, and maintainability.
           Do not use as a replacement for the Go language specification.
         tags: [language, go, style, review, testing]
-        layout: references
+        recipe: recipes/google-go-style.md
         inputs:
           - go/guide.md
           - go/decisions.md
@@ -126,7 +116,7 @@ collections:
           semantics, accessibility, formatting, naming, and organization. Do not use for visual
           design-system decisions.
         tags: [language, html, css, style, accessibility]
-        layout: inline
+        recipe: recipes/google-html-css-style.md
         inputs: [htmlcssguide.html]
 
       - name: google-java-style
@@ -136,40 +126,18 @@ collections:
           ordering, Javadoc, and programming-practice conventions. Do not use for Java API
           design questions outside the guide's scope.
         tags: [language, java, style, review]
-        layout: inline
+        recipe: recipes/google-java-style.md
         inputs: [javaguide.html]
 
       - name: google-javascript-style
         title: Google JavaScript Style Guide
         description: >-
-          Use when writing or reviewing JavaScript under Google's source formatting, naming,
-          module, language-feature, JSDoc, and policy conventions. Do not use for TypeScript;
-          use google-typescript-style instead.
+          Use when maintaining existing JavaScript under Google's source formatting, naming,
+          module, language-feature, JSDoc, and policy conventions. The upstream guide is no
+          longer updated. For TypeScript, use google-typescript-style instead.
         tags: [language, javascript, style, review]
-        layout: inline
+        recipe: recipes/google-javascript-style.md
         inputs: [jsguide.html]
-
-      - name: google-json-style
-        title: Google JSON Style Guide
-        description: >-
-          Use when designing or reviewing JSON APIs and JSON-formatted data under Google's
-          property naming, structure, value, date, and consistency conventions. Do not use for
-          arbitrary JavaScript object style.
-        tags: [language, json, api, style]
-        layout: inline
-        inputs: [jsoncstyleguide.xml]
-        license_note: >-
-          The source page states that page content is CC-BY-3.0 and embedded code samples are
-          Apache-2.0; both notices remain in the mechanically converted artifact.
-        supplemental_licenses:
-          - spdx: Apache-2.0
-            name: Apache License 2.0
-            url: https://www.apache.org/licenses/LICENSE-2.0
-            attribution: Google LLC and the Google JSON Style Guide contributors
-            scope: Embedded code samples in jsoncstyleguide.xml
-            license_file: LICENSE
-            evidence_contains: code samples are licensed under the
-            sha256: c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f
 
       - name: google-common-lisp-style
         title: Google Common Lisp Style Guide
@@ -178,7 +146,7 @@ collections:
           documentation, macro, error-handling, and language-usage conventions. Do not use for
           other Lisp dialects without checking compatibility.
         tags: [language, common-lisp, style, review]
-        layout: inline
+        recipe: recipes/google-common-lisp-style.md
         inputs: [lispguide.xml]
 
       - name: google-objective-c-style
@@ -188,7 +156,7 @@ collections:
           formatting, Cocoa-pattern, memory-management, and documentation conventions. Do not
           use as a Swift style guide.
         tags: [language, objective-c, style, review]
-        layout: inline
+        recipe: recipes/google-objective-c-style.md
         inputs: [objcguide.md]
 
       - name: google-python-style
@@ -198,7 +166,7 @@ collections:
           imports, exceptions, typing, naming, comments, tests, and formatting. Do not use as a
           Python beginner tutorial.
         tags: [language, python, style, review, testing]
-        layout: inline
+        recipe: recipes/google-python-style.md
         inputs: [pyguide.md]
 
       - name: google-shell-style
@@ -208,7 +176,7 @@ collections:
           scope, features, naming, comments, quoting, command substitution, and error handling.
           Do not use for non-Bourne-compatible shells without checking applicability.
         tags: [language, shell, bash, style, review]
-        layout: inline
+        recipe: recipes/google-shell-style.md
         inputs: [shellguide.md]
 
       - name: google-typescript-style
@@ -218,7 +186,7 @@ collections:
           module, documentation, and conformance conventions. Do not use for plain JavaScript;
           use google-javascript-style instead.
         tags: [language, typescript, style, review]
-        layout: inline
+        recipe: recipes/google-typescript-style.md
         inputs: [tsguide.html]
 
       - name: google-vimscript-style
@@ -227,8 +195,8 @@ collections:
           Use when writing or reviewing Vimscript under Google's naming, formatting, command,
           function, mapping, and plugin conventions. Do not use for Lua-based Neovim code.
         tags: [language, vimscript, vim, style]
-        layout: inline
-        inputs: [vimscriptfull.xml]
+        recipe: recipes/google-vimscript-style.md
+        inputs: [vimscriptguide.xml]
 
       - name: google-xml-style
         title: Google XML Document Format Style Guide
@@ -237,7 +205,7 @@ collections:
           structure, extensibility, namespace, validation, and schema conventions. Do not use
           merely to pretty-print an existing XML file.
         tags: [language, xml, schema, style]
-        layout: inline
+        recipe: recipes/google-xml-style.md
         inputs: [xmlstyle.html]
 
   google-engineering-practices:
@@ -252,7 +220,7 @@ collections:
           description, responding to comments, or resolving review disagreement using Google's
           engineering practices. Do not use when acting only as the reviewer.
         tags: [engineering, code-review, author, changelist]
-        layout: inline
+        recipe: recipes/google-code-review-author.md
         inputs:
           - review/developer/index.md
           - review/developer/small-cls.md
@@ -267,7 +235,7 @@ collections:
           standard, writing comments, reviewing quickly, navigating a change, or handling
           pushback. Do not use when only preparing your own change for review.
         tags: [engineering, code-review, reviewer, readability]
-        layout: inline
+        recipe: recipes/google-code-review-reviewer.md
         inputs:
           - review/reviewer/index.md
           - review/reviewer/standard.md
@@ -277,77 +245,10 @@ collections:
           - review/reviewer/speed.md
           - review/reviewer/pushback.md
 
-  abseil-documentation:
-    repository: abseil
-    distribution: committed
-    description: Apache-2.0 Abseil guides, design notes, and tips; excludes the SWE book.
-    artifacts:
-      - name: abseil-cpp-guides
-        title: Abseil C++ Guides
-        description: >-
-          Use when implementing or reviewing C++ that uses Abseil libraries, including strings,
-          status, time, flags, logging, containers, synchronization, hashing, formatting, and
-          random utilities. Do not use as the Google C++ style guide.
-        tags: [language, cpp, abseil, api]
-        layout: references
-        inputs:
-          - docs/cpp/atomic_danger.md
-          - docs/cpp/guides/*.md
-          - docs/cpp/platforms/*.md
-          - docs/cpp/tools/*.md
-          - docs/cpp/tools/upgrades/*.md
-          - docs/cpp/quickstart*.md
-
-      - name: abseil-cpp-design-notes
-        title: Abseil C++ Design Notes
-        description: >-
-          Use when evaluating C++ library design tradeoffs covered by Abseil design notes,
-          including Swiss tables, B-trees, mutexes, random APIs, formatting, char conversion,
-          and drop-in types. Do not use for unrelated application architecture.
-        tags: [language, cpp, abseil, design]
-        layout: references
-        inputs: [about/design/*.md]
-
-      - name: abseil-python-guides
-        title: Abseil Python Guides
-        description: >-
-          Use when building Python programs with Abseil's app, flags, logging, and testing
-          libraries or following Abseil's Python guidance. Do not use as a general Python style
-          guide when google-python-style is more relevant.
-        tags: [language, python, abseil, testing]
-        layout: references
-        inputs:
-          - docs/python/guides/*.md
-          - docs/python/quickstart.md
-          - docs/python/styleguide.md
-
-      - name: abseil-cpp-tips
-        title: Abseil C++ Tips of the Week
-        description: >-
-          Use when an advanced C++ design, API, readability, performance, ownership, type, or
-          language-feature question matches Google's Abseil C++ Tips of the Week. Search the
-          focused references before inventing a local rule.
-        tags: [language, cpp, abseil, readability, design]
-        layout: references
-        inputs: [_posts/*-totw-*.md]
-
-      - name: abseil-performance-tips
-        title: Abseil Performance Tips
-        description: >-
-          Use when diagnosing or reviewing C++ performance and optimization choices covered by
-          Abseil's FAST guidance. Do not use to justify optimization without measurement.
-        tags: [language, cpp, abseil, performance]
-        layout: references
-        inputs:
-          - fast/*.md
-          - _posts/*-fast-*.md
-
   software-engineering-at-google:
     repository: abseil
     distribution: local-only
-    description: >-
-      Software Engineering at Google guides for engineering practice, testing, documentation,
-      delivery, infrastructure, culture, and leadership.
+    description: Task-focused skills generated locally from Software Engineering at Google.
     license_override:
       spdx: CC-BY-NC-ND-4.0
       name: Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
@@ -363,14 +264,13 @@ collections:
         only for noncommercial purposes, do not share it, and verify your intended use against
         the license and applicable law.
     artifacts:
-      - name: google-swe-culture-and-leadership
-        title: "Software Engineering at Google: Culture and Leadership"
+      - name: google-swe-teamwork-and-leadership
+        title: "Software Engineering at Google: Teamwork and Leadership"
         description: >-
-          Use for questions about software engineering over time, teamwork, knowledge sharing,
-          equity, leadership, and engineering productivity covered by Software Engineering at
-          Google.
-        tags: [engineering, culture, leadership, productivity]
-        layout: references
+          Use when improving an engineering team's collaboration, psychological safety, knowledge
+          sharing, equity, leadership, feedback, or decision making. Do not use for ordinary code
+          changes or individual style questions.
+        tags: [engineering, teamwork, culture, leadership]
         inputs:
           - resources/swe-book/html/ch01.html
           - resources/swe-book/html/ch02.html
@@ -378,103 +278,561 @@ collections:
           - resources/swe-book/html/ch04.html
           - resources/swe-book/html/ch05.html
           - resources/swe-book/html/ch06.html
-          - resources/swe-book/html/ch07.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Revisiting Decisions, Making Mistakes"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch02.html
+            heading: "The Three Pillars of Social Interaction"
+            blocks: [1, 2, 3, 4, 5]
+          - input: resources/swe-book/html/ch02.html
+            heading: "Learn to give *and* take criticism"
+            blocks: [1, 2, 4]
+          - input: resources/swe-book/html/ch02.html
+            heading: "Blameless Post-Mortem Culture"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch03.html
+            heading: "Setting the Stage: Psychological Safety"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch03.html
+            heading: "Ask Questions"
+            blocks: [0, 4, 5]
+          - input: resources/swe-book/html/ch03.html
+            heading: "Understand Context"
+            blocks: [0, 1, 3, 4]
+          - input: resources/swe-book/html/ch03.html
+            heading: "Establishing Canonical Sources of Information"
+            blocks: [0, 1, 2, 3]
+          - input: resources/swe-book/html/ch04.html
+            heading: "Reject Singular Approaches"
+            blocks: [0, 3, 4, 5]
+          - input: resources/swe-book/html/ch05.html
+            heading: "Servant Leadership"
+            blocks: [1]
+          - input: resources/swe-book/html/ch05.html
+            heading: "Antipattern: Ignore Low Performers"
+            blocks: [1, 2, 3, 5, 6]
+          - input: resources/swe-book/html/ch05.html
+            heading: "Set Clear Goals"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch06.html
+            heading: "Identify the Key Trade-Offs"
+            blocks: [0]
+          - input: resources/swe-book/html/ch06.html
+            heading: "Decide, Then Iterate"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch06.html
+            heading: "Your Mission: Build a “Self-Driving” Team"
+            blocks: [0]
+          - input: resources/swe-book/html/ch06.html
+            heading: "Dividing the Problem Space"
+            blocks: [0]
 
-      - name: google-swe-style-and-readability
-        title: "Software Engineering at Google: Style Guides and Rules"
+      - name: google-swe-developer-productivity
+        title: "Software Engineering at Google: Developer Productivity"
         description: >-
-          Use for engineering-wide style-guide, consistency, rule, and readability questions
-          covered by Software Engineering at Google.
-        tags: [engineering, style, readability]
-        layout: references
-        inputs: [resources/swe-book/html/ch08.html]
-
-      - name: google-swe-code-review
-        title: "Software Engineering at Google: Code Review"
-        description: >-
-          Use for code-review policy, process, tooling, reviewer, author, and readability
-          questions covered by Software Engineering at Google.
-        tags: [engineering, code-review, readability, tooling]
-        layout: references
+          Use when defining developer-productivity goals and metrics or designing code-search and
+          code-navigation capabilities. Do not use lines of code or activity counts as default
+          productivity measures.
+        tags: [engineering, developer-productivity, metrics, code-search]
         inputs:
+          - resources/swe-book/html/ch01.html
+          - resources/swe-book/html/ch07.html
+          - resources/swe-book/html/ch17.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Inputs to Decision Making"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch07.html
+            heading: "Triage: Is It Even Worth Measuring?"
+            blocks: [0, 1, 3, 5, 7, 9, 11, 18]
+          - input: resources/swe-book/html/ch07.html
+            heading: "Selecting Meaningful Metrics with Goals and Signals"
+            blocks: [0, 1, 2, 3, 4, 5, 6]
+          - input: resources/swe-book/html/ch07.html
+            heading: "Goals"
+            blocks: [0, 4, 5, 6, 7, 8, 9]
+          - input: resources/swe-book/html/ch07.html
+            heading: "Metrics"
+            blocks: [0, 1, 2, 3]
+          - input: resources/swe-book/html/ch07.html
+            heading: "Using Data to Validate Metrics"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch07.html
+            heading: "Taking Action and Tracking Results"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch17.html
+            heading: "How Do Googlers Use Code Search?"
+            blocks: [0]
+          - input: resources/swe-book/html/ch17.html
+            heading: "Where?"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch17.html
+            heading: "What?"
+            blocks: [0]
+          - input: resources/swe-book/html/ch17.html
+            heading: "How?"
+            blocks: [0]
+          - input: resources/swe-book/html/ch17.html
+            heading: "Why?"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch17.html
+            heading: "Who and When?"
+            blocks: [0]
+          - input: resources/swe-book/html/ch17.html
+            heading: "Zero Setup Global Code View"
+            blocks: [0]
+          - input: resources/swe-book/html/ch17.html
+            heading: "Integration with Other Developer Tools"
+            blocks: [0, 1, 7, 8]
+          - input: resources/swe-book/html/ch17.html
+            heading: "Completeness: Repository at Head"
+            blocks: [0, 1]
+
+      - name: google-swe-engineering-standards
+        title: "Software Engineering at Google: Engineering Standards"
+        description: >-
+          Use when creating, changing, enforcing, or measuring organization-wide coding rules,
+          readability standards, formatters, linters, or static analysis. For one language's
+          syntax and formatting, use its language skill.
+        tags: [engineering, standards, readability, static-analysis]
+        inputs:
+          - resources/swe-book/html/ch01.html
+          - resources/swe-book/html/ch08.html
+          - resources/swe-book/html/ch20.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Time and Change"
+            blocks: [10]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Rules must pull their weight"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Optimize for the reader"
+            blocks: [0, 1, 6, 7]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Be consistent"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Avoid error-prone and surprising constructs"
+            blocks: [0, 8, 10]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Concede to practicalities"
+            blocks: [1, 2]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Changing the Rules"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch08.html
+            heading: "The Process"
+            blocks: [0]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Exceptions"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Error Checkers"
+            blocks: [0]
+          - input: resources/swe-book/html/ch08.html
+            heading: "Code Formatters"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Usability"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Focus on Developer Happiness"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Make Static Analysis a Part of the Core Developer Workflow"
+            blocks: [0]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Empower Users to Contribute"
+            blocks: [0]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Integrated Feedback Channels"
+            blocks: [0]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Suggested Fixes"
+            blocks: [3]
+          - input: resources/swe-book/html/ch20.html
+            heading: "Per-Project Customization"
+            blocks: [1, 2]
+
+      - name: google-swe-code-review-systems
+        title: "Software Engineering at Google: Code Review Systems"
+        description: >-
+          Use when designing or auditing a team's code-review policy, workflow, culture, or
+          tooling. To prepare or review one change, use google-code-review-author or
+          google-code-review-reviewer.
+        tags: [engineering, code-review, workflow, tooling]
+        inputs:
+          - resources/swe-book/html/ch01.html
           - resources/swe-book/html/ch09.html
           - resources/swe-book/html/ch19.html
-
-      - name: google-swe-documentation
-        title: "Software Engineering at Google: Documentation"
-        description: >-
-          Use for documentation purpose, audience, quality, review, maintenance, and
-          documentation-as-code questions covered by Software Engineering at Google.
-        tags: [engineering, documentation, maintenance]
-        layout: references
-        inputs: [resources/swe-book/html/ch10.html]
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Scale and Efficiency"
+            blocks: [4]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Code Review Flow"
+            blocks: [1, 2]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Code Correctness"
+            blocks: [0, 2, 3, 4, 5]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Comprehension of Code"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Psychological and Cultural Benefits"
+            blocks: [0, 2, 4]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Knowledge Sharing"
+            blocks: [0, 1, 4]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Be Polite and Professional"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Write Small Changes"
+            blocks: [0, 1, 4]
+          - input: resources/swe-book/html/ch09.html
+            heading: "Automate Where Possible"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch19.html
+            heading: "Code Review Tooling Principles"
+            blocks: [0, 1, 2, 3, 4]
+          - input: resources/swe-book/html/ch19.html
+            heading: "Analysis Results"
+            blocks: [1, 6]
+          - input: resources/swe-book/html/ch19.html
+            heading: "Tight Tool Integration"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch19.html
+            heading: "Understanding the State of a Change"
+            blocks: [0]
+          - input: resources/swe-book/html/ch19.html
+            heading: '"Whose turn" feature'
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch19.html
+            heading: "Stage 5: Change Approvals (Scoring a Change)"
+            blocks: [0, 1, 2, 4, 6, 7]
+          - input: resources/swe-book/html/ch19.html
+            heading: "After Commit: Tracking History"
+            blocks: [0, 1]
 
       - name: google-swe-testing
         title: "Software Engineering at Google: Testing"
         description: >-
-          Use for testing strategy, test size and scope, unit tests, test doubles, and larger-test
-          questions covered by Software Engineering at Google.
+          Use when designing or reviewing a risk-based test strategy, test size and scope, unit
+          tests, test doubles, integration tests, or end-to-end tests.
         tags: [engineering, testing, unit-testing, test-doubles]
-        layout: references
         inputs:
+          - resources/swe-book/html/ch01.html
           - resources/swe-book/html/ch11.html
           - resources/swe-book/html/ch12.html
           - resources/swe-book/html/ch13.html
           - resources/swe-book/html/ch14.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Trade-offs and Costs"
+            blocks: [1, 2]
+          - input: resources/swe-book/html/ch11.html
+            heading: "Test Size"
+            blocks: [0, 3]
+          - input: resources/swe-book/html/ch11.html
+            heading: "Properties common to all test sizes"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch11.html
+            heading: "Test Scope"
+            blocks: [0, 3, 6, 11]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Test via Public APIs"
+            blocks: [0]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Test State, Not Interactions"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Structure tests to emphasize behaviors"
+            blocks: [0]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Name tests after the behavior being tested"
+            blocks: [0]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Don’t Put Logic in Tests"
+            blocks: [0]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Write Clear Failure Messages"
+            blocks: [0, 1, 2, 3, 4]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Tests and Code Sharing: DAMP, Not DRY"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch13.html
+            heading: "Prefer Realism Over Isolation"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch13.html
+            heading: "The Fidelity of Fakes"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch13.html
+            heading: "Fakes Should Be Tested"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch13.html
+            heading: "When Is Stubbing Appropriate?"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Unfaithful doubles"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Configuration issues"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Issues that arise under load"
+            blocks: [0]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Unanticipated behaviors, inputs, and side effects"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch14.html
+            heading: 'Emergent behaviors and the "vacuum effect"'
+            blocks: [0]
+          - input: resources/swe-book/html/ch14.html
+            heading: "The benefits of hermetic SUTs"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Driving out flakiness"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Making tests understandable"
+            blocks: [1, 2, 4]
+          - input: resources/swe-book/html/ch14.html
+            heading: "Owning Large Tests"
+            blocks: [0]
 
-      - name: google-swe-maintenance-and-delivery
-        title: "Software Engineering at Google: Maintenance and Delivery"
+      - name: google-swe-change-management
+        title: "Software Engineering at Google: Change Management"
         description: >-
-          Use for deprecation, version control, code search, builds, static analysis, dependencies,
-          large changes, continuous integration, and continuous delivery covered by Software
-          Engineering at Google.
-        tags: [engineering, maintenance, build, ci, cd, dependencies]
-        layout: references
+          Use when planning or reviewing deprecation, migration, large-scale change, feature
+          flags, staged rollout, release cadence, or rollback. Do not use for ordinary small code
+          changes.
+        tags: [engineering, deprecation, migration, rollout, delivery]
         inputs:
+          - resources/swe-book/html/ch01.html
           - resources/swe-book/html/ch15.html
-          - resources/swe-book/html/ch16.html
-          - resources/swe-book/html/ch17.html
-          - resources/swe-book/html/ch18.html
-          - resources/swe-book/html/ch20.html
-          - resources/swe-book/html/ch21.html
           - resources/swe-book/html/ch22.html
-          - resources/swe-book/html/ch23.html
           - resources/swe-book/html/ch24.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Revisiting Decisions, Making Mistakes"
+            blocks: [1]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Deprecation During Design"
+            blocks: [0, 3, 4, 6, 7]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Advisory Deprecation"
+            blocks: [0]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Compulsory Deprecation"
+            blocks: [0, 1, 2, 3]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Deprecation Warnings"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Process Owners"
+            blocks: [0]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Milestones"
+            blocks: [2]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Discovery"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Migration"
+            blocks: [0]
+          - input: resources/swe-book/html/ch15.html
+            heading: "Preventing backsliding"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Policies and Culture"
+            blocks: [2]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Codebase Insight"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Change Management"
+            blocks: [0]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Authorization"
+            blocks: [0, 3]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Change Creation"
+            blocks: [1, 2]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Sharding and Submitting"
+            blocks: [0]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Reviewing"
+            blocks: [0]
+          - input: resources/swe-book/html/ch22.html
+            heading: "Cleanup"
+            blocks: [0]
+          - input: resources/swe-book/html/ch24.html
+            heading: "Evaluating Changes in Isolation: Flag-Guarding Features"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch24.html
+            heading: "Meet Your Release Deadline"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch24.html
+            heading: "Quality and User-Focus: Ship Only What Gets Used"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch24.html
+            heading: "Shifting Left: Making Data-Driven Decisions Earlier"
+            blocks: [0, 1, 2, 3, 6]
+          - input: resources/swe-book/html/ch24.html
+            heading: "Changing Team Culture: Building Discipline into Deployment"
+            blocks: [2, 4]
 
-      - name: google-swe-infrastructure
-        title: "Software Engineering at Google: Compute as a Service"
+      - name: google-swe-builds-dependencies-and-ci
+        title: "Software Engineering at Google: Builds, Dependencies, and CI"
         description: >-
-          Use for questions about compute infrastructure, hosted services, deployment,
-          multitenancy, and infrastructure abstractions covered by Software Engineering at Google.
-        tags: [engineering, infrastructure, compute, deployment]
-        layout: references
-        inputs: [resources/swe-book/html/ch25.html]
-
-      - name: google-swe-book-front-matter
-        title: "Software Engineering at Google: Front Matter and Afterword"
-        description: >-
-          Use when book-level context, scope, authorship, publication, navigation, or the
-          afterword from Software Engineering at Google is specifically needed.
-        tags: [engineering, book, context, attribution]
-        layout: references
+          Use when designing or reviewing version-control policy, build systems, module
+          boundaries, dependency policy, hermetic builds, presubmit, post-submit, or CI failure
+          handling.
+        tags: [engineering, version-control, build, dependencies, ci]
         inputs:
-          - resources/swe-book/html/author_bio.html
-          - resources/swe-book/html/ch26.html
-          - resources/swe-book/html/colo.html
-          - resources/swe-book/html/copyright.html
-          - resources/swe-book/html/cover.html
-          - resources/swe-book/html/foreword.html
-          - resources/swe-book/html/ix.html
-          - resources/swe-book/html/part1.html
-          - resources/swe-book/html/part2.html
-          - resources/swe-book/html/part3.html
-          - resources/swe-book/html/part4.html
-          - resources/swe-book/html/part5.html
-          - resources/swe-book/html/pr01.html
-          - resources/swe-book/html/titlepage.html
-          - resources/swe-book/html/toc.html
+          - resources/swe-book/html/ch01.html
+          - resources/swe-book/html/ch16.html
+          - resources/swe-book/html/ch18.html
+          - resources/swe-book/html/ch21.html
+          - resources/swe-book/html/ch23.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Scale and Efficiency"
+            blocks: [4]
+          - input: resources/swe-book/html/ch01.html
+            heading: "Time and Change"
+            blocks: [10]
+          - input: resources/swe-book/html/ch16.html
+            heading: "Source of Truth"
+            blocks: [2]
+          - input: resources/swe-book/html/ch16.html
+            heading: "Dev Branches"
+            blocks: [1, 2, 3]
+          - input: resources/swe-book/html/ch16.html
+            heading: "Release Branches"
+            blocks: [0, 1, 3]
+          - input: resources/swe-book/html/ch16.html
+            heading: "The “One-Version” Rule"
+            blocks: [0, 1, 2, 3]
+          - input: resources/swe-book/html/ch18.html
+            heading: "Artifact-Based Build Systems"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch18.html
+            heading: "Isolating the environment"
+            blocks: [0]
+          - input: resources/swe-book/html/ch18.html
+            heading: "Making external dependencies deterministic"
+            blocks: [0, 1, 3, 4]
+          - input: resources/swe-book/html/ch18.html
+            heading: "Using Fine-Grained Modules and the 1:1:1 Rule"
+            blocks: [0, 2]
+          - input: resources/swe-book/html/ch18.html
+            heading: "Internal dependencies"
+            blocks: [0, 1, 5]
+          - input: resources/swe-book/html/ch21.html
+            heading: "Considerations When Importing"
+            blocks: [1, 2, 3, 4]
+          - input: resources/swe-book/html/ch21.html
+            heading: "Compatibility Promises"
+            blocks: [0, 1]
+          - input: resources/swe-book/html/ch21.html
+            heading: "SemVer Might Overpromise"
+            blocks: [0, 2, 3]
+          - input: resources/swe-book/html/ch23.html
+            heading: "Fast Feedback Loops"
+            blocks: [5, 6, 8]
+          - input: resources/swe-book/html/ch23.html
+            heading: "Accessible and actionable feedback"
+            blocks: [3]
+          - input: resources/swe-book/html/ch23.html
+            heading: "Why presubmit isn’t enough"
+            blocks: [1, 2, 3]
+          - input: resources/swe-book/html/ch23.html
+            heading: "Presubmit versus post-submit"
+            blocks: [0]
+          - input: resources/swe-book/html/ch23.html
+            heading: "Hermetic Testing"
+            blocks: [0, 1, 2, 4]
+          - input: resources/swe-book/html/ch23.html
+            heading: "Failure management"
+            blocks: [0, 1, 2]
+
+      - name: google-swe-compute-platforms
+        title: "Software Engineering at Google: Compute Platforms"
+        description: >-
+          Use when choosing or reviewing a managed-compute model, hosted service, deployment
+          abstraction, state model, failure model, multitenancy boundary, autoscaling policy, or
+          cloud migration.
+        tags: [engineering, infrastructure, compute, cloud, deployment]
+        inputs:
+          - resources/swe-book/html/ch01.html
+          - resources/swe-book/html/ch25.html
+        excerpts:
+          - input: resources/swe-book/html/ch01.html
+            heading: "Trade-offs and Costs"
+            blocks: [1, 2]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Architecting for Failure"
+            blocks: [3, 4, 5, 6, 7]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Batch Versus Serving"
+            blocks: [1, 2, 3, 4]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Managing State"
+            blocks: [0, 1, 3]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Connecting to a Service"
+            blocks: [0, 1, 2]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Containers as an Abstraction"
+            blocks: [0, 1, 5, 6, 8]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Containers and implicit dependencies"
+            blocks: [0]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Choosing a Compute Service"
+            blocks: [0, 1, 5, 6]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Need for customization"
+            blocks: [5]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Level of Abstraction: Serverless"
+            blocks: [0, 2, 3]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Pros and cons"
+            blocks: [0, 1, 2, 4]
+          - input: resources/swe-book/html/ch25.html
+            heading: "The trade-off"
+            blocks: [2, 3]
+          - input: resources/swe-book/html/ch25.html
+            heading: "Public Versus Private"
+            blocks: [2, 3, 4]
 
 catalog_only:
+  - id: google-angularjs-style
+    title: Google AngularJS Style Guide
+    url: https://google.github.io/styleguide/angularjs-google-style.html
+    license: CC-BY-3.0
+    status: historical-guide-not-packaged
+    reason: >-
+      Last updated in 2013 and written for AngularJS 1.x, Closure, IE8, and internal Google
+      tooling. Keep it discoverable without loading obsolete defaults into modern agents.
+    tags: [language, javascript, angularjs, style]
+
+  - id: google-json-style
+    title: Google JSON Style Guide
+    url: https://google.github.io/styleguide/jsoncstyleguide.xml
+    license: CC-BY-3.0-with-Apache-2.0-code
+    status: historical-guide-not-packaged
+    reason: >-
+      Revision 0.9 centers retired Google Data and YouTube API v2 response envelopes. Modern API
+      contracts should follow current product requirements rather than this historical protocol.
+    tags: [language, json, api, style]
+
   - id: google-r-style
     title: Google's R Style Guide
     url: https://google.github.io/styleguide/Rguide.html

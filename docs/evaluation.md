@@ -1,5 +1,9 @@
 # Discoverability and quality evaluation
 
+The evaluation answers two questions: does each client select the intended guide, and does that
+guide improve a source-specific answer? A valid skill folder or visible catalog cannot answer
+either question, so routing and answer quality are measured separately.
+
 For each case, the harness creates a Git repository in an OS temporary directory, copies the
 selected skills into it, and starts a client without a saved session. Bubblewrap exposes the
 system runtime and that run directory, but not the source checkout, case labels, earlier answers,
@@ -49,11 +53,10 @@ client runs exclude SWE-book output; `local-smoke` supports planning and offline
 
 [`evals/cases.yaml`](../evals/cases.yaml) contains:
 
-- 23 explicit invocation controls, rendered for each client adapter;
-- 23 implicit smoke prompts, one for every committed guide;
-- 8 local-only smoke plans, one for every restricted SWE-book recipe;
-- 80 representative cases across Python style, reviewer workflow, documentation, and the
-  Abseil C++ tips reference collection;
+- 16 explicit invocation controls, rendered for each client adapter;
+- 16 implicit smoke prompts, one for every committed guide;
+- 8 local-only smoke plans, one for every restricted SWE-book skill;
+- 60 representative cases across Python style, reviewer workflow, and documentation;
 - for each representative skill, 10 positives and 10 near-miss negatives with a fixed 60/40
   train/validation split;
 - concept-check rubrics for a quality A/B subset.
@@ -102,17 +105,8 @@ models, and bounded redacted diagnostics for failed processes.
   trace-proven routes. Report the trace and proxy denominators separately.
 - Quality A/B: no correctness regression and a positive aggregate rubric delta.
 
-Version 0.1 ships the harness and cases. One explicit-control case passed on all five clients. In
-the one-pass full-pack smoke run, all 115 client/case pairs reported the expected skill. Of those,
-69 routes were trace-proven and exact, with no unrelated loads; 46 OpenClaw and Hermes routes used
-verified self-report proxies, which cannot prove that no second skill loaded. No process failed.
-This passes the stated one-pass thresholds; it does not replace repeated positive and near-miss
-validation.
-
-The saved outputs from a focused Go comparison were rescored after the naming rubric was aligned
-with the guide heading. The retrospective score was 4/4 concepts with and without the skill on
-all five clients, so it found no regression and no lift. The original run report remains unchanged
-at 32/40 and includes two negative deltas; this rescore is not an independent quality gate.
-OpenClaw included and selected the reference-based Go skill, fixing the earlier oversized-inline
-omission. A discarded routing index had loaded on only two clients and changed no rubric scores,
-so it was removed. See the [version 0.1 plan review](../reports/v0.1-plan-review.md).
+The saved five-client runs belong to an earlier 23-skill committed corpus. They helped expose an
+oversized Go skill, vague reference routing, and a routing index that added no measured value. The
+current 16-public/8-local pack rewrites the skill bodies and therefore needs new forward tests
+before any old routing or quality rate can be used as release evidence. See the
+[version 0.1 plan review](../reports/v0.1-plan-review.md).
