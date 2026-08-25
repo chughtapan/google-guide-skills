@@ -1,0 +1,538 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a487c8c..517c308 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
+
+ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
++## [Unreleased]
++
++### Changed
++
++- The normal install includes Software Engineering at Google skills without a separate include
++  flag and requests license acceptance only when the selected skills require it.
++- The README now leads with user benefits and installation; maintainer commands moved to a
++  dedicated guide.
++
+ ## [0.1.0.0] - 2026-08-24
+
+ ### Added
+diff --git a/README.md b/README.md
+index 1a1dd8b..b80aeb2 100644
+--- a/README.md
++++ b/README.md
+@@ -1,161 +1,77 @@
+ # Google Guide Skills
+
+-Convert Google's engineering guides into [Agent Skills](https://agentskills.io/), install them for
+-a user or repository, and test whether agents select them. Installation supports Codex and Claude
+-Code. Evaluation supports Codex, Claude Code, OpenCode, OpenClaw, and Hermes.
++Give Codex and Claude Code practical guidance drawn from Google's published engineering material.
++The skill pack helps agents choose established conventions for style, documentation, code review,
++testing, infrastructure, and engineering practice instead of inventing a new approach for every
++task.
+
+-The generator pins each source revision, copies Markdown, converts HTML/XML to Markdown, and writes
+-skill metadata, provenance, license files, a catalog, and token counts. `corpus.yaml` defines the
+-corpus and output rules.
++The project turns pinned Google and Abseil sources into
++[Agent Skills](https://agentskills.io/) with provenance and license records. Install once for your
++user account to make the guidance available across repositories, or install into one project when
++the skills should travel with that repository.
+
+-## Quick start
++## Install
+
+-Requirements: Git and [uv](https://docs.astral.sh/uv/). Project installation of public skills also
+-requires Node.js/npm. The package and unit tests support Python 3.11+, while byte-for-byte
+-generation is pinned to Python 3.13.7 in `.python-version` and `corpus.yaml`; `uv` provisions that
+-interpreter.
++Requirements: Git and [uv](https://docs.astral.sh/uv/). From this checkout, install for your user
++account (recommended):
+
+ ```bash
+-uv sync --all-groups
+-uv run google-guides all
++uv sync
++uv run google-guides install --agent codex --agent claude-code
+ ```
+
+-That command checks out the revisions in `corpus.yaml`, builds the public skill set, regenerates
+-the catalog and `o200k_base` token report, and validates the result.
+-
+-## Commands
+-
+-```text
+-google-guides sync                         clone and checkout pinned repositories
+-google-guides build [--collection ID]     build selected redistributable skills
+-google-guides build --include-swe-book     also build the SWE-book skills locally
+-google-guides catalog                      regenerate catalog files
+-google-guides metrics [--include-swe-book] count every generated text file with o200k_base
+-google-guides validate [--include-swe-book] check skill, reference, and license boundaries
+-google-guides install --agent codex        install for the current user (recommended)
+-google-guides install --project PATH       install into a repository
+-google-guides install --include-swe-book   add the SWE-book skills after license acceptance
+-google-guides eval triggers                plan skill-selection tests
+-google-guides eval quality                 plan answers with and without skills
+-google-guides all                           sync, build, catalog, measure, and validate
+-```
+-
+-## Installation
++The normal install includes the Software Engineering at Google skills. Because those selected
++chapters use CC BY-NC-ND 4.0 terms, the installer shows the terms and asks for acceptance before
++generating them. For a noninteractive install, review the terms first and pass
++`--accept-swe-book-license`.
+
+-Per-user installation is recommended because one setup works across repositories:
++Install only specific skills by repeating `--skill`. If the selection contains only public
++skills, the installer does not ask for SWE-book license acceptance:
+
+ ```bash
+ uv run google-guides install \
+   --agent codex \
+-  --agent claude-code
++  --skill google-python-style \
++  --skill google-code-review-author
+ ```
+
+-Add the eight Software Engineering at Google skills with `--include-swe-book`. The installer shows
+-the CC BY-NC-ND 4.0 terms and asks for acceptance before it generates or links them:
+-
+-```bash
+-uv run google-guides install \
+-  --agent codex \
+-  --agent claude-code \
+-  --include-swe-book
+-```
++Use the [skill catalog](catalog/catalog.md) to choose skills. A smaller selection also consumes
++less agent startup context.
+
+-For a noninteractive run, review the license first and pass `--accept-swe-book-license`.
++## Project installation
+
+-To install into a repository instead, add `--project`. Public skills can be copied; SWE-book
+-skills are linked back to this checkout:
++Per-user installation is the default and is best for most people. When a repository needs its own
++installation, request it explicitly with `--project`:
+
+ ```bash
+ uv run google-guides install \
+   --project /path/to/project \
+   --agent codex \
+   --agent claude-code \
+-  --copy \
+-  --include-swe-book
++  --copy
+ ```
+
+-Keep project SWE-book links out of version control. Use `--dry-run` to inspect an install. Project
+-installation of public skills uses pinned
+-[`npx skills@1.5.23`](https://github.com/vercel-labs/skills). For repository setup, follow the
+-[new-repository onboarding guide](docs/onboarding.md) or the
+-[existing-repository migration guide](docs/migration.md).
+-
+-## Evaluation
+-
+-The full pack uses most of Codex's fallback startup-metadata budget; the generated token report
+-records the current total and supported path length. Deeper projects or unrelated host skills can
+-exceed the budget.
+-Install only the skills a project needs. Use the full pack for discovery tests. Live evaluations
+-are Linux-only in v0.1 and require Bubblewrap plus logged-in client CLIs. OpenCode, OpenClaw, and
+-Hermes reuse the Codex ChatGPT login; Claude Code uses its own login. Use `--model AGENT=MODEL`
+-only when a run needs an override. In a one-pass full-pack smoke run, all 115 client/case pairs
+-reported the expected skill; 69 routes were trace-proven and exact, while 46 used verified
+-self-report proxies. Repeated near-miss and broader quality cases remain. Live evaluations do not
+-run in CI. See [`docs/evaluation.md`](docs/evaluation.md) for profiles, evidence, and gates.
+-
+-## Outputs
+-
+-- [`docs/onboarding.md`](docs/onboarding.md) and [`docs/migration.md`](docs/migration.md): add
+-  selected skills to new or existing repositories.
+-- [`catalog/catalog.md`](catalog/catalog.md): source and skill catalog in Markdown.
+-- [`catalog/catalog.json`](catalog/catalog.json): source and skill catalog in JSON.
+-- [`catalog/tokens.json`](catalog/tokens.json): per-file and per-skill token totals.
+-- `skills/*/references/source.json`: source URL, commit, input hashes, converter mode, and
+-  license evidence.
+-- [`reports/generator-comparison.md`](reports/generator-comparison.md): generator and plugin
+-  comparison used to choose the pipeline.
+-- [`reports/v0.1-plan-review.md`](reports/v0.1-plan-review.md): original goals, current status,
+-  deletions, and follow-up work.
+-- [`evals/cases.yaml`](evals/cases.yaml): prompts and scoring rules for client evaluations.
+-- [`docs/architecture.md`](docs/architecture.md): generation flow and output boundaries.
+-- [`docs/agent-skills-research.md`](docs/agent-skills-research.md): format, installer, and creator
+-  findings.
+-
+-Version 0.1 leaves most source prose inline. The Go guide and multi-file collections keep source
+-text in `references/`. Validation warns when a main skill file exceeds the context recommendations.
+-Use routing and quality results before moving another guide.
+-
+-Version 0.1 does not bundle upstream images or rewrite relative links. Use the repository and
+-revision in each `source.json` to view missing diagrams or follow those links.
+-
+-The catalog lists four sources that the generator does not build: R style, Developer
+-Documentation Style, Technical Writing, and a Google Cloud product-management article. Their
+-snapshot or license work is unfinished.
+-
+-## Licensing and attribution
+-
+-The generator code, skill metadata, and navigation it adds are Apache-2.0. Source material stays
+-under the license recorded in each skill's `references/LICENSE.txt` and
+-`references/source.json`; the project license does not replace those terms. See
+-[`docs/licensing.md`](docs/licensing.md) for the policy.
+-
+-Public generated skills are written to `skills/`. SWE-book skills are written to the ignored
+-`.generated/skills/` tree because the selected book chapters carry CC BY-NC-ND 4.0 notices. Their
+-installer requires license acceptance and uses links rather than publishing those generated
+-files. Do not commit or redistribute them.
+-
+-Google, Abseil, and related marks belong to their owners. This independent project is not
+-affiliated with or endorsed by Google.
+-
+-## Development
+-
+-[`AGENTS.md`](AGENTS.md) is the source of truth for skill routing and review.
++Public skills can be copied into the project. SWE-book skills remain links to this checkout and
++must stay out of version control. Use `--dry-run` to inspect either installation type before making
++changes. Project installation of public skills requires Node.js/npm.
+
+-```bash
+-uv run ruff format --check src tests
+-uv run ruff check .
+-uv run pytest --cov=google_guide_skills --cov-report=term-missing
+-uv run google-guides all
+-git diff --exit-code -- skills catalog
+-```
++See [new-repository onboarding](docs/onboarding.md) for skill selection and `AGENTS.md` routing, or
++[existing-repository migration](docs/migration.md) for a staged adoption.
++
++## What is included
++
++The catalog covers Google style guides, engineering-practice guides, selected Abseil material,
++and eight Software Engineering at Google skills. Each generated skill records its exact source
++revision, input hashes, conversion method, and applicable license.
+
+-Maintainers run `uv run google-guides all --include-swe-book` as a local release check.
+-Hosted CI uses synthetic restricted-source fixtures and never materializes the real SWE-book
+-derivatives.
++The project does not bundle upstream images, and some cataloged sources remain metadata-only until
++their licensing and snapshot requirements are resolved. See the [licensing policy](docs/licensing.md)
++for the distribution boundaries and [architecture](docs/architecture.md) for how generation works.
+
+-Contributions should update `corpus.yaml`, tests, generated outputs, and license evidence in one
+-change. Never add a source whose distribution rights are unclear.
++The generator code and project-authored metadata are Apache-2.0. Converted source material keeps
++its original license. Google, Abseil, and related marks belong to their owners; this independent
++project is not affiliated with or endorsed by Google.
+
+-Run the project from a source checkout. Python build metadata supports local tools and CI smoke
+-tests. The project is marked `Private :: Do Not Upload`; wheels exclude generated guide trees and
+-do not contain an initialized corpus.
++Maintainer commands, generation rules, tests, and release checks are in the
++[maintainer guide](docs/maintenance.md). Evaluation setup and results are documented separately in
++[evaluation](docs/evaluation.md).
+diff --git a/docs/agent-skills-research.md b/docs/agent-skills-research.md
+index d9f20b4..adf9013 100644
+--- a/docs/agent-skills-research.md
++++ b/docs/agent-skills-research.md
+@@ -58,9 +58,10 @@ installs selected skills, and can symlink or copy them. `google-guides install`
+ the generated folders do not depend on it.
+
+ SWE-book output cannot be published through an npm or GitHub source. The source-checkout CLI
+-supports `google-guides install --include-swe-book`, requires license acceptance, and links Codex
+-or Claude skill directories to the ignored output root. User installation is the default; an
+-explicit project path creates project-scoped links without copying the generated bytes.
++includes SWE-book skills in the normal full-pack install, requires license acceptance only when
++they are selected, and links Codex or Claude skill directories to the ignored output root. User
++installation is the default; an explicit project path creates project-scoped links without copying
++the generated bytes.
+
+ ## Generator decision
+
+diff --git a/docs/architecture.md b/docs/architecture.md
+index 7ec399d..71c1bcb 100644
+--- a/docs/architecture.md
++++ b/docs/architecture.md
+@@ -44,9 +44,10 @@ CC-BY-NC-ND-4.0 override backed by a notice check across every chapter file.
+ - A build fails when license evidence is missing.
+ - Validation rejects local-only provenance inside the committed root and checks that
+   `.generated/` is ignored and contains no tracked files, including force-added files.
+-- SWE-book installation requires license acceptance and links agent directories back to
+-  `.generated/skills/`. User installation is recommended; an explicit project install uses the
+-  same checked links. Copy mode applies only to public skills.
++- The normal full-pack install includes SWE-book skills. License acceptance is required only when
++  they are selected, and agent directories link back to `.generated/skills/`. User installation
++  is recommended; an explicit project install uses the same checked links. Copy mode applies only
++  to public skills.
+
+ ## Skill layout
+
+diff --git a/docs/licensing.md b/docs/licensing.md
+index f4164e1..ea68595 100644
+--- a/docs/licensing.md
++++ b/docs/licensing.md
+@@ -39,9 +39,10 @@ Generating files does not change their license. Mechanical conversion, local gen
+ ignored directory do not make adapted material redistributable or commercially usable. The
+ SWE-book recipe is for noncommercial local use. Do not share its output.
+
+-`google-guides install --include-swe-book` shows this license and requires acceptance before it
+-generates or installs the book skills. For noninteractive runs, `--accept-swe-book-license`
+-provides that acceptance. The recommended per-user install links from each agent home to
++`google-guides install` includes the book skills in its default full-pack selection. It shows this
++license and requires acceptance only when the default or an explicit `--skill` selection contains
++book skills. For noninteractive runs, `--accept-swe-book-license` provides that acceptance. The
++recommended per-user install links from each agent home to
+ `.generated/skills/`. An explicit `--project` install creates the same links under the
+ repository's agent directories. `--copy` applies only to public skills. Keep project links out of
+ version control and do not publish the generated files.
+diff --git a/docs/maintenance.md b/docs/maintenance.md
+new file mode 100644
+index 0000000..fc5d466
+--- /dev/null
++++ b/docs/maintenance.md
+@@ -0,0 +1,48 @@
++# Maintain the generated skill pack
++
++This guide contains repository mechanics that users do not need to install the skills.
++
++## Environment and generation
++
++The package and unit tests support Python 3.11+. Byte-for-byte generation uses Python 3.13.7 as
++pinned in `.python-version` and `corpus.yaml`; `uv` provisions it.
++
++```bash
++uv sync --all-groups
++uv run google-guides all
++```
++
++`all` syncs pinned sources, builds public skills, regenerates the catalog and token report, and
++validates the result. Run `uv run google-guides all --include-swe-book` for the local-only
++SWE-book release check. Hosted CI uses synthetic restricted-source fixtures and does not generate
++the book derivatives.
++
++Other maintenance commands are:
++
++```text
++google-guides sync                         clone and checkout pinned repositories
++google-guides build [--collection ID]     build selected redistributable skills
++google-guides build --include-swe-book     also build SWE-book skills locally
++google-guides catalog                      regenerate catalog files
++google-guides metrics [--include-swe-book] measure generated text
++google-guides validate [--include-swe-book] validate output and license boundaries
++google-guides eval triggers                plan skill-selection tests
++google-guides eval quality                 plan comparative answer tests
++```
++
++## Checks
++
++```bash
++uv run ruff format --check src tests
++uv run ruff check .
++uv run pytest --cov=google_guide_skills --cov-report=term-missing
++uv run google-guides all
++git diff --exit-code -- skills catalog
++```
++
++Change `corpus.yaml` or the generator rather than hand-editing generated prose. Keep source changes,
++tests, generated outputs, and license evidence together. Do not add a source whose distribution
++rights are unclear, commit `.generated/skills/`, or redistribute local-only output.
++
++The package is intended to run from a source checkout. Build metadata marks it private, and wheels
++exclude generated guide trees and do not contain an initialized corpus.
+diff --git a/docs/migration.md b/docs/migration.md
+index 760f015..31435d0 100644
+--- a/docs/migration.md
++++ b/docs/migration.md
+@@ -22,9 +22,9 @@ uv run google-guides install \
+ ```
+
+ Add `--project /path/to/existing-repository --copy` when the repository should contain the public
+-skills. Add `--include-swe-book` when the pilot needs the Software Engineering at Google guides;
+-the installer asks for license acceptance. Project SWE-book installs are links to this checkout
+-and should remain untracked.
++skills. Select Software Engineering at Google guides by name when the pilot needs them; no include
++flag is required, and the installer asks for license acceptance only for such a selection. Project
++SWE-book installs are links to this checkout and should remain untracked.
+
+ ## 3. Add one routing section
+
+diff --git a/docs/onboarding.md b/docs/onboarding.md
+index fa6b169..2c1d10e 100644
+--- a/docs/onboarding.md
++++ b/docs/onboarding.md
+@@ -33,9 +33,10 @@ uv run google-guides install \
+ Add `--project /path/to/new-repository --copy` when the repository should contain the public
+ skills. Select only the agents the repository supports. Use `--dry-run` to inspect the install.
+
+-Add `--include-swe-book` to install the Software Engineering at Google skills. The installer asks
+-you to accept their CC BY-NC-ND 4.0 license before it generates them. A project install links those
+-skills back to this checkout; keep the links out of version control.
++Software Engineering at Google skills use the same `--skill` selection as public skills; no
++separate include flag is needed. The installer asks for CC BY-NC-ND 4.0 acceptance only when the
++selection contains one of those skills. A project install links them back to this checkout; keep
++the links out of version control.
+
+ ## 3. Route work in `AGENTS.md`
+
+diff --git a/src/google_guide_skills/cli.py b/src/google_guide_skills/cli.py
+index 9180489..c621709 100644
+--- a/src/google_guide_skills/cli.py
++++ b/src/google_guide_skills/cli.py
+@@ -74,11 +74,6 @@ def _parser() -> argparse.ArgumentParser:
+     install_parser.add_argument("--agent", action="append", choices=DEFAULT_AGENTS)
+     install_parser.add_argument("--skill", action="append", dest="skills")
+     install_parser.add_argument("--copy", action="store_true")
+-    install_parser.add_argument(
+-        "--include-swe-book",
+-        action="store_true",
+-        help="Generate and link the Software Engineering at Google skills",
+-    )
+     install_parser.add_argument(
+         "--accept-swe-book-license",
+         action="store_true",
+@@ -226,11 +221,7 @@ def _print_link_actions(actions: list[InstallLinkAction]) -> None:
+
+ def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
+     agents = args.agent or list(DEFAULT_AGENTS)
+-    committed_skills, local_skills = selected_install_skills(
+-        manifest,
+-        args.skills,
+-        include_local=args.include_swe_book,
+-    )
++    committed_skills, local_skills = selected_install_skills(manifest, args.skills)
+     project = args.project
+     if project is not None and not project.is_dir():
+         raise GoogleGuideSkillsError(f"Install project does not exist: {project}")
+diff --git a/src/google_guide_skills/installer.py b/src/google_guide_skills/installer.py
+index 929a29b..ef5c7de 100644
+--- a/src/google_guide_skills/installer.py
++++ b/src/google_guide_skills/installer.py
+@@ -111,26 +111,16 @@ def _install_skill_root(
+ def selected_install_skills(
+     manifest: Manifest,
+     skills: list[str] | None,
+-    *,
+-    include_local: bool,
+ ) -> tuple[list[str], list[str]]:
+     """Return selected committed and local-only skill names."""
+     distributions = {
+         artifact.name: collection.distribution
+         for collection, artifact in manifest.artifacts(include_local=True)
+     }
+-    eligible = {name for name, distribution in distributions.items() if distribution == "committed"}
+-    if include_local:
+-        eligible.update(distributions)
+-    requested = set(skills) if skills is not None else eligible
++    requested = set(skills) if skills is not None else set(distributions)
+     unknown = sorted(requested - set(distributions))
+     if unknown:
+         raise GoogleGuideSkillsError("Unknown skills: " + ", ".join(unknown))
+-    blocked = sorted(requested - eligible)
+-    if blocked:
+-        raise GoogleGuideSkillsError(
+-            "SWE-book skills require --include-swe-book: " + ", ".join(blocked)
+-        )
+     committed = sorted(name for name in requested if distributions[name] == "committed")
+     local = sorted(name for name in requested if distributions[name] == "local-only")
+     return committed, local
+diff --git a/tests/test_cli.py b/tests/test_cli.py
+index fed285f..414563e 100644
+--- a/tests/test_cli.py
++++ b/tests/test_cli.py
+@@ -122,13 +122,27 @@ def test_install_uses_default_agents_for_project_install(
+
+     monkeypatch.setattr(cli, "install", fake_install)
+     monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
+-    assert cli.main(["install", "--project", str(tmp_path), "--dry-run"]) == 0
++    assert (
++        cli.main(
++            [
++                "install",
++                "--project",
++                str(tmp_path),
++                "--skill",
++                "public-guide",
++                "--dry-run",
++            ]
++        )
++        == 0
++    )
+     assert captured["manifest"] is fake_manifest
+     assert captured["agents"] == ["codex", "claude-code"]
+     assert captured["skills"] == ["public-guide"]
+     assert captured["copy"] is False
+     assert captured["dry_run"] is True
+-    assert "skills@1.5.23" in capsys.readouterr().out
++    output = capsys.readouterr().out
++    assert "skills@1.5.23" in output
++    assert "license acceptance" not in output
+
+
+ def test_user_install_routes_swe_book_skills_to_links(
+@@ -171,7 +185,6 @@ def test_user_install_routes_swe_book_skills_to_links(
+         cli.main(
+             [
+                 "install",
+-                "--include-swe-book",
+                 "--agent",
+                 "codex",
+                 "--dry-run",
+@@ -218,7 +231,6 @@ def test_project_install_rejects_missing_target_before_generation(
+                 "install",
+                 "--project",
+                 str(tmp_path / "missing"),
+-                "--include-swe-book",
+                 "--accept-swe-book-license",
+             ]
+         )
+@@ -269,7 +281,6 @@ def test_project_install_routes_swe_book_skills_to_links(
+                 "install",
+                 "--project",
+                 str(tmp_path),
+-                "--include-swe-book",
+                 "--copy",
+                 "--dry-run",
+             ]
+@@ -313,7 +324,6 @@ def test_swe_book_install_generates_before_linking(
+         cli.main(
+             [
+                 "install",
+-                "--include-swe-book",
+                 "--accept-swe-book-license",
+                 "--agent",
+                 "codex",
+@@ -382,7 +392,6 @@ def test_selected_swe_book_install_builds_collection_and_links_selection(
+         cli.main(
+             [
+                 "install",
+-                "--include-swe-book",
+                 "--accept-swe-book-license",
+                 "--skill",
+                 "restricted-guide",
+@@ -407,18 +416,22 @@ def test_swe_book_install_requires_license_acceptance_before_building(
+         lambda *_args, **_kwargs: pytest.fail("build must follow license acceptance"),
+     )
+
+-    assert cli.main(["install", "--include-swe-book", "--agent", "codex"]) == 2
++    assert cli.main(["install", "--agent", "codex"]) == 2
+     error = capsys.readouterr().err
+     assert "requires license acceptance" in error
+     assert "--accept-swe-book-license" in error
+
+
+-def test_swe_book_skill_selection_requires_include_flag(
++def test_swe_book_skill_selection_needs_no_include_flag(
+     fake_manifest: SimpleNamespace,
++    monkeypatch: pytest.MonkeyPatch,
+     capsys: pytest.CaptureFixture[str],
+ ) -> None:
+-    assert cli.main(["install", "--skill", "restricted-guide", "--dry-run"]) == 2
+-    assert "require --include-swe-book" in capsys.readouterr().err
++    monkeypatch.setattr(cli, "validate", lambda _manifest, include_local=False: [])
++    monkeypatch.setattr(cli, "install_links", lambda *_args, **_kwargs: [])
++
++    assert cli.main(["install", "--skill", "restricted-guide", "--dry-run"]) == 0
++    assert "license acceptance required" in capsys.readouterr().out
+
+
+ def test_sync_catalog_metrics_and_handled_manifest_failure(

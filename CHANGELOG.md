@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0.0] - 2026-08-25
+
+### Changed
+
+- The normal install flow now offers the SWE-book skills and handles license acceptance without a
+  separate `--include-swe-book` option.
+- The README now focuses on what the skills improve, installation, and repository use.
+- Public guides are now reviewed, self-contained recipes instead of large converted documents or
+  vague routers over reference files.
+- The SWE-book material is now eight task-based skills built from selected source passages:
+  teamwork and leadership, developer productivity, engineering standards, code-review systems,
+  testing, change management, builds/dependencies/CI, and compute platforms.
+- Generated source records now identify the exact headings and paragraph blocks selected from
+  each SWE-book chapter.
+
+### Removed
+
+- The SWE-book front matter, standalone SWE documentation skill, historical AngularJS and JSON
+  style skills, and the Abseil guide, design-note, C++ tip, performance-tip, and Python bundles.
+  They were obsolete, duplicated another skill, or lacked a clear recurring task.
+
 ## [0.1.0.0] - 2026-08-24
 
 ### Added

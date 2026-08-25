@@ -16,6 +16,7 @@ from .models import (
     LicenseInfo,
     Manifest,
     Repository,
+    SourceExcerpt,
     SourcePathPolicy,
     SupplementalLicense,
     require_mapping,
@@ -25,7 +26,6 @@ from .strict_yaml import strict_safe_load
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
 ALLOWED_DISTRIBUTIONS = {"committed", "local-only"}
-ALLOWED_LAYOUTS = {"inline", "references"}
 REQUIRED_GENERATED_ROOTS = {"committed": "skills", "local_only": ".generated/skills"}
 REQUIRED_CANONICAL_PATH_POLICIES = {
     "abseil/abseil.github.io": {("resources/swe-book/html/**", "local-only")},
@@ -215,9 +215,6 @@ def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
     description = _text(item, "description", context)
     if len(description) > 1024:
         raise ManifestError(f"{context}.description exceeds 1024 characters")
-    layout = _text(item, "layout", context)
-    if layout not in ALLOWED_LAYOUTS:
-        raise ManifestError(f"{context}.layout must be one of {ALLOWED_LAYOUTS}")
     inputs_raw = item.get("inputs")
     if not isinstance(inputs_raw, list) or not inputs_raw:
         raise ManifestError(f"{context}.inputs must be a non-empty list")
@@ -229,13 +226,48 @@ def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
     supplemental_raw = item.get("supplemental_licenses", [])
     if not isinstance(supplemental_raw, list):
         raise ManifestError(f"{context}.supplemental_licenses must be a list")
+    inputs = tuple(_safe_relative(str(value), f"{context}.inputs") for value in inputs_raw)
+    recipe = _optional_text(item.get("recipe"))
+    excerpts_raw = item.get("excerpts", [])
+    if not isinstance(excerpts_raw, list):
+        raise ManifestError(f"{context}.excerpts must be a list")
+    excerpts: list[SourceExcerpt] = []
+    seen_excerpts: set[tuple[str, str]] = set()
+    for index, candidate in enumerate(excerpts_raw):
+        excerpt_context = f"{context}.excerpts[{index}]"
+        excerpt = require_mapping(candidate, excerpt_context)
+        input_path = _safe_relative(_text(excerpt, "input", excerpt_context), excerpt_context)
+        if input_path not in inputs:
+            raise ManifestError(f"{excerpt_context}.input must name one of the artifact inputs")
+        heading = _text(excerpt, "heading", excerpt_context)
+        blocks_raw = excerpt.get("blocks")
+        valid_blocks = (
+            isinstance(blocks_raw, list)
+            and bool(blocks_raw)
+            and all(
+                isinstance(value, int) and not isinstance(value, bool) and value >= 0
+                for value in blocks_raw
+            )
+            and len(set(blocks_raw)) == len(blocks_raw)
+            and blocks_raw == sorted(blocks_raw)
+        )
+        if not valid_blocks:
+            raise ManifestError(
+                f"{excerpt_context}.blocks must be strictly increasing nonnegative integers"
+            )
+        key = (input_path, heading)
+        if key in seen_excerpts:
+            raise ManifestError(f"{excerpt_context} duplicates an input and heading selector")
+        seen_excerpts.add(key)
+        excerpts.append(SourceExcerpt(input=input_path, heading=heading, blocks=tuple(blocks_raw)))
     return Artifact(
         name=name,
         title=_text(item, "title", context),
         description=description,
         tags=tuple(tags_raw),
-        layout=layout,
-        inputs=tuple(_safe_relative(str(value), f"{context}.inputs") for value in inputs_raw),
+        inputs=inputs,
+        recipe=_safe_relative(recipe, f"{context}.recipe") if recipe else None,
+        excerpts=tuple(excerpts),
         license_note=_optional_text(item.get("license_note")),
         supplemental_licenses=tuple(
             _supplemental_license(
@@ -270,6 +302,39 @@ def _collection(
         _artifact(candidate, f"{context}.artifacts[{index}]", seen_names)
         for index, candidate in enumerate(artifacts_raw)
     )
+    missing_recipes = [artifact.name for artifact in artifacts if artifact.recipe is None]
+    unexpected_recipes = [artifact.name for artifact in artifacts if artifact.recipe is not None]
+    missing_excerpts = [artifact.name for artifact in artifacts if not artifact.excerpts]
+    unexpected_excerpts = [artifact.name for artifact in artifacts if artifact.excerpts]
+    incomplete_excerpts = [
+        artifact.name
+        for artifact in artifacts
+        if artifact.excerpts
+        and {excerpt.input for excerpt in artifact.excerpts} != set(artifact.inputs)
+    ]
+    if distribution == "committed" and missing_recipes:
+        raise ManifestError(
+            f"{context} committed artifacts require recipes: {', '.join(missing_recipes)}"
+        )
+    if distribution == "local-only" and unexpected_recipes:
+        raise ManifestError(
+            f"{context} local-only artifacts must be generated from source excerpts: "
+            f"{', '.join(unexpected_recipes)}"
+        )
+    if distribution == "committed" and unexpected_excerpts:
+        raise ManifestError(
+            f"{context} committed artifacts must not declare source excerpts: "
+            f"{', '.join(unexpected_excerpts)}"
+        )
+    if distribution == "local-only" and missing_excerpts:
+        raise ManifestError(
+            f"{context} local-only artifacts require source excerpts: {', '.join(missing_excerpts)}"
+        )
+    if distribution == "local-only" and incomplete_excerpts:
+        raise ManifestError(
+            f"{context} local-only artifacts must select from every input: "
+            f"{', '.join(incomplete_excerpts)}"
+        )
     override = item.get("license_override")
     if distribution == "local-only" and override is None:
         raise ManifestError(f"{context} is local-only but has no explicit license_override")

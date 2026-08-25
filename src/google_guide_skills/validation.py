@@ -1,4 +1,4 @@
-"""Validate skill structure, references, provenance, and distribution policy."""
+"""Validate skill structure, provenance, size, and distribution policy."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import tiktoken
 import yaml
 
 from . import __version__
+from .errors import GoogleGuideSkillsError
 from .git_safe import command as git_command
 from .git_safe import environment as git_environment
 from .metrics import (
@@ -20,6 +21,7 @@ from .metrics import (
     metadata_budget,
 )
 from .models import Artifact, Collection, Manifest, ValidationIssue
+from .path_policy import require_safe_project_path
 from .project_license import (
     PROJECT_LICENSE_SHA256,
     WRAPPER_LICENSE_FILENAME,
@@ -64,10 +66,6 @@ def _validate_links(markdown_path: Path, project_root: Path) -> list[ValidationI
     for target in LINK_RE.findall(text):
         target = target.split("#", 1)[0]
         if not target or "://" in target or target.startswith(("mailto:", "#")):
-            continue
-        if not target.startswith("references/"):
-            # Links inside the mechanically preserved source body retain upstream-relative
-            # semantics. Only links authored by this generator are structural invariants.
             continue
         resolved = (markdown_path.parent / target).resolve()
         if not resolved.is_relative_to(project_root.resolve()):
@@ -180,19 +178,19 @@ def _skill_size_issues(
     if line_count > 500:
         issues.append(
             _issue(
-                "warning",
+                "error",
                 skill_path,
                 project_root,
-                f"Baseline skill has {line_count} lines; Agent Skills recommends under 500",
+                f"Skill has {line_count} lines; this pack requires at most 500",
             )
         )
     if token_count > 5000:
         issues.append(
             _issue(
-                "warning",
+                "error",
                 skill_path,
                 project_root,
-                f"Baseline skill has {token_count} tokens; progressive disclosure is advised",
+                f"Skill has {token_count} tokens; this pack requires at most 5000",
             )
         )
     return issues
@@ -207,6 +205,16 @@ def _skill_content_issues(
     issues = _frontmatter_issues(skill_dir, project_root)
     issues.extend(_skill_size_issues(skill_path, project_root, encoding))
     issues.extend(_validate_links(skill_path, project_root))
+    references = skill_dir / "references"
+    if references.exists():
+        issues.append(
+            _issue(
+                "error",
+                references,
+                project_root,
+                "Generated skills must be self-contained; references are not allowed",
+            )
+        )
     return issues
 
 
@@ -215,6 +223,7 @@ def _artifact_provenance_checks(
     provenance: dict[str, object],
     expected_collection: Collection,
     artifact: Artifact,
+    expected_recipe: dict[str, str] | None,
 ) -> tuple[tuple[bool, str], ...]:
     repository = manifest.repositories[expected_collection.repository]
     return (
@@ -239,6 +248,19 @@ def _artifact_provenance_checks(
             provenance.get("supplemental_licenses", [])
             == [supplemental.to_dict() for supplemental in artifact.supplemental_licenses],
             "Supplemental license provenance does not match corpus.yaml",
+        ),
+        (
+            provenance.get("recipe") == expected_recipe,
+            "Recipe provenance does not match corpus.yaml",
+        ),
+        (
+            provenance.get("excerpts", []) == [excerpt.to_dict() for excerpt in artifact.excerpts],
+            "Excerpt provenance does not match corpus.yaml",
+        ),
+        (
+            provenance.get("rendering")
+            == ("curated" if expected_recipe is not None else "source-excerpts"),
+            "Rendering provenance does not match corpus.yaml",
         ),
         (
             provenance.get("license_note") == artifact.license_note,
@@ -268,7 +290,7 @@ def _artifact_license_file_issues(
 ) -> list[ValidationIssue]:
     root = manifest.project_root
     issues: list[ValidationIssue] = []
-    wrapper_path = skill_dir / "references" / WRAPPER_LICENSE_FILENAME
+    wrapper_path = skill_dir / WRAPPER_LICENSE_FILENAME
     if (
         wrapper_path.is_symlink()
         or not wrapper_path.is_file()
@@ -283,7 +305,7 @@ def _artifact_license_file_issues(
             )
         )
     for supplemental in artifact.supplemental_licenses:
-        path = skill_dir / "references" / f"LICENSE-{supplemental.spdx}.txt"
+        path = skill_dir / f"LICENSE-{supplemental.spdx}.txt"
         if (
             path.is_symlink()
             or not path.is_file()
@@ -303,11 +325,43 @@ def _artifact_provenance_issues(
     artifact: Artifact,
 ) -> list[ValidationIssue]:
     root = manifest.project_root
-    provenance_path = skill_dir / "references" / "source.json"
-    checks = _artifact_provenance_checks(manifest, provenance, expected_collection, artifact)
+    provenance_path = skill_dir / "source.json"
+    expected_recipe: dict[str, str] | None = None
+    recipe_issues: list[ValidationIssue] = []
+    if artifact.recipe is not None:
+        try:
+            recipe_path = require_safe_project_path(
+                manifest.project_root,
+                manifest.project_root / artifact.recipe,
+                context="Skill recipe",
+                error_type=GoogleGuideSkillsError,
+            )
+        except GoogleGuideSkillsError:
+            recipe_path = manifest.project_root / artifact.recipe
+            recipe_issues.append(
+                _issue("error", recipe_path, root, "Skill recipe is missing or unsafe")
+            )
+        else:
+            if recipe_path.is_symlink() or not recipe_path.is_file():
+                recipe_issues.append(
+                    _issue("error", recipe_path, root, "Skill recipe is missing or unsafe")
+                )
+            else:
+                expected_recipe = {
+                    "path": artifact.recipe,
+                    "sha256": sha256(recipe_path.read_bytes()).hexdigest(),
+                }
+    checks = _artifact_provenance_checks(
+        manifest,
+        provenance,
+        expected_collection,
+        artifact,
+        expected_recipe,
+    )
     issues = [
         _issue("error", provenance_path, root, message) for passed, message in checks if not passed
     ]
+    issues.extend(recipe_issues)
     if not _runtime_is_current(manifest, provenance):
         issues.append(
             _issue(
@@ -408,8 +462,8 @@ def _provenance_issues(
     owner: tuple[Collection, Artifact] | None,
 ) -> list[ValidationIssue]:
     root = manifest.project_root
-    provenance_path = skill_dir / "references" / "source.json"
-    license_path = skill_dir / "references" / "LICENSE.txt"
+    provenance_path = skill_dir / "source.json"
+    license_path = skill_dir / "LICENSE.txt"
     issues = _provenance_file_issues(provenance_path, license_path, root)
     if provenance_path.is_symlink() or not provenance_path.is_file():
         return issues

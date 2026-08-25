@@ -24,9 +24,6 @@ smoke:
       - 'fields are [`*]*private'
       - 'private static fields.{0,40}s_'
       - 'public fields are only acceptable'
-  - id: smoke-angularjs-style
-    prompt: An AngularJS 1.x controller injects $scope and $http directly, and its directive has no tests. Review its module registration, minification-safe dependency injection, directive structure, and test setup under Google's guide.
-    expected: [google-angularjs-style]
   - id: smoke-documentation-guide
     prompt: Plan a maintainable README for a developer tool using Google's documentation philosophy and practices.
     expected: [google-documentation-guide]
@@ -47,9 +44,6 @@ smoke:
   - id: smoke-javascript-style
     prompt: Under Google's JavaScript guide, what rules apply to modules, naming, JSDoc, and language features?
     expected: [google-javascript-style]
-  - id: smoke-json-style
-    prompt: Design a JSON API response using Google's property naming, date, collection, and error conventions.
-    expected: [google-json-style]
   - id: smoke-common-lisp-style
     prompt: Under Google's Common Lisp guide, what rules apply to naming, macros, documentation, and error handling?
     expected: [google-common-lisp-style]
@@ -80,54 +74,35 @@ smoke:
   - id: smoke-review-reviewer
     prompt: Review a teammate's change using Google's review standard, inspection order, comment style, and speed guidance.
     expected: [google-code-review-reviewer]
-  - id: smoke-abseil-cpp-guides
-    prompt: Show the appropriate Abseil C++ APIs for returning errors, representing time, and manipulating strings.
-    expected: [abseil-cpp-guides]
-  - id: smoke-abseil-design-notes
-    prompt: Evaluate the Swiss-table and B-tree tradeoffs discussed in Abseil's C++ design notes.
-    expected: [abseil-cpp-design-notes]
-  - id: smoke-abseil-python-guides
-    prompt: Build a Python command-line app with absl.app, absl.flags, logging, and absl.testing.
-    expected: [abseil-python-guides]
-  - id: smoke-abseil-cpp-tips
-    prompt: Find the relevant Abseil C++ Tip of the Week for ownership and parameter-passing tradeoffs.
-    expected: [abseil-cpp-tips]
-  - id: smoke-abseil-performance
-    prompt: Use Abseil FAST guidance to review a proposed C++ optimization while insisting on measurement.
-    expected: [abseil-performance-tips]
-
 # Local-only routing controls. These contain prompts and identifiers, not converted book text.
-# They can be planned with --include-swe-book. Live client runs are blocked to keep derived text
-# local.
 local_smoke:
-  - id: local-smoke-culture-leadership
-    prompt: Use the locally generated Software Engineering at Google material to discuss engineering culture, knowledge sharing, leadership, and productivity.
-    expected: [google-swe-culture-and-leadership]
-  - id: local-smoke-style-readability
-    prompt: Use the local book skill for organization-wide style rules, consistency, and readability practices.
-    expected: [google-swe-style-and-readability]
-  - id: local-smoke-code-review
-    prompt: Use the local Software Engineering at Google chapters about code-review policy, process, and tooling.
-    expected: [google-swe-code-review]
-  - id: local-smoke-documentation
-    prompt: Use the local book chapters about documentation systems and knowledge management in a large engineering organization.
-    expected: [google-swe-documentation]
+  - id: local-smoke-teamwork-leadership
+    prompt: Help a team improve psychological safety, feedback, blameless postmortems, knowledge sharing, and leadership decisions.
+    expected: [google-swe-teamwork-and-leadership]
+  - id: local-smoke-developer-productivity
+    prompt: Define useful developer-productivity goals and metrics, then explain what a code-search tool should help engineers discover.
+    expected: [google-swe-developer-productivity]
+  - id: local-smoke-engineering-standards
+    prompt: Design organization-wide readability rules, automated formatters, linters, and static-analysis feedback loops.
+    expected: [google-swe-engineering-standards]
+  - id: local-smoke-code-review-systems
+    prompt: Design a code-review policy and tool workflow that balances correctness, comprehension, trust, automation, and review latency.
+    expected: [google-swe-code-review-systems]
   - id: local-smoke-testing
-    prompt: Use the local Software Engineering at Google testing chapters for unit, integration, and large-scale test strategy.
+    prompt: Design a test strategy covering test size and scope, maintainable unit tests, test doubles, configuration gaps, and larger tests.
     expected: [google-swe-testing]
-  - id: local-smoke-maintenance-delivery
-    prompt: Use the local book guidance for deprecation, migration, dependency management, and continuous delivery.
-    expected: [google-swe-maintenance-and-delivery]
-  - id: local-smoke-infrastructure
-    prompt: Use the local book chapters about build systems, code search, static analysis, and engineering infrastructure.
-    expected: [google-swe-infrastructure]
-  - id: local-smoke-front-matter
-    prompt: Consult the locally generated Software Engineering at Google front matter, preface, conclusion, and afterword.
-    expected: [google-swe-book-front-matter]
-
-# Four contrasting skill shapes: inline language guide, role-specific workflow, documentation,
-# and a large reference collection. Each has 10 realistic positives and 10 near-miss negatives,
-# split 60/40 for description tuning versus held-out validation.
+  - id: local-smoke-change-management
+    prompt: Plan a compulsory deprecation and large migration with owners, milestones, automated changes, feature flags, staged rollout, and rollback.
+    expected: [google-swe-change-management]
+  - id: local-smoke-builds-dependencies-ci
+    prompt: Design a hermetic build, dependency, branching, presubmit, post-submit, and CI failure-management policy.
+    expected: [google-swe-builds-dependencies-and-ci]
+  - id: local-smoke-compute-platforms
+    prompt: Choose a compute platform by evaluating failure handling, state, service discovery, containers, serverless tradeoffs, and cloud lock-in.
+    expected: [google-swe-compute-platforms]
+# Three contrasting skill jobs: language style, role-specific review, and documentation. Each has
+# 10 realistic positives and 10 near-miss negatives, split 60/40 for description tuning versus
+# held-out validation.
 representative:
   - skill: google-python-style
     positive:
@@ -329,70 +304,3 @@ representative:
       - id: docs-neg-10
         split: validation
         prompt: Plan user interviews for a consumer mobile app.
-
-  - skill: abseil-cpp-tips
-    positive:
-      - id: cpp-tips-pos-01
-        split: train
-        prompt: Find the Abseil C++ Tip of the Week relevant to choosing value, pointer, or reference parameters.
-        rubric:
-          - ['Tip', 'TotW']
-          - ['ownership', 'parameter']
-      - id: cpp-tips-pos-02
-        split: train
-        prompt: Use Abseil C++ tips to review ownership transfer with unique_ptr and shared_ptr.
-      - id: cpp-tips-pos-03
-        split: train
-        prompt: Which Abseil tip discusses string_view lifetime hazards in an API?
-      - id: cpp-tips-pos-04
-        split: train
-        prompt: Apply the relevant Abseil C++ tip to a range-based loop that copies expensive values.
-      - id: cpp-tips-pos-05
-        split: train
-        prompt: Search the Abseil tips for guidance on optional values and sentinel states.
-      - id: cpp-tips-pos-06
-        split: train
-        prompt: Use Abseil's C++ Tip of the Week guidance to evaluate a factory function's return type.
-      - id: cpp-tips-pos-07
-        split: validation
-        prompt: Find the advanced Abseil tip relevant to overloaded calls and brace initialization.
-      - id: cpp-tips-pos-08
-        split: validation
-        prompt: Apply an Abseil C++ tip to reduce hidden work caused by temporary objects.
-      - id: cpp-tips-pos-09
-        split: validation
-        prompt: Locate Abseil guidance about enum design, scoping, and safe conversions.
-      - id: cpp-tips-pos-10
-        split: validation
-        prompt: Use the closest Abseil C++ tip to reason about API readability and call-site clarity.
-    negative:
-      - id: cpp-tips-neg-01
-        split: train
-        prompt: Teach me the syntax of my first C++ hello-world program.
-      - id: cpp-tips-neg-02
-        split: train
-        prompt: Format this C++ header according to the Google C++ Style Guide.
-      - id: cpp-tips-neg-03
-        split: train
-        prompt: Diagnose a Linux kernel panic from this stack trace.
-      - id: cpp-tips-neg-04
-        split: train
-        prompt: Choose between Java and Kotlin for an Android application.
-      - id: cpp-tips-neg-05
-        split: train
-        prompt: Benchmark two database indexes and decide which is faster.
-      - id: cpp-tips-neg-06
-        split: train
-        prompt: Explain the C language preprocessor to a beginner.
-      - id: cpp-tips-neg-07
-        split: validation
-        prompt: Configure CMake to cross-compile for an ARM board.
-      - id: cpp-tips-neg-08
-        split: validation
-        prompt: Review a Python function for Google naming conventions.
-      - id: cpp-tips-neg-09
-        split: validation
-        prompt: Design a protobuf schema for an event stream.
-      - id: cpp-tips-neg-10
-        split: validation
-        prompt: Fix a linker error caused by a missing third-party library.

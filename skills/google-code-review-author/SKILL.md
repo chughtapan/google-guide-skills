@@ -5,642 +5,104 @@ description: >-
   responding to comments, or resolving review disagreement using Google's engineering practices.
   Do not use when acting only as the reviewer.
 ---
+
 # Google's Code Review Guide for Authors
-Apply the mechanically converted source guidance below when it is relevant to the task. Keep project-specific requirements and newer authoritative rules in force.
-The source prose is not summarized or editorially rewritten. HTML and XML inputs are converted mechanically to Markdown.
-## Source material
-### `review/developer/cl-descriptions.md`
-# Writing good CL descriptions
 
-
-
-A CL description is a public record of change, and it is important that it
-communicates:
-
-1.  **What** change is being made? This should summarize the major changes such
-    that readers have a sense of what is being changed without needing to read
-    the entire CL.
-
-1.  **Why** are these changes being made? What contexts did you have as an
-    author when making this change? Were there decisions you made that aren't
-    reflected in the source code? etc.
-
-The CL description will become a permanent part of our version control history
-and will possibly be read by hundreds of people over the years.
-
-Future developers will search for your CL based on its description. Someone in
-the future might be looking for your change because of a faint memory of its
-relevance but without the specifics handy. If all the important information is
-in the code and not the description, it's going to be a lot harder for them to
-locate your CL.
-
-And then, after they find the CL, will they be able to understand *why* the
-change was made? Reading source code may reveal what the software is doing but
-it may not reveal why it exists, which can make it harder for future developers
-to know whether they can move
-[Chesterton's fence](https://abseil.io/resources/swe-book/html/ch03.html#understand_context).
-
-A well-written CL description will help those future engineers -- sometimes,
-including yourself!
-
-## First Line {#first-line}
-
-<a id="firstline"></a> <!-- Keep previous permalink to avoid breaking old links. -->
-
-*   Short summary of what is being done.
-*   Complete sentence, written as though it was an order.
-*   Follow by empty line.
-
-The **first line** of a CL description should be a short summary of
-*specifically* **what** *is being done by the CL*, followed by a blank line.
-This is what appears in version control history summaries, so it should be
-informative enough that future code searchers don't have to read your CL or its
-whole description to understand what your CL actually *did* or how it differs
-from other CLs. That is, the first line should stand alone, allowing readers to
-skim through code history much faster.
-
-Try to keep your first line short, focused, and to the point. The clarity and
-utility to the reader should be the top concern.
-
-By tradition, the first line of a CL description is a complete sentence, written
-as though it were an order (an imperative sentence). For example, say
-\"**Delete** the FizzBuzz RPC and **replace** it with the new system." instead
-of \"**Deleting** the FizzBuzz RPC and **replacing** it with the new system."
-You don't have to write the rest of the description as an imperative sentence,
-though.
-
-## Body is Informative {#informative}
-
-The [first line](#first-line) should be a short, focused summary, while the rest
-of the description should fill in the details and include any supplemental
-information a reader needs to understand the changelist holistically. It might
-include a brief description of the problem that's being solved, and why this is
-the best approach. If there are any shortcomings to the approach, they should be
-mentioned. If relevant, include background information such as bug numbers,
-benchmark results, and links to design documents.
-
-If you include links to external resources consider that they may not be visible
-to future readers due to access restrictions or retention policies. Where
-possible include enough context for reviewers and future readers to understand
-the CL.
-
-Even small CLs deserve a little attention to detail. Put the CL in context.
-
-## Bad CL Descriptions {#bad}
-
-"Fix bug" is an inadequate CL description. What bug? What did you do to fix it?
-Other similarly bad descriptions include:
-
--   "Fix build."
--   "Add patch."
--   "Moving code from A to B."
--   "Phase 1."
--   "Add convenience functions."
--   "kill weird URLs."
-
-Some of those are real CL descriptions. Although short, they do not provide
-enough useful information.
-
-## Good CL Descriptions {#good}
-
-Here are some examples of good descriptions.
-
-### Functionality change {#functionality-change}
-
-Example:
-
-> RPC: Remove size limit on RPC server message freelist.
->
-> Servers like FizzBuzz have very large messages and would benefit from reuse.
-> Make the freelist larger, and add a goroutine that frees the freelist entries
-> slowly over time, so that idle servers eventually release all freelist
-> entries.
-
-The first few words describe what the CL actually does. The rest of the
-description talks about the problem being solved, why this is a good solution,
-and a bit more information about the specific implementation.
-
-### Refactoring {#refactoring}
-
-Example:
-
-> Construct a Task with a TimeKeeper to use its TimeStr and Now methods.
->
-> Add a Now method to Task, so the borglet() getter method can be removed (which
-> was only used by OOMCandidate to call borglet's Now method). This replaces the
-> methods on Borglet that delegate to a TimeKeeper.
->
-> Allowing Tasks to supply Now is a step toward eliminating the dependency on
-> Borglet. Eventually, collaborators that depend on getting Now from the Task
-> should be changed to use a TimeKeeper directly, but this has been an
-> accommodation to refactoring in small steps.
->
-> Continuing the long-range goal of refactoring the Borglet Hierarchy.
-
-The first line describes what the CL does and how this is a change from the
-past. The rest of the description talks about the specific implementation, the
-context of the CL, that the solution isn't ideal, and possible future direction.
-It also explains *why* this change is being made.
-
-### Small CL that needs some context
-
-Example:
-
-> Create a Python3 build rule for status.py.
->
-> This allows consumers who are already using this as in Python3 to depend on a
-> rule that is next to the original status build rule instead of somewhere in
-> their own tree. It encourages new consumers to use Python3 if they can,
-> instead of Python2, and significantly simplifies some automated build file
-> refactoring tools being worked on currently.
-
-The first sentence describes what's actually being done. The rest of the
-description explains *why* the change is being made and gives the reviewer a lot
-of context.
-
-## Using tags {#tags}
-
-Tags are manually entered labels that can be used to categorize CLs. These may
-be supported by tools or just used by team convention.
-
-For example:
-
--   "[tag]"
--   "[a longer tag]"
--   "#tag"
--   "tag:"
-
-Using tags is optional.
-
-When adding tags, consider whether they should be in the [body](#informative) of
-the CL description or the [first line](#first-line). Limit the usage of tags in
-the first line, as this can obscure the content.
-
-Examples with and without tags:
-
-``` {.good}
-// Tags are okay in the first line if kept short.
-[banana] Peel the banana before eating.
-
-// Tags can be inlined in content.
-Peel the #banana before eating.
-
-// Tags are optional.
-Peel the banana before eating.
-
-// Multiple tags are acceptable if kept short.
-#banana #apple: Assemble a fruit basket.
-
-// Tags can go anywhere in the CL description.
-> Assemble a fruit basket.
->
-> #banana #apple
-```
-
-``` {.bad}
-// Too many tags (or tags that are too long) overwhelm the first line.
-//
-// Instead, consider whether the tags can be moved into the description body
-// and/or shortened.
-[banana peeler factory factory][apple picking service] Assemble a fruit basket.
-```
-
-## Generated CL descriptions
-
-Some CLs are generated by tools. Whenever possible, their descriptions should
-also follow the advice here. That is, their first line should be short, focused,
-and stand alone, and the CL description body should include informative details
-that help reviewers and future code searchers understand each CL's effect.
-
-## Review the description before submitting the CL
-
-CLs can undergo significant change during review. It can be worthwhile to review
-a CL description before submitting the CL, to ensure that the description still
-reflects what the CL does.
-
-Next: [Small CLs](small-cls.md)
-### `review/developer/handling-comments.md`
-# How to handle reviewer comments
-
-
-
-When you've sent a CL out for review, it's likely that your reviewer will
-respond with several comments on your CL. Here are some useful things to know
-about handling reviewer comments.
-
-## Don't Take it Personally {#personal}
-
-The goal of review is to maintain the quality of our codebase and our products.
-When a reviewer provides a critique of your code, think of it as their attempt
-to help you, the codebase, and Google, rather than as a personal attack on you
-or your abilities.
-
-Sometimes reviewers feel frustrated and they express that frustration in their
-comments. This isn't a good practice for reviewers, but as a developer you
-should be prepared for this. Ask yourself, "What is the constructive thing that
-the reviewer is trying to communicate to me?" and then operate as though that's
-what they actually said.
-
-**Never respond in anger to code review comments.** That is a serious breach of
-professional etiquette that will live forever in the code review tool. If you
-are too angry or annoyed to respond kindly, then walk away from your computer
-for a while, or work on something else until you feel calm enough to reply
-politely.
-
-In general, if a reviewer isn't providing feedback in a way that's constructive
-and polite, explain this to them in person. If you can't talk to them in person
-or on a video call, then send them a private email. Explain to them in a kind
-way what you don't like and what you'd like them to do differently. If they also
-respond in a non-constructive way to this private discussion, or it doesn't have
-the intended effect, then
-escalate to your manager as
-appropriate.
-
-## Fix the Code {#code}
-
-If a reviewer says that they don't understand something in your code, your first
-response should be to clarify the code itself. If the code can't be clarified,
-add a code comment that explains why the code is there. If a comment seems
-pointless, only then should your response be an explanation in the code review
-tool.
-
-If a reviewer didn't understand some piece of your code, it's likely other
-future readers of the code won't understand either. Writing a response in the
-code review tool doesn't help future code readers, but clarifying your code or
-adding code comments does help them.
-
-## Think Collaboratively {#think}
-
-Writing a CL can take a lot of work. It's often really satisfying to finally
-send one out for review, feel like it's done, and be pretty sure that no further
-work is needed. It can be frustrating to receive comments asking for changes,
-especially if you don't agree with them.
-
-At times like this, take a moment to step back and consider if the reviewer is
-providing valuable feedback that will help the codebase and Google. Your first
-question to yourself should always be, "Do I understand what the reviewer is
-asking for?"
-
-If you can't answer that question, ask the reviewer for clarification.
-
-And then, if you understand the comments but disagree with them, it's important
-to think collaboratively, not combatively or defensively:
-
-```txt {.bad}
-Bad: "No, I'm not going to do that."
-```
-
-```txt {.good}
-Good: "I went with X because of [these pros/cons] with [these tradeoffs]
-My understanding is that using Y would be worse because of [these reasons].
-Are you suggesting that Y better serves the original tradeoffs, that we should
-weigh the tradeoffs differently, or something else?"
-```
-
-Remember,
-**[courtesy and respect](https://chromium.googlesource.com/chromium/src/+/master/docs/cr_respect.md)
-should always be a first priority**. If you disagree with the reviewer, find
-ways to collaborate: ask for clarifications, discuss pros/cons, and provide
-explanations of why your method of doing things is better for the codebase,
-users, and/or Google.
-
-Sometimes, you might know something about the users, codebase, or CL that the
-reviewer doesn't know. [Fix the code](#code) where appropriate, and engage your
-reviewer in discussion, including giving them more context. Usually you can come
-to some consensus between yourself and the reviewer based on technical facts.
-
-## Resolving Conflicts {#conflicts}
-
-Your first step in resolving conflicts should always be to try to come to
-consensus with your reviewer. If you can't achieve consensus, see
-[The Standard of Code Review](../reviewer/standard.md), which gives principles
-to follow in such a situation.
-### `review/developer/index.md`
-# The CL author's guide to getting through code review
-
-The pages in this section contain best practices for developers going through
-code review. These guidelines should help you get through reviews faster and
-with higher-quality results. You don't have to read them all, but they are
-intended to apply to every Google developer, and many people have found it
-helpful to read the whole set.
-
--   [Writing Good CL Descriptions](cl-descriptions.md)
--   [Small CLs](small-cls.md)
--   [How to Handle Reviewer Comments](handling-comments.md)
-
-See also [How to Do a Code Review](../reviewer/index.md), which gives detailed
-guidance for code reviewers.
-### `review/developer/small-cls.md`
-# Small CLs
-
-
-
-## Why Write Small CLs? {#why}
-
-Small, simple CLs are:
-
--   **Reviewed more quickly.** It's easier for a reviewer to find five minutes
-    several times to review small CLs than to set aside a 30 minute block to
-    review one large CL.
--   **Reviewed more thoroughly.** With large changes, reviewers and authors tend
-    to get frustrated by large volumes of detailed commentary shifting back and
-    forth—sometimes to the point where important points get missed or dropped.
--   **Less likely to introduce bugs.** Since you're making fewer changes, it's
-    easier for you and your reviewer to reason effectively about the impact of
-    the CL and see if a bug has been introduced.
--   **Less wasted work if they are rejected.** If you write a huge CL and then
-    your reviewer says that the overall direction is wrong, you've wasted a lot
-    of work.
--   **Easier to merge.** Working on a large CL takes a long time, so you will
-    have lots of conflicts when you merge, and you will have to merge
-    frequently.
--   **Easier to design well.** It's a lot easier to polish the design and code
-    health of a small change than it is to refine all the details of a large
-    change.
--   **Less blocking on reviews.** Sending self-contained portions of your
-    overall change allows you to continue coding while you wait for your current
-    CL in review.
--   **Simpler to roll back.** A large CL will more likely touch files that get
-    updated between the initial CL submission and a rollback CL, complicating
-    the rollback (the intermediate CLs will probably need to be rolled back
-    too).
-
-Note that **reviewers have discretion to reject your change outright for the
-sole reason of it being too large.** Usually they will thank you for your
-contribution but request that you somehow make it into a series of smaller
-changes. It can be a lot of work to split up a change after you've already
-written it, or require lots of time arguing about why the reviewer should accept
-your large change. It's easier to just write small CLs in the first place.
-
-## What is Small? {#what-is-small}
-
-<a id="what_is_small"></a> <!-- Keep previous permalink to avoid breaking old links. -->
-
-In general, the right size for a CL is **one self-contained change**. This means
-that:
-
--   The CL makes a minimal change that addresses **just one thing**. This is
-    usually just one part of a feature, rather than a whole feature at once. In
-    general it's better to err on the side of writing CLs that are too small vs.
-    CLs that are too large. Work with your reviewer to find out what an
-    acceptable size is.
--   The CL should [include related test code](#test_code).
--   Everything the reviewer needs to understand about the CL (except future
-    development) is in the CL, the CL's description, the existing codebase, or a
-    CL they've already reviewed.
--   The system will continue to work well for its users and for the developers
-    after the CL is checked in.
--   The CL is not so small that its implications are difficult to understand. If
-    you add a new API, you should include a usage of the API in the same CL so
-    that reviewers can better understand how the API will be used. This also
-    prevents checking in unused APIs.
-
-There are no hard and fast rules about how large is "too large." 100 lines is
-usually a reasonable size for a CL, and 1000 lines is usually too large, but
-it's up to the judgment of your reviewer. The number of files that a change is
-spread across also affects its "size." A 200-line change in one file might be
-okay, but spread across 50 files it would usually be too large.
-
-Keep in mind that although you have been intimately involved with your code from
-the moment you started to write it, the reviewer often has no context. What
-seems like an acceptably-sized CL to you might be overwhelming to your reviewer.
-When in doubt, write CLs that are smaller than you think you need to write.
-Reviewers rarely complain about getting CLs that are too small.
-
-## When are Large CLs Okay? {#large-okay}
-
-<a id="large_okay"></a> <!-- Keep previous permalink to avoid breaking old links. -->
-
-There are a few situations in which large changes aren't as bad:
-
--   You can usually count deletion of an entire file as being just one line of
-    change, because it doesn't take the reviewer very long to review.
--   Sometimes a large CL has been generated by an automatic refactoring tool
-    that you trust completely, and the reviewer's job is just to verify and say
-    that they really do want the change. These CLs can be larger, although some
-    of the caveats from above (such as merging and testing) still apply.
-
-## Writing Small CLs Efficiently {#efficiently}
-
-If you write a small CL and then you wait for your reviewer to approve it before
-you write your next CL, then you're going to waste a lot of time. So you want to
-find some way to work that won't block you while you're waiting for review. This
-could involve having multiple projects to work on simultaneously, finding
-reviewers who agree to be immediately available, doing in-person reviews, pair
-programming, or splitting your CLs in a way that allows you to continue working
-immediately.
-
-## Splitting CLs {#splitting}
-
-When starting work that will have multiple CLs with potential dependencies among
-each other, it's often useful to think about how to split and organize those CLs
-at a high level before diving into coding.
-
-Besides making things easier for you as an author to manage and organize your
-CLs, it also makes things easier for your code reviewers, which in turn makes
-your code reviews more efficient.
-
-Here are some strategies for splitting work into different CLs.
-
-### Stacking Multiple Changes on Top of Each Other {#stacking}
-
-One way to split up a CL without blocking yourself is to write one small CL,
-send it off for review, and then immediately start writing another CL *based* on
-the first CL. Most version control systems allow you to do this somehow.
-
-### Splitting by Files {#splitting-files}
-
-Another way to split up a CL is by groupings of files that will require
-different reviewers but are otherwise self-contained changes.
-
-For example: you send off one CL for modifications to a protocol buffer and
-another CL for changes to the code that uses that proto. You have to submit the
-proto CL before the code CL, but they can both be reviewed simultaneously. If
-you do this, you might want to inform both sets of reviewers about the other CL
-that you wrote, so that they have context for your changes.
-
-Another example: you send one CL for a code change and another for the
-configuration or experiment that uses that code; this is easier to roll back
-too, if necessary, as configuration/experiment files are sometimes pushed to
-production faster than code changes.
-
-### Splitting Horizontally {#splitting-horizontally}
-
-Consider creating shared code or stubs that help isolate changes between layers
-of the tech stack. This not only helps expedite development but also encourages
-abstraction between layers.
-
-For example: You created a calculator app with client, API, service, and data
-model layers. A shared proto signature can abstract the service and data model
-layers from each other. Similarly, an API stub can split the implementation of
-client code from service code and enable them to move forward independently.
-Similar ideas can also be applied to more granular function or class level
-abstractions.
-
-### Splitting Vertically {#splitting-vertically}
-
-Orthogonal to the layered, horizontal approach, you can instead break down your
-code into smaller, full-stack, vertical features. Each of these features can be
-independent parallel implementation tracks. This enables some tracks to move
-forward while other tracks are awaiting review or feedback.
-
-Back to our calculator example from
-[Splitting Horizontally](#splitting-horizontally). You now want to support new
-operators, like multiplication and division. You could split this up by
-implementing multiplication and division as separate verticals or sub-features,
-even though they may have some overlap such as shared button styling or shared
-validation logic.
-
-### Splitting Horizontally & Vertically {#splitting-grid}
-
-To take this a step further, you could combine these approaches and chart out an
-implementation plan like this, where each cell is its own standalone CL.
-Starting from the model (at the bottom) and working up to the client:
-
-| Layer   | Feature: Multiplication   | Feature: Division               |
-| ------- | ------------------------- | ------------------------------- |
-| Client  | Add button                | Add button                      |
-| API     | Add endpoint              | Add endpoint                    |
-| Service | Implement transformations | Share transformation logic with |
-:         :                           : multiplication                  :
-| Model   | Add proto definition      | Add proto definition            |
-
-## Separate Out Refactorings {#refactoring}
-
-It's usually best to do refactorings in a separate CL from feature changes or
-bug fixes. For example, moving and renaming a class should be in a different CL
-from fixing a bug in that class. It is much easier for reviewers to understand
-the changes introduced by each CL when they are separate.
-
-Small cleanups such as fixing a local variable name can be included inside of a
-feature change or bug fix CL, though. It's up to the judgment of developers and
-reviewers to decide when a refactoring is so large that it will make the review
-more difficult if included in your current CL.
-
-## Keep related test code in the same CL {#test-code}
-
-<a id="test_code"></a> <!-- Keep previous permalink to avoid breaking old links. -->
-
-CLs should include related test code. Remember that [smallness](#what-is-small)
-here refers the conceptual idea that the CL should be focused and is not a
-simplistic function on line count.
-
-Tests are expected for all Google changes.
-
-A CL that adds or changes logic should be accompanied by new or updated tests
-for the new behavior. Pure refactoring CLs (that aren't intended to change
-behavior) should also be covered by tests; ideally, these tests already exist,
-but if they don't, you should add them.
-
-*Independent* test modifications can go into separate CLs first, similar to the
-[refactorings guidelines](#refactoring). That includes:
-
-*   Validating pre-existing, submitted code with new tests.
-    *   Ensures that important logic is covered by tests.
-    *   Increases confidence in subsequent refactorings on affected code. For
-        example, if you want to refactor code that isn't already covered by
-        tests, submitting test CLs *before* submitting refactoring CLs can
-        validate that the tested behavior is unchanged before and after the
-        refactoring.
-*   Refactoring the test code (e.g. introduce helper functions).
-*   Introducing larger test framework code (e.g. an integration test).
-
-## Don't Break the Build {#break}
-
-If you have several CLs that depend on each other, you need to find a way to
-make sure the whole system keeps working after each CL is submitted. Otherwise
-you might break the build for all your fellow developers for a few minutes
-between your CL submissions (or even longer if something goes wrong unexpectedly
-with your later CL submissions).
-
-## Can't Make it Small Enough {#cant}
-
-Sometimes you will encounter situations where it seems like your CL *has* to be
-large. This is very rarely true. Authors who practice writing small CLs can
-almost always find a way to decompose functionality into a series of small
-changes.
-
-Before writing a large CL, consider whether preceding it with a refactoring-only
-CL could pave the way for a cleaner implementation. Talk to your teammates and
-see if anybody has thoughts on how to implement the functionality in small CLs
-instead.
-
-If all of these options fail (which should be extremely rare) then get consent
-from your reviewers in advance to review a large CL, so they are warned about
-what is coming. In this situation, expect to be going through the review process
-for a long time, be vigilant about not introducing bugs, and be extra diligent
-about writing tests.
-
-Next: [How to Handle Reviewer Comments](handling-comments.md)
-### `review/emergencies.md`
-# Emergencies
-
-Sometimes there are emergency CLs that must pass through the entire code review
-process as quickly as
-possible.
-
-
-
-## What Is An Emergency? {#what}
-
-An emergency CL would be a **small** change that: allows a major launch to
-continue instead of rolling back, fixes a bug significantly affecting users in
-production, handles a pressing legal issue, closes a major security hole, etc.
-
-In emergencies we really do care about the speed of the entire code review
-process, not just the [speed of response](reviewer/speed.md). In this case
-*only*, the reviewer should care more about the speed of the review and the
-correctness of the code (does it actually resolve the emergency?) than anything
-else. Also (perhaps obviously) such reviews should take priority over all other
-code reviews, when they come up.
-
-However, after the emergency is resolved you should look over the emergency CLs
-again and give them a [more thorough review](reviewer/looking-for.md).
-
-## What Is NOT An Emergency? {#not}
-
-To be clear, the following cases are *not* an emergency:
-
--   Wanting to launch this week rather than next week (unless there is some
-    actual [hard deadline](#deadlines) for launch such as a partner agreement).
--   The developer has worked on a feature for a very long time and they really
-    want to get the CL in.
--   The reviewers are all in another timezone where it is currently nighttime or
-    they are away on an off-site.
--   It is the end of the day on a Friday and it would just be great to get this
-    CL in before the developer leaves for the weekend.
--   A manager says that this review has to be complete and the CL checked in
-    today because of a [soft (not hard) deadline](#deadlines).
--   Rolling back a CL that is causing test failures or build breakages.
-
-And so on.
-
-## What Is a Hard Deadline? {#deadlines}
-
-A hard deadline is one where **something disastrous would happen** if you miss
-it. For example:
-
--   Submitting your CL by a certain date is necessary for a contractual
-    obligation.
--   Your product will completely fail in the marketplace if not released by a
-    certain date.
--   Some hardware manufacturers only ship new hardware once a year. If you miss
-    the deadline to submit code to them, that could be disastrous, depending on
-    what type of code you're trying to ship.
-
-Delaying a release for a week is not disastrous. Missing an important conference
-might be disastrous, but often is not.
-
-Most deadlines are soft deadlines, not hard deadlines. They represent a desire
-for a feature to be done by a certain time. They are important, but you
-shouldn't be sacrificing code health to make them.
-
-If you have a long release cycle (several weeks) it can be tempting to sacrifice
-code review quality to get a feature in before the next cycle. However, this
-pattern, if repeated, is a common way for projects to build up overwhelming
-technical debt. If developers are routinely submitting CLs near the end of the
-cycle that "must get in" with only superficial review, then the team should
-modify its process so that large feature changes happen early in the cycle and
-have enough time for good review.
-## Provenance
-Read [source metadata](references/source.json) and [the source license](references/LICENSE.txt) when attribution, revision, or reuse terms matter.
+## Objective
+
+Prepare the smallest self-contained change that solves one problem, keeps the system working,
+and gives reviewers enough context and evidence to evaluate it efficiently.
+
+## Workflow
+
+1. Read repository instructions, inspect the working tree and diff, and identify the behavior the
+   change is intended to add, remove, or preserve.
+2. Define one reviewable purpose. Split unrelated behavior, preparatory refactoring, generated
+   changes, or independently reviewable layers before polishing the change.
+3. Include the tests and documentation needed for the change. Ensure every submitted step leaves
+   the system in a usable, buildable state.
+4. Write a description that explains what changes and why. Record relevant tradeoffs,
+   limitations, dependencies, and validation.
+5. Self-review the complete diff and rerun proportionate checks. Update the description after
+   review changes so it still describes the final result.
+6. Respond to feedback by improving the code or document first, then explaining only what future
+   readers would not need recorded in the artifact.
+
+## Decision rules
+
+### Keep the change reviewable
+
+- Make one minimal, coherent change. Judge size by conceptual scope and review difficulty, not
+  line count alone.
+- Include related production code, tests, and documentation together. Include a use of a new API
+  when reviewers need it to understand the contract and avoid landing an unused interface.
+- Separate behavior-preserving refactoring from feature work or bug fixes when combining them
+  would hide the behavioral change. Small local cleanups may remain when they do not distract.
+- Split work by independent files or reviewers, architectural layers, or vertical user-visible
+  behavior. Stack dependent changes when each step is understandable and safe, and identify the
+  dependency chain for reviewers.
+- Keep each intermediate change working. Do not rely on a later change to restore the build,
+  tests, or supported behavior.
+- Permit a large deletion or trusted mechanical transformation when its review burden is small,
+  but still validate its scope and effects. Obtain reviewer agreement before sending any other
+  unavoidably large change.
+
+### Write the change description
+
+- Start with a short, specific, complete imperative sentence describing what the change does.
+  Follow it with a blank line.
+- Explain the problem and why this approach is appropriate. Include context not recoverable from
+  the diff, such as constraints, decisions, tradeoffs, known shortcomings, and future direction.
+- Include issue identifiers, design decisions, and benchmark or test results when relevant, but
+  provide enough context that the description remains understandable if an external link becomes
+  unavailable.
+- Avoid generic summaries such as “fix bug,” phase labels, or implementation activity without an
+  outcome. Apply the same standard to generated descriptions.
+- Re-read the description immediately before submission and after substantial review revisions.
+
+### Include evidence
+
+- Add or update tests for changed logic. Cover refactoring with existing tests or add tests first
+  when coverage is missing.
+- Keep independent test improvements or test-infrastructure changes separate when they can land
+  safely before the main change.
+- Update READMEs, API documentation, operational instructions, and generated documentation when
+  the change affects how users build, test, use, debug, or release the system.
+- Report commands actually run and their results. Never imply that a check passed when it was not
+  run or its result is unknown.
+
+### Handle comments collaboratively
+
+- Understand the request before answering. Ask for clarification when its intent or severity is
+  unclear.
+- If a reviewer cannot understand the code, clarify the code first. Add a code comment only when
+  the code cannot express necessary reasoning; do not hide lasting context in the review thread.
+- Address disagreement with technical facts, constraints, and explicit tradeoffs. Explain the
+  current choice and ask which premise or priority the reviewer sees differently.
+- Stay courteous and do not respond while angry. Seek consensus; move a stalled discussion to a
+  direct conversation when useful, record the result, and then use the project's escalation path.
+
+### Treat emergencies narrowly
+
+- Treat a change as an emergency only when it addresses an active, serious production impact, a
+  major security or legal issue, or a genuinely disastrous hard deadline.
+- Do not classify ordinary schedule pressure, personal urgency, unavailable reviewers, or a soft
+  launch target as an emergency.
+- Keep an emergency change small, optimize the immediate review for correctness and response
+  speed, and arrange a full follow-up review after the incident is controlled.
+
+## Output contract
+
+Produce a review package with:
+
+- `Readiness`: `Ready`, `Not ready`, or `Blocked`, with the decisive reason.
+- `Scope`: the one purpose of this change and any work deliberately excluded.
+- `Split plan`: ordered dependent changes, or `Not needed` with a reason.
+- `Description`: the exact proposed summary line, a blank line, and the informative body.
+- `Validation`: commands run, results, and checks not run.
+- `Tests and docs`: what changed and any justified omission.
+- `Risks and dependencies`: rollout, compatibility, ordering, or reviewer context.
+- `Open review items`: each comment's requested outcome, chosen action, and unresolved decision.
+
+Do not claim readiness while required tests, documentation, build integrity, or material reviewer
+context is missing.

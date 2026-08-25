@@ -51,8 +51,8 @@ def _artifact(name: str) -> Artifact:
         title=name.replace("-", " ").title(),
         description=f"Use {name} for its narrowly defined test purpose.",
         tags=("test",),
-        layout="inline",
         inputs=(f"{name}.md",),
+        recipe=f"recipes/{name}.md",
     )
 
 

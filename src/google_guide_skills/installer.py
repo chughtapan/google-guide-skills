@@ -111,26 +111,16 @@ def _install_skill_root(
 def selected_install_skills(
     manifest: Manifest,
     skills: list[str] | None,
-    *,
-    include_local: bool,
 ) -> tuple[list[str], list[str]]:
     """Return selected committed and local-only skill names."""
     distributions = {
         artifact.name: collection.distribution
         for collection, artifact in manifest.artifacts(include_local=True)
     }
-    eligible = {name for name, distribution in distributions.items() if distribution == "committed"}
-    if include_local:
-        eligible.update(distributions)
-    requested = set(skills) if skills is not None else eligible
+    requested = set(skills) if skills is not None else set(distributions)
     unknown = sorted(requested - set(distributions))
     if unknown:
         raise GoogleGuideSkillsError("Unknown skills: " + ", ".join(unknown))
-    blocked = sorted(requested - eligible)
-    if blocked:
-        raise GoogleGuideSkillsError(
-            "SWE-book skills require --include-swe-book: " + ", ".join(blocked)
-        )
     committed = sorted(name for name in requested if distributions[name] == "committed")
     local = sorted(name for name in requested if distributions[name] == "local-only")
     return committed, local
@@ -168,7 +158,7 @@ def require_swe_book_license_acceptance(
     answer = prompt(f"{notice}\nAccept this license for this installation? [y/N] ")
     if answer.strip().lower() not in {"y", "yes"}:
         raise GoogleGuideSkillsError(
-            "SWE-book license was not accepted; no SWE-book skills were installed"
+            "SWE-book license was not accepted; installation stopped before changing files"
         )
     return notice
 

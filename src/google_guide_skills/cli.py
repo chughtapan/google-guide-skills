@@ -75,11 +75,6 @@ def _parser() -> argparse.ArgumentParser:
     install_parser.add_argument("--skill", action="append", dest="skills")
     install_parser.add_argument("--copy", action="store_true")
     install_parser.add_argument(
-        "--include-swe-book",
-        action="store_true",
-        help="Generate and link the Software Engineering at Google skills",
-    )
-    install_parser.add_argument(
         "--accept-swe-book-license",
         action="store_true",
         help="Accept the SWE-book CC BY-NC-ND 4.0 license without an interactive prompt",
@@ -229,7 +224,6 @@ def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
     committed_skills, local_skills = selected_install_skills(
         manifest,
         args.skills,
-        include_local=args.include_swe_book,
     )
     project = args.project
     if project is not None and not project.is_dir():

@@ -34,7 +34,12 @@ from google_guide_skills.errors import (
     ManifestError,
     SourceError,
 )
-from google_guide_skills.models import Artifact, Manifest, SourcePathPolicy, SupplementalLicense
+from google_guide_skills.models import (
+    Manifest,
+    SourceExcerpt,
+    SourcePathPolicy,
+    SupplementalLicense,
+)
 
 
 def _license(
@@ -91,8 +96,8 @@ def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
                         "title": "Public Guide",
                         "description": "Use when applying the public guide.",
                         "tags": ["public", "style"],
-                        "layout": "inline",
                         "inputs": ["guide.md"],
+                        "recipe": "recipes/public-guide.md",
                     }
                 ],
             },
@@ -113,8 +118,14 @@ def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
                         "title": "Restricted Guide",
                         "description": "Use privately when consulting the restricted guide.",
                         "tags": ["restricted"],
-                        "layout": "references",
-                        "inputs": ["restricted/*.html"],
+                        "inputs": ["restricted/chapter.html"],
+                        "excerpts": [
+                            {
+                                "input": "restricted/chapter.html",
+                                "heading": "Operational rule",
+                                "blocks": [0, 1],
+                            }
+                        ],
                     }
                 ],
             },
@@ -136,6 +147,12 @@ def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
 def _write_manifest(project: Path, data: dict[str, object]) -> Manifest:
     project.mkdir(parents=True, exist_ok=True)
     (project / "LICENSE").write_bytes((Path(__file__).parents[1] / "LICENSE").read_bytes())
+    recipes = project / "recipes"
+    recipes.mkdir(exist_ok=True)
+    (recipes / "public-guide.md").write_text(
+        "# Public Guide\n\nApply this reviewed recipe.\n",
+        encoding="utf-8",
+    )
     path = project / "corpus.yaml"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     return manifest.load_manifest(path)
@@ -173,13 +190,12 @@ def built_project(tmp_path: Path) -> tuple[Manifest, Path]:
     restricted = checkout / "restricted"
     restricted.mkdir()
     (restricted / "chapter.html").write_text(
-        "<!-- CC BY-NC-ND 4.0 --><main><h1>Chapter</h1><p>Private text.</p></main>",
+        "<!-- CC BY-NC-ND 4.0 --><main><h1>Chapter</h1><h2>Historical topic</h2>"
+        "<p>Historical text to omit.</p><h2>Operational rule</h2>"
+        "<p>Apply the private rule to the current design.</p>"
+        "<ul><li>Check the affected users.</li><li>Verify the result.</li></ul></main>",
         encoding="utf-8",
     )
-    collision_dir = checkout / "a"
-    collision_dir.mkdir()
-    (collision_dir / "b.md").write_text("nested\n", encoding="utf-8")
-    (checkout / "a--b.md").write_text("flat\n", encoding="utf-8")
     _git(checkout, "add", ".")
     _git(checkout, "commit", "--quiet", "-m", "fixture")
     _git(checkout, "remote", "add", "origin", "https://example.test/example-repo.git")
@@ -343,16 +359,37 @@ def test_manifest_rejects_duplicate_skills_and_invalid_agent_skill_fields(tmp_pa
         _write_manifest(tmp_path / "description", long_description)
 
 
-def test_manifest_rejects_invalid_distribution_layout_and_local_license(tmp_path: Path) -> None:
+def test_manifest_rejects_invalid_distribution_recipe_and_local_license(tmp_path: Path) -> None:
     bad_distribution = _manifest_data()
     bad_distribution["collections"]["public-guides"]["distribution"] = "private"  # type: ignore[index]
     with pytest.raises(ManifestError, match="distribution"):
         _write_manifest(tmp_path / "distribution", bad_distribution)
 
-    bad_layout = _manifest_data()
-    bad_layout["collections"]["public-guides"]["artifacts"][0]["layout"] = "split"  # type: ignore[index]
-    with pytest.raises(ManifestError, match="layout"):
-        _write_manifest(tmp_path / "layout", bad_layout)
+    missing_recipe = _manifest_data()
+    del missing_recipe["collections"]["public-guides"]["artifacts"][0]["recipe"]  # type: ignore[index]
+    with pytest.raises(ManifestError, match="require recipes"):
+        _write_manifest(tmp_path / "missing-recipe", missing_recipe)
+
+    local_recipe = _manifest_data()
+    local_recipe["collections"]["restricted-guides"]["artifacts"][0]["recipe"] = (  # type: ignore[index]
+        "recipes/public-guide.md"
+    )
+    with pytest.raises(ManifestError, match="generated from source excerpts"):
+        _write_manifest(tmp_path / "local-recipe", local_recipe)
+
+    unordered_blocks = _manifest_data()
+    unordered_blocks["collections"]["restricted-guides"]["artifacts"][0]["excerpts"][0][  # type: ignore[index]
+        "blocks"
+    ] = [1, 0]
+    with pytest.raises(ManifestError, match="strictly increasing"):
+        _write_manifest(tmp_path / "unordered-blocks", unordered_blocks)
+
+    incomplete_excerpts = _manifest_data()
+    incomplete_excerpts["collections"]["restricted-guides"]["artifacts"][0][  # type: ignore[index]
+        "inputs"
+    ].append("restricted/other.html")
+    with pytest.raises(ManifestError, match="select from every input"):
+        _write_manifest(tmp_path / "incomplete-excerpts", incomplete_excerpts)
 
     missing_override = _manifest_data()
     del missing_override["collections"]["restricted-guides"]["license_override"]  # type: ignore[index]
@@ -361,6 +398,10 @@ def test_manifest_rejects_invalid_distribution_layout_and_local_license(tmp_path
 
     restricted_commit = _manifest_data()
     restricted_commit["collections"]["restricted-guides"]["distribution"] = "committed"  # type: ignore[index]
+    restricted_commit["collections"]["restricted-guides"]["artifacts"][0]["recipe"] = (  # type: ignore[index]
+        "recipes/public-guide.md"
+    )
+    del restricted_commit["collections"]["restricted-guides"]["artifacts"][0]["excerpts"]  # type: ignore[index]
     with pytest.raises(ManifestError, match="cannot use committed distribution"):
         _write_manifest(tmp_path / "restricted-commit", restricted_commit)
 
@@ -460,28 +501,52 @@ def test_build_skill_writes_content_license_and_exact_provenance(
     assert result.source_files == ("guide.md",)
     skill_text = (result.path / "SKILL.md").read_text(encoding="utf-8")
     assert "name: public-guide" in skill_text
-    assert "Keep this text verbatim." in skill_text
-    assert "[source metadata](references/source.json)" in skill_text
-    license_text = (result.path / "references" / "LICENSE.txt").read_text(encoding="utf-8")
+    assert "Apply this reviewed recipe." in skill_text
+    assert "Keep this text verbatim." not in skill_text
+    assert "references/" not in skill_text
+    license_text = (result.path / "LICENSE.txt").read_text(encoding="utf-8")
     assert "Example license text" in license_text
-    provenance = json.loads(
-        (result.path / "references" / "source.json").read_text(encoding="utf-8")
-    )
+    provenance = json.loads((result.path / "source.json").read_text(encoding="utf-8"))
     assert provenance["distribution"] == "committed"
     assert provenance["repository"]["revision"] == _git(checkout, "rev-parse", "HEAD")
     assert provenance["inputs"] == [
         {
-            "conversion": "identity",
+            "conversion": "not-rendered",
             "path": "guide.md",
             "sha256": hashlib.sha256((checkout / "guide.md").read_bytes()).hexdigest(),
         }
     ]
+    assert provenance["rendering"] == "curated"
+    assert provenance["recipe"]["path"] == "recipes/public-guide.md"
     assert provenance["generator_runtime"]["python"] == loaded.canonical_python
     assert provenance["wrapper_license"]["spdx"] == "Apache-2.0"
     wrapper = result.path / provenance["wrapper_license"]["path"]
     assert (
         hashlib.sha256(wrapper.read_bytes()).hexdigest() == provenance["wrapper_license"]["sha256"]
     )
+
+
+@pytest.mark.parametrize(
+    ("recipe_text", "message"),
+    [
+        (None, "missing skill recipe"),
+        ("", "skill recipe is empty"),
+        ("---\nname: nested\n---\n# Recipe\n", "must not contain frontmatter"),
+    ],
+)
+def test_build_rejects_invalid_recipe_files(
+    built_project: tuple[Manifest, Path], recipe_text: str | None, message: str
+) -> None:
+    loaded, _checkout = built_project
+    recipe = loaded.project_root / "recipes/public-guide.md"
+    if recipe_text is None:
+        recipe.unlink()
+    else:
+        recipe.write_text(recipe_text, encoding="utf-8")
+
+    collection = loaded.collections["public-guides"]
+    with pytest.raises(BuildError, match=message):
+        builder.build_skill(loaded, collection, collection.artifacts[0])
 
 
 def test_build_skill_keeps_restricted_material_in_local_root(
@@ -496,10 +561,14 @@ def test_build_skill_keeps_restricted_material_in_local_root(
     assert result.path == loaded.project_root / ".generated" / "skills" / "restricted-guide"
     assert not (loaded.project_root / "skills" / "restricted-guide").exists()
     skill_text = (result.path / "SKILL.md").read_text(encoding="utf-8")
-    assert "[restricted/chapter.html](references/restricted--chapter.md)" in skill_text
-    reference = result.path / "references" / "restricted--chapter.md"
-    assert "Private text." in reference.read_text(encoding="utf-8")
-    license_text = (result.path / "references" / "LICENSE.txt").read_text(encoding="utf-8")
+    assert "## Chapter" in skill_text
+    assert "### Operational rule" in skill_text
+    assert "Apply the private rule to the current design." in skill_text
+    assert "Check the affected users." in skill_text
+    assert "Verify the result." in skill_text
+    assert "Historical text to omit." not in skill_text
+    assert not (result.path / "references").exists()
+    license_text = (result.path / "LICENSE.txt").read_text(encoding="utf-8")
     assert "WARNING: Do not redistribute generated output." in license_text
 
     committed = replace(collection, distribution="committed")
@@ -511,7 +580,7 @@ def test_build_skill_keeps_restricted_material_in_local_root(
 def test_validation_requires_generated_provenance_and_license(
     generated_project: Manifest, missing_name: str
 ) -> None:
-    missing = generated_project.root_for("committed") / "public-guide" / "references" / missing_name
+    missing = generated_project.root_for("committed") / "public-guide" / missing_name
     missing.unlink()
 
     issues = validation.validate(generated_project)
@@ -540,10 +609,10 @@ def test_validation_rejects_a_stale_supplemental_license(
         generated_project,
         collections={**generated_project.collections, collection.id: collection},
     )
-    references = loaded.root_for("committed") / artifact.name / "references"
-    supplemental_path = references / "LICENSE-Apache-2.0.txt"
+    skill_dir = loaded.root_for("committed") / artifact.name
+    supplemental_path = skill_dir / "LICENSE-Apache-2.0.txt"
     shutil.copyfile(project_license, supplemental_path)
-    source_path = references / "source.json"
+    source_path = skill_dir / "source.json"
     provenance = json.loads(source_path.read_text(encoding="utf-8"))
     provenance["supplemental_licenses"] = [supplemental.to_dict()]
     source_path.write_text(json.dumps(provenance), encoding="utf-8")
@@ -602,13 +671,22 @@ def test_build_fails_closed_when_file_level_notice_disappears(
     built_project: tuple[Manifest, Path],
 ) -> None:
     loaded, checkout = built_project
-    (checkout / "restricted" / "chapter.html").write_text(
-        "<main><p>The notice is gone.</p></main>", encoding="utf-8"
+    source = checkout / "restricted" / "chapter.html"
+    source.write_text(
+        source.read_text(encoding="utf-8").replace("CC BY-NC-ND 4.0", "notice removed"),
+        encoding="utf-8",
     )
+    _git(checkout, "add", source.relative_to(checkout).as_posix())
+    _git(checkout, "commit", "--quiet", "-m", "remove file-level notice")
+    repository = replace(
+        loaded.repositories["example-repo"],
+        revision=_git(checkout, "rev-parse", "HEAD"),
+    )
+    updated = replace(loaded, repositories={"example-repo": repository})
 
-    collection = loaded.collections["restricted-guides"]
-    with pytest.raises(BuildError, match="differs from the pinned revision"):
-        builder.build_skill(loaded, collection, collection.artifacts[0])
+    collection = updated.collections["restricted-guides"]
+    with pytest.raises(BuildError, match="lost the required license notice"):
+        builder.build_skill(updated, collection, collection.artifacts[0])
 
 
 def test_build_rejects_dirty_inputs_and_escaping_license_symlinks(
@@ -703,10 +781,10 @@ def test_build_enforces_source_path_distribution_policies(
         )
 
 
-def test_build_rejects_wrong_revision_missing_input_and_reference_collision(
+def test_build_rejects_wrong_revision_missing_input_and_invalid_excerpt_selection(
     built_project: tuple[Manifest, Path],
 ) -> None:
-    loaded, _checkout = built_project
+    loaded, checkout = built_project
     collection = loaded.collections["public-guides"]
     wrong_repo = replace(loaded.repositories["example-repo"], revision="b" * 40)
     wrong_manifest = replace(
@@ -719,16 +797,90 @@ def test_build_rejects_wrong_revision_missing_input_and_reference_collision(
     with pytest.raises(BuildError, match="matched no files"):
         builder.build_skill(loaded, collection, missing)
 
-    collision = Artifact(
-        name="collision-guide",
-        title="Collision Guide",
-        description="Use to test reference collisions.",
-        tags=(),
-        layout="references",
-        inputs=("a/b.md", "a--b.md"),
+    restricted = loaded.collections["restricted-guides"]
+    missing_heading = replace(
+        restricted.artifacts[0],
+        excerpts=(
+            SourceExcerpt(
+                input="restricted/chapter.html",
+                heading="Missing heading",
+                blocks=(0,),
+            ),
+        ),
     )
-    with pytest.raises(BuildError, match="reference filename collision"):
-        builder.build_skill(loaded, collection, collision)
+    with pytest.raises(BuildError, match="expected one heading 'Missing heading', found 0"):
+        builder.build_skill(loaded, restricted, missing_heading)
+
+    out_of_range = replace(
+        restricted.artifacts[0],
+        excerpts=(
+            SourceExcerpt(
+                input="restricted/chapter.html",
+                heading="Operational rule",
+                blocks=(99,),
+            ),
+        ),
+    )
+    with pytest.raises(BuildError, match=r"cannot select \[99\]"):
+        builder.build_skill(loaded, restricted, out_of_range)
+
+    chapter = checkout / "restricted/chapter.html"
+    chapter.write_text(
+        chapter.read_text(encoding="utf-8").replace(
+            "</main>",
+            "<h2>Operational rule</h2><p>Duplicate section.</p></main>",
+        ),
+        encoding="utf-8",
+    )
+    _git(checkout, "add", ".")
+    _git(checkout, "commit", "--quiet", "-m", "duplicate heading")
+    repository = replace(
+        loaded.repositories["example-repo"],
+        revision=_git(checkout, "rev-parse", "HEAD"),
+    )
+    duplicate_heading_manifest = replace(
+        loaded,
+        repositories={"example-repo": repository},
+    )
+    with pytest.raises(BuildError, match="expected one heading 'Operational rule', found 2"):
+        builder.build_skill(
+            duplicate_heading_manifest,
+            restricted,
+            restricted.artifacts[0],
+        )
+
+
+def test_full_build_prunes_only_recognized_stale_generated_skills(
+    built_project: tuple[Manifest, Path],
+) -> None:
+    loaded, _checkout = built_project
+    local_root = loaded.root_for("local-only")
+    stale = local_root / "retired-restricted-guide"
+    marker = stale / "references/source.json"
+    marker.parent.mkdir(parents=True)
+    marker.write_text(
+        json.dumps(
+            {
+                "artifact": stale.name,
+                "collection": "restricted-guides",
+                "distribution": "local-only",
+                "generated_by": "google-guide-skills/0.1.0.0",
+            }
+        ),
+        encoding="utf-8",
+    )
+    manual = local_root / "manual-notes"
+    manual.mkdir()
+
+    builder.build(
+        loaded,
+        collection_ids=["restricted-guides"],
+        include_local=True,
+        sync_first=False,
+    )
+
+    assert not stale.exists()
+    assert manual.is_dir()
 
 
 def test_build_selection_enforces_distribution_and_routes_sync(
@@ -973,7 +1125,7 @@ def test_validation_rejects_disguised_local_provenance(
     source = root / ".generated" / "skills" / "restricted-guide"
     target = root / "skills" / "restricted-guide"
     shutil.copytree(source, target)
-    provenance_path = target / "references" / "source.json"
+    provenance_path = target / "source.json"
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
     provenance["distribution"] = "committed"
     provenance["collection"] = "public-guides"
@@ -992,7 +1144,7 @@ def test_validation_rejects_stale_skills_and_mismatched_artifact_provenance(
     source = root / "skills" / "public-guide"
     stale = root / "skills" / "stale-guide"
     shutil.copytree(source, stale)
-    stale_source = stale / "references" / "source.json"
+    stale_source = stale / "source.json"
     provenance = json.loads(stale_source.read_text(encoding="utf-8"))
     provenance["artifact"] = "different-guide"
     stale_source.write_text(json.dumps(provenance), encoding="utf-8")
@@ -1002,6 +1154,27 @@ def test_validation_rejects_stale_skills_and_mismatched_artifact_provenance(
 
     assert "Unexpected generated skill not declared in corpus.yaml" in messages
     assert "Provenance artifact does not match the skill directory" in messages
+
+
+def test_validation_rejects_stale_or_symlinked_recipe_provenance(
+    generated_project: Manifest,
+) -> None:
+    root = generated_project.project_root
+    recipe = root / "recipes/public-guide.md"
+    original = recipe.read_text(encoding="utf-8")
+    recipe.write_text(original + "\nChanged.\n", encoding="utf-8")
+
+    messages = [issue.message for issue in validation.validate(generated_project)]
+    assert "Recipe provenance does not match corpus.yaml" in messages
+
+    recipe.write_text(original, encoding="utf-8")
+    recipes = root / "recipes"
+    real_recipes = root / "recipe-assets"
+    recipes.replace(real_recipes)
+    recipes.symlink_to(real_recipes, target_is_directory=True)
+
+    messages = [issue.message for issue in validation.validate(generated_project)]
+    assert "Skill recipe is missing or unsafe" in messages
 
 
 def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
@@ -1016,7 +1189,7 @@ def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
         "[an escaping link](references/../../../../outside.md).\n",
         encoding="utf-8",
     )
-    provenance = root / "skills" / "public-guide" / "references" / "source.json"
+    provenance = root / "skills" / "public-guide" / "source.json"
     provenance.write_text("{not json}\n", encoding="utf-8")
     issues = validation.validate(generated_project)
     messages = [issue.message for issue in issues]
