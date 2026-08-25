@@ -105,8 +105,13 @@ models, and bounded redacted diagnostics for failed processes.
   trace-proven routes. Report the trace and proxy denominators separately.
 - Quality A/B: no correctness regression and a positive aggregate rubric delta.
 
-The saved five-client runs belong to an earlier 23-skill committed corpus. They helped expose an
-oversized Go skill, vague reference routing, and a routing index that added no measured value. The
-current 16-public/8-local pack rewrites the skill bodies and therefore needs new forward tests
-before any old routing or quality rate can be used as release evidence. See the
-[version 0.1 plan review](../reports/v0.1-plan-review.md).
+The saved five-client routing runs belong to an earlier 23-skill committed corpus. They helped
+expose an oversized Go skill, vague reference routing, and a routing index that added no measured
+value. Do not use their routing rates for the current 16-public/8-local pack.
+
+A current-corpus [SlopCodeBench quality experiment](../reports/slopcodebench-quality.md) compares
+a five-checkpoint just-solve trajectory with a guide, parallel review, and fix trajectory. The
+arms tied on hidden correctness. The guided code had less structural erosion and its reviewers
+found additional contract defects, but the workflow cost four times as many calls and later lost
+one accepted fix. The report defines the smaller next iteration. See the
+[version 0.1 plan review](../reports/v0.1-plan-review.md) for the broader release history.
