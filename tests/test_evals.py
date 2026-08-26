@@ -42,6 +42,7 @@ from google_guide_skills.models import (
     LicenseInfo,
     Manifest,
     Repository,
+    SourceExcerpt,
 )
 
 
@@ -52,7 +53,7 @@ def _artifact(name: str) -> Artifact:
         description=f"Use {name} for its narrowly defined test purpose.",
         tags=("test",),
         inputs=(f"{name}.md",),
-        recipe=f"recipes/{name}.md",
+        excerpts=(SourceExcerpt(input=f"{name}.md", heading=name, blocks=(0,)),),
     )
 
 
@@ -72,7 +73,7 @@ def manifest(tmp_path: Path) -> Manifest:
     local = _artifact("local-testing")
     value = Manifest(
         path=tmp_path / "corpus.yaml",
-        schema_version=1,
+        schema_version=2,
         canonical_python=platform.python_version(),
         generated_roots={"committed": "skills", "local_only": ".generated/skills"},
         repositories={
@@ -102,7 +103,7 @@ def manifest(tmp_path: Path) -> Manifest:
             ),
         },
     )
-    value.path.write_text("schema_version: 1\n", encoding="utf-8")
+    value.path.write_text("schema_version: 2\n", encoding="utf-8")
     for distribution, names in (
         ("committed", ("alpha-style", "beta-review")),
         ("local-only", ("local-testing",)),
@@ -716,6 +717,7 @@ def test_build_codex_command_uses_outer_sandbox_and_pins_model(tmp_path: Path) -
         "review prompt",
         output,
         model="gpt-test",
+        reasoning_effort="xhigh",
     )
 
     assert command[:3] == ["codex", "exec", "--ephemeral"]
@@ -726,6 +728,7 @@ def test_build_codex_command_uses_outer_sandbox_and_pins_model(tmp_path: Path) -
     assert command[command.index("-c") + 1] == "shell_environment_policy.inherit=none"
     assert command[command.index("--output-last-message") + 1] == str(output)
     assert command[command.index("-C") + 1] == str(tmp_path)
+    assert 'model_reasoning_effort="xhigh"' in command
     assert command[-3:] == ["--model", "gpt-test", "review prompt"]
 
 

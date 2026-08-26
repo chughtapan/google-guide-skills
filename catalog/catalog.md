@@ -1,8 +1,8 @@
 # Google Guides Skill Catalog
 
 This catalog is generated from `corpus.yaml`. `committed` skills are redistributable
-under their recorded source licenses. `local-only` skills select source excerpts; their
-generated output must not be redistributed.
+under their recorded source licenses. Every generated skill contains selected source
+excerpts. `local-only` output must not be redistributed.
 
 | Skill | Scope | Distribution | License | Tags | Source |
 | --- | --- | --- | --- | --- | --- |

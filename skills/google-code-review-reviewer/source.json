@@ -2,8 +2,260 @@
   "artifact": "google-code-review-reviewer",
   "collection": "google-engineering-practices",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        9,
+        10,
+        11
+      ],
+      "heading": "The Standard of Code Review",
+      "input": "review/reviewer/standard.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Principles {#principles}",
+      "input": "review/reviewer/standard.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Resolving Conflicts {#conflicts}",
+      "input": "review/reviewer/standard.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Design",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Functionality",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Complexity",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Tests",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Naming",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Comments",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Style",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Consistency",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Documentation",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Every Line {#every-line}",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Context",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Good Things {#good-things}",
+      "input": "review/reviewer/looking-for.md"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Summary",
+      "input": "review/reviewer/navigate.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Step One: Take a broad view of the change {#step_one}",
+      "input": "review/reviewer/navigate.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Step Two: Examine the main parts of the CL {#step_two}",
+      "input": "review/reviewer/navigate.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Step Three: Look through the rest of the CL in an appropriate sequence {#step_three}",
+      "input": "review/reviewer/navigate.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Courtesy",
+      "input": "review/reviewer/comments.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Explain Why {#why}",
+      "input": "review/reviewer/comments.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Giving Guidance {#guidance}",
+      "input": "review/reviewer/comments.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3
+      ],
+      "heading": "Label comment severity {#label-comment-severity}",
+      "input": "review/reviewer/comments.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Accepting Explanations {#explanations}",
+      "input": "review/reviewer/comments.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "How Fast Should Code Reviews Be? {#fast}",
+      "input": "review/reviewer/speed.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Speed vs. Interruption {#interruption}",
+      "input": "review/reviewer/speed.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Fast Responses {#responses}",
+      "input": "review/reviewer/speed.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "LGTM With Comments {#lgtm-with-comments}",
+      "input": "review/reviewer/speed.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Large CLs {#large}",
+      "input": "review/reviewer/speed.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Who is right? {#who_is_right}",
+      "input": "review/reviewer/pushback.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Cleaning It Up Later {#later}",
+      "input": "review/reviewer/pushback.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,37 +264,32 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
-      "path": "review/reviewer/index.md",
-      "sha256": "06299c5d45d89545f612b5fb3beca928ffe6663ae1db5c028da32d6110121ee1"
-    },
-    {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "review/reviewer/standard.md",
       "sha256": "c37144f9f8880092c3d48cd22a4e4ce30dbdefa4f4b2612a3c37b2a4bd838ae2"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "review/reviewer/looking-for.md",
       "sha256": "0a6643fc4ce2bc73e4d7a4ac01df694085adf9bd70cb499c5e8645dfd8c1f839"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "review/reviewer/navigate.md",
       "sha256": "6742ba45208ef35af6dd5d0a70529ef5f489cfbb96fa673eb5e29f30600007ac"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "review/reviewer/comments.md",
       "sha256": "35118ebf2eec64df1f3b26897dcd3b0a575959479d7b7198adf53585efa131eb"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "review/reviewer/speed.md",
       "sha256": "06d02508ad748ed983d292d0494d5ed108f85c9482494cdc9ca73738e3767dca"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "review/reviewer/pushback.md",
       "sha256": "a6eeefeee0f786c57f74b69125605f08eb2d948daed7cce001b4fa56d0f82963"
     }
@@ -57,11 +304,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-code-review-reviewer.md",
-    "sha256": "29d5fdde5642a95ae3954cac76632bc38679fff226ca230a11c2b820c57093ba"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "eng-practices",
     "revision": "3bb3ec25b3b0199f4940b1aa75f0ac5c5753301c",
@@ -73,7 +316,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

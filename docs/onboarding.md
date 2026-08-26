@@ -15,6 +15,7 @@ project that maintains user documentation and reviews every change, start with:
 - `google-documentation-guide`
 - `google-code-review-author`
 - `google-code-review-reviewer`
+- `google-swe-testing`
 
 Use [`catalog/catalog.md`](../catalog/catalog.md) to find other guides. A project should install
 only the skills it plans to route because every installed description consumes startup context.
@@ -30,7 +31,8 @@ uv run google-guides install \
   --skill google-python-style \
   --skill google-documentation-guide \
   --skill google-code-review-author \
-  --skill google-code-review-reviewer
+  --skill google-code-review-reviewer \
+  --skill google-swe-testing
 ```
 
 Per-user installs link back to this checkout. Keep it at the same path or reinstall after moving
@@ -40,25 +42,31 @@ With Node.js/npm installed, add `--project /path/to/new-repository --copy` when 
 should contain the public skills. Select only the agents the repository supports. Use `--dry-run`
 to inspect the install.
 
-Select *Software Engineering at Google* skills with `--skill` like any other guide. For example,
-add `--skill google-swe-testing` for test-strategy work. The installer asks you to accept the CC
-BY-NC-ND 4.0 license before generating it. A project install links that skill back to this
-checkout; keep the link out of version control.
+Select *Software Engineering at Google* skills with `--skill` like any other guide. The example
+includes `google-swe-testing`, so the installer asks you to accept the CC BY-NC-ND 4.0 license
+before generating it. A project install links that skill back to this checkout; keep the link out
+of version control.
 
-## 3. Route work in `AGENTS.md`
+## 3. Set the outcome and route the guides
 
-Keep the routing short and name only installed skills:
+Give agents ownership of material changes without prescribing a fixed workflow. Keep routing short
+and name only installed skills:
 
 ```markdown
+## Development lifecycle
+
+Own material changes through verification. Use your judgment.
+
 ## Guide routing
 
 - Python changes: use `$google-python-style`.
 - Developer documentation: use `$google-documentation-guide`.
 - Preparing a change: use `$google-code-review-author`.
-- Reviewing a change: use `$google-code-review-reviewer`.
+- Reviewing a change: use `$google-code-review-reviewer` and `$google-swe-testing`.
 ```
 
-Repository rules still take precedence. Add another skill only when a recurring task needs it.
+Repository rules still take precedence. Let the agent decide how to implement, test, and review a
+change. Add another skill only when a recurring task needs it.
 
 ## 4. Verify the setup
 

@@ -7,103 +7,228 @@ description: >-
 
 # Google Vimscript Style Guide
 
-## Scope and precedence
+Apply this guidance to the actual project. Repository requirements and newer authoritative guidance take precedence.
 
-Apply this recipe to Vimscript plugins and reviews using the abbreviated Google guide. Do not
-import additional requirements from the separate heavy guide, and do not apply it to Lua-based
-Neovim code. Project conventions still govern matters the abbreviated guide does not address.
-Protect user configuration: scripts must not depend accidentally on mappings, case settings,
-regular-expression magic, or global options.
+## Portability
 
-Rules that name `maktaba#...`, Glaive, or Maktaba-specific directories apply only when the plugin
-uses Maktaba. Keep the portable Vimscript rule even when its suggested Maktaba helper is
-unavailable.
+It's hard to get vimscript right. Many commands depend upon the user's
+settings. By following these guidelines, you can hope to make your
+scripts portable.
 
-## Workflow
+## Strings
 
-1. Read repository instructions and inspect the plugin layout, supported Vim versions, user-
-   configurable settings, mappings, autocommands, and whether Maktaba is a declared dependency.
-2. Identify commands affected by user settings, regex and string comparisons, type assumptions,
-   global state, messages, and code that runs during plugin startup.
-3. Move reusable logic into autoloaded functions. Keep commands and autocommands declarative and
-   delegate their behavior to functions.
-4. Apply explicit case, regex, scope, and local-setting rules; then format to the abbreviated
-   guide.
-5. Exercise the plugin with changed `ignorecase` and magic settings, conflicting mappings or
-   commands, and representative type errors. Re-source it to expose re-entry problems.
-6. Run project checks and report any behavior, Vim version, or user-setting combination not
-   verified.
+Prefer single quoted strings
+Double quoted strings are semantically different in vimscript, and
+you probably don't want them (they break regexes).
+Use double quoted strings when you need an escape sequence (such as
+`"\n"`) or if you know it doesn't matter and you need to
+embed single quotes.
 
-## High-impact rules
+## Matching Strings
 
-### Portable behavior
+Use the `=~#` or `=~?` operator families over the
+`=~` family.
+The matching behavior depends upon the user's ignorecase and smartcase
+settings and on whether you compare them with the `=~`,
+`=~#`, or `=~?` family of operators. Use the
+`=~#` and `=~?` operator families explicitly
+when comparing strings unless you explicitly need to honor the user's
+case sensitivity settings.
 
-- Prefer single-quoted strings. Use double quotes when an escape sequence is required or when
-  embedding single quotes is clearer and semantic differences do not matter.
-- Compare strings with an explicit case operator family such as `=~#` or `=~?`, not `=~`, unless
-  the code deliberately honors the user's case settings.
-- Prefix regular expressions with `\m\C` by default. Another magic level such as `\v` or case mode
-  such as `\c` is acceptable only when chosen explicitly.
-- Prefer built-in functions over commands with cursor, message, or setting-dependent side
-  effects. Avoid `:substitute`; always use `normal!` rather than `normal`.
-- Match caught Vim errors by error code, not localized text.
-- Message users only when an error occurs or a long-running operation begins.
-- Check types explicitly. Use strict comparison where possible and `is#` for a string literal;
-  otherwise inspect `type()` and throw an appropriate error. `:unlet` a variable before reusing it
-  with a different type, especially in loops.
-- Use embedded Python only for critical functionality such as work requiring threads. Avoid Ruby,
-  Lua, and other embedded languages because the user's Vim may not support them.
+## Regular Expressions
 
-### Layout, whitespace, and names
+Prefix all regexes with `\m\C`.
+In addition to the case sensitivity settings, regex behavior depends
+upon the user's nomagic setting. To make regexes act like nomagic and
+noignorecase are set, prepend all regexes with `\m\C`.
+You are welcome to use other magic levels (`\v`) and case
+sensitivities (`\c`) so long as they are intentional and
+explicit.
 
-- Organize a plugin in one descriptively named directory or repository, split into standard
-  `plugin/`, `autoload/`, `ftplugin/`, and other required subdirectories.
-- Indent two spaces, never tabs. Indent continuations four spaces, keep lines within 80 columns,
-  avoid trailing whitespace, and do not add padding merely to align similar commands.
-- Put spaces around operators, but not around command arguments where spaces change Vimscript
-  syntax.
-- Use `plugin-names-like-this`, `FunctionNamesLikeThis`, `CommandNamesLikeThis`,
-  `augroup_names_like_this`, and `variable_names_like_this`.
-- Prefix variables by scope: `g:` for globals, `s:` for script-local values, `a:` for arguments,
-  `l:` for function locals, `v:` for Vim predefined values, and `b:` for buffer-local state.
-  Always use `g:`, `s:`, and `a:`; add `l:` and `v:` in new code.
-- Keep globals for plugin configuration. Set options locally with `setlocal` or `&l:` unless a
-  global change is explicitly intended.
+## Dangerous commands
 
-### Functions, commands, autocommands, and mappings
+Avoid commands with unintended side effects.
+Avoid using `:s[ubstitute]` as it moves the cursor and
+prints error messages. Prefer functions (such as
+`search()`) better suited to scripts.
+For many vim commands, functions exist that do the same thing with
+fewer side effects. See `:help functions()` for a list of
+built-in functions.
 
-- Put functions in `autoload/` so they load on demand and are namespaced. Script-local functions
-  use `s:`; do not create global functions. Non-library plugins should expose commands and keep
-  their implementation in functions.
-- Define functions with `function!` and `abort`. The bang permits safe re-sourcing; `abort` makes
-  error behavior independent of the calling stack.
-- Put general commands in `plugin/commands.vim` and filetype commands under `ftplugin/`. Define
-  commands without a bang so name collisions fail visibly rather than silently overwriting an
-  existing command.
-- Put autocommands in `plugin/autocmds.vim`, inside a uniquely named augroup based on the plugin
-  name. Clear the group with `autocmd!` before redefining it.
-- Put complete mappings in `plugin/mappings.vim` and partial `<Plug>` mappings in
-  `plugin/plugs.vim`. Keep mapping logic in functions.
+## Fragile commands
 
-### Maktaba-based plugins only
+Avoid commands that rely on user settings.
+Always use `normal!` instead of `normal`. The
+latter depends upon the user's key mappings and could do anything.
+Avoid `:s[ubstitute]`, as its behavior depends upon a
+number of local settings.
+The same applies to other commands not listed here.
 
-- Use Maktaba for plugin creation, dependency checks, and error-handling boilerplate when Maktaba
-  is the plugin's chosen framework and declared dependency.
-- Use `maktaba#ensure` or `maktaba#value` helpers for explicit validation and equality when
-  available; the underlying requirement is still strict type checking.
-- Obtain a mapping prefix with `maktaba#plugin#MapPrefix`. Keep configuration in Maktaba flags so
-  users can change it through Glaive.
-- Declare plugin metadata and dependencies in `addon-info.json` when using the corresponding
-  Maktaba/VAM plugin-management conventions.
+## Catching Exceptions
 
-## Verification and review output
+Match error codes, not error text.
+Error text may be locale dependent.
 
-Lead with `Ready`, `Needs changes`, or `Blocked`, then report:
+## Messaging
 
-- `Required findings`: location, portability or style rule, user-visible impact, and fix.
-- `User-setting safety`: regex magic, case behavior, mappings, commands, autocommands, and local
-  option handling checked.
-- `Framework scope`: whether Maktaba-specific findings actually apply to this plugin.
-- `Validation`: project checks, Vim versions, re-sourcing, and altered-setting scenarios run.
-- `Residual risk`: unsupported Vim configuration, unverified user setting, type path, or command
-  side effect.
+Message the user infrequently.
+Loud scripts are annoying. Message the user only when:
+- A long-running process has kicked off.
+- An error has occurred.
+
+## Type checking
+
+Use strict and explicit checks where possible.
+Vimscript has unsafe, unintuitive behavior when dealing with some
+types. For instance, `0 == 'foo'` evaluates to true.
+Use strict comparison operators where possible. When comparing against
+a string literal, use the `is#` operator. Otherwise, prefer
+`maktaba#value#IsEqual` or check `type()`
+explicitly.
+Use `:unlet` for variables that may change types,
+particularly those assigned inside loops.
+
+## Python
+
+Use sparingly.
+Use python only when it provides critical functionality, for example
+when writing threaded code.
+
+## Other Languages
+
+Use vimscript instead.
+Avoid using other scripting languages such as ruby and lua. We can
+not guarantee that the end user's vim has been compiled with support
+for non-vimscript languages.
+
+## Plugin layout
+
+Organize functionality into modular plugins
+
+## Functions
+
+In the autoload/ directory, defined with `[!]` and
+`[abort]`.
+Autoloading allows functions to be loaded on demand, which makes
+startuptime faster and enforces function namespacing.
+Script-local functions are welcome, but should also live in autoload/
+and be called by autoloaded functions.
+Non-library plugins should expose commands instead of functions.
+Command logic should be extracted into functions and autoloaded.
+`[!]` allows developers to reload their functions
+without complaint.
+`[abort]` forces the function to halt when it encounters
+an error.
+
+## Commands
+
+In the plugin/commands.vim or under the ftplugin/ directory, defined
+without `[!]`.
+General commands go in `plugin/commands.vim`.
+Filetype-specific commands go in `ftplugin/`.
+Excluding `[!]` prevents your plugin from silently
+clobbering existing commands. Command conflicts should be resolved by
+the user.
+
+## Autocommands
+
+Place them in plugin/autocmds.vim, within augroups.
+Place all autocommands in augroups.
+The augroup name should be unique. It should either be, or be prefixed
+with, the plugin name.
+Clear the augroup with `autocmd!` before defining new
+autocommands in the augroup. This makes your plugin re-entrable.
+
+## Mappings
+
+All key mappings should be defined in
+`plugin/mappings.vim`.
+Partial mappings (see :help using-<Plug>.) should be defined in
+`plugin/plugs.vim`.
+
+## Settings
+
+Change settings locally
+Use `:setlocal` and `&l:` instead of
+`:set` and `&` unless you have explicit
+reason to do otherwise.
+
+## Style
+
+Follow google style conventions. When in doubt, treat vimscript style
+like python style.
+
+## Whitespace
+
+Similar to python.
+- Use two spaces for indents
+- Do not use tabs
+- Use spaces around operators
+This does not apply to arguments to commands.
+  ```
+                let s:variable = "concatenated " . "strings"
+                command -range=% MyCommand
+  ```
+- Do not introduce trailing whitespace
+You need not go out of your way to remove it.
+  Trailing whitespace is allowed in mappings which prep commands
+  for user input, such as
+  "`noremap <leader>gf :grep -f` ".
+- Restrict lines to 80 columns wide
+- Indent continued lines by four spaces
+- Do not align arguments of commands
+  **Bad code:**
+  ```
+                command -bang MyCommand  call myplugin#foo()
+                command       MyCommand2 call myplugin#bar()
+  ```
+  ```
+                command -bang MyCommand call myplugin#foo()
+                command MyCommand2 call myplugin#bar()
+  ```
+
+## Naming
+
+In general, use
+`plugin-names-like-this`,
+`FunctionNamesLikeThis`,
+`CommandNamesLikeThis`,
+`augroup_names_like_this`,
+`variable_names_like_this`.
+Always prefix variables with their scope.
+
+## plugin-names-like-this
+
+Keep them short and sweet.
+
+## FunctionNamesLikeThis
+
+Prefix script-local functions with `s:`
+Autoloaded functions may not have a scope prefix.
+Do not create global functions. Use autoloaded functions
+instead.
+
+## CommandNamesLikeThis
+
+Prefer succinct command names over common command prefixes.
+
+## variable_names_like_this
+
+Augroup names count as variables for naming purposes.
+
+## Prefix all variables with their scope.
+
+- Global variables with `g:`
+- Script-local variables with `s:`
+- Function arguments with `a:`
+- Function-local variables with `l:`
+- Vim-predefined variables with `v:`
+- Buffer-local variables with `b:`
+`g:`, `s:`, and `a:` must always
+be used.
+`b:` changes the variable semantics; use it when you
+want buffer-local semantics.
+`l:` and `v:` should be used for consistency,
+future proofing, and to avoid subtle bugs. They are not strictly
+required. Add them in new code but don’t go out of your way to add
+them elsewhere.

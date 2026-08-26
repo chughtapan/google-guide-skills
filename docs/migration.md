@@ -22,30 +22,38 @@ uv run google-guides install \
   --agent codex \
   --agent claude-code \
   --skill google-python-style \
-  --skill google-code-review-reviewer
+  --skill google-code-review-reviewer \
+  --skill google-swe-testing
 ```
 
 Per-user installs link back to this checkout. Keep it at the same path or reinstall after moving
 it.
 
 With Node.js/npm installed, add `--project /path/to/existing-repository --copy` when the repository
-should contain the public skills. Select a *Software Engineering at Google* skill such as
-`google-swe-testing` when the pilot needs it; the installer asks for license acceptance. Project
-SWE-book installs are links to this checkout and should remain untracked.
+should contain the public skills. The example includes the local `google-swe-testing` skill, so
+the installer asks for license acceptance. Project SWE-book installs are links to this checkout
+and should remain untracked.
 
-## 3. Add one routing section
+## 3. Set the outcome and add routing
 
-Add the rules to the repository's `AGENTS.md`:
+Keep any existing project instructions. If the repository does not already assign ownership for
+verification, add one neutral rule, then route the installed guides:
 
 ```markdown
+## Development lifecycle
+
+Own material changes through verification. Use your judgment.
+
 ## Guide routing
 
 - Python changes: use `$google-python-style` and the repository's existing formatter.
-- Change reviews: use `$google-code-review-reviewer` and the repository's existing review rules.
+- Change reviews: use `$google-code-review-reviewer`, `$google-swe-testing`, and the repository's
+  existing review rules.
 ```
 
 Do not duplicate local conventions already stated elsewhere. Link to their source of truth when a
-skill needs to be combined with them.
+skill needs to be combined with them. Do not prescribe an implement-review-fix sequence; let the
+agent choose the workflow that fits the change.
 
 ## 4. Validate before expanding
 

@@ -2,8 +2,227 @@
   "artifact": "google-vimscript-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Portability",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Strings",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Matching Strings",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Regular Expressions",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Dangerous commands",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Fragile commands",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Catching Exceptions",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Messaging",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "heading": "Type checking",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Python",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Other Languages",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Plugin layout",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "heading": "Functions",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Commands",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Autocommands",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Mappings",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Settings",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Style",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "heading": "Whitespace",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Naming",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "plugin-names-like-this",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "FunctionNamesLikeThis",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "CommandNamesLikeThis",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "variable\\_names\\_like\\_this",
+      "input": "vimscriptguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Prefix all variables with their scope.",
+      "input": "vimscriptguide.xml"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +231,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "google-styleguide-xml-to-markdown",
       "path": "vimscriptguide.xml",
       "sha256": "15525778ab5f4031cdc811e3fb68d7696cd9cf0a2048cac894cca7c6dd4101d5"
     }
@@ -27,11 +246,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-vimscript-style.md",
-    "sha256": "e3fd516c84d0157a13d3313fe7046f5e34c55a347dd7e984557ef66f65fbb8bd"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +258,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

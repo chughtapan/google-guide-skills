@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "google-guide-skills"
-version = "0.2.0.0"
+version = "0.3.0.0"
 description = "Give coding agents Google's guidance for readable, maintainable software."
 readme = "README.md"
 license = "Apache-2.0"

@@ -301,7 +301,7 @@ toml = [
 
 [[package]]
 name = "google-guide-skills"
-version = "0.2.0.0"
+version = "0.3.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },

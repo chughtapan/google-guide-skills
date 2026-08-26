@@ -8,145 +8,492 @@ description: >-
 
 # Google TypeScript Style Guide
 
-## Scope and precedence
+Apply this guidance to the actual project. Repository requirements and newer authoritative guidance take precedence.
 
-Apply this guide to TypeScript, not plain JavaScript. Repository rules, the configured compiler,
-formatter, linter, and applicable conformance frameworks remain authoritative. New files must use
-Google style. In existing files, preserve local choices only where this guide is silent; avoid
-mixing opportunistic reformatting into an unrelated change. Generated code is mostly exempt, but
-generated identifiers referenced by hand-written code follow the naming rules.
+## Import paths
 
-## Workflow
+TypeScript code *must* use paths to import other TypeScript code. Paths *may* be
+relative, i.e. starting with `.` or `..`,
+or rooted at the base directory, e.g.
+`root/path/to/file`.
+Code *should* use relative imports (`./foo`) rather than absolute imports
+`path/to/foo` when referring to files within the same (logical) project as this
+allows to move the project around without introducing changes in these imports.
+Consider limiting the number of parent steps (`../../../`) as those can make
+module and path structures hard to understand.
 
-1. Read repository instructions, compiler options, conformance rules, formatter configuration,
-   module boundaries, and surrounding code.
-2. Identify exported API, runtime imports and side effects, nullability, mutable state, structural
-   contracts, thrown errors, and target JavaScript environments.
-3. Design the smallest typed surface. Prefer named module exports, interfaces for object shapes,
-   explicit narrowing, and ordinary functions over namespace or class-based containers.
-4. Implement using compiler-supported standard features. Add JSDoc where users need contract
-   information and implementation comments only for non-obvious reasoning.
-5. Run the standard formatter, compiler/type checker, linter, conformance checks, and relevant
-   tests.
-6. Review the diff for unsafe assertions, `any`, mutable exports, import correctness, exception
-   behavior, API visibility, and suppressions before reporting completion.
+## Namespace versus named imports
 
-## High-impact rules
+Both namespace and named imports can be used.
+Prefer named imports for symbols used frequently in a file or for symbols that
+have clear names, for example Jasmine's `describe` and `it`. Named imports can
+be aliased to clearer names as needed with `as`.
 
-### Files and modules
+## Exports
 
-- Encode source as UTF-8 and use ordinary spaces as whitespace. Order present sections as
-  copyright JSDoc, `@fileoverview`, imports, then implementation, with exactly one blank line
-  between sections.
-- Import TypeScript with ES module syntax. Prefer named imports for clear or frequently used
-  symbols and namespace imports for large APIs whose members need context. Use default imports
-  only for external code that requires them and side-effect imports only for deliberate load-time
-  behavior.
-- Prefer relative paths within the same logical project and limit deep parent traversal. Use
-  `import type` and `export type` when a symbol is type-only and file-by-file transpilation needs
-  the distinction.
-- Use named exports, never default exports. Minimize exported surface and do not use mutable
-  exports such as `export let`; expose controlled getters when external access to changing state
-  is required.
-- Use files and named exports for namespacing. Do not use TypeScript `namespace`, triple-slash
-  references, or `import x = require(...)` except a namespace required to interoperate with
-  third-party code.
-- Do not create static container classes merely to group constants and functions; export the
-  individual symbols from the module.
+Use named exports in all code:
+Do not use default exports. This ensures that all imports follow a uniform
+pattern.
 
-### Variables, functions, and classes
+## Mutable exports
 
-- Declare one variable per statement. Use `const` by default and `let` only for reassignment;
-  never use `var` or a variable before declaration.
-- Use array and object literals rather than `Array()` or `Object()`. Spread only values matching
-  the created container: iterables into arrays and plain objects into objects. Keep destructured
-  parameters shallow and put defaults on the left-hand side.
-- Prefer function declarations for named functions. Use arrows for callbacks and closures,
-  especially when capturing outer `this`; do not use function expressions except when dynamic
-  `this` rebinding or a generator requires one.
-- Forward callback parameters explicitly when a higher-order API may pass extra arguments. Use a
-  block-bodied arrow when the return value is unused so a value cannot leak accidentally.
-- Use `this` only in class constructors and methods, explicitly typed functions, or arrows inside
-  a valid `this` scope. Do not bind `this` implicitly at an event installation site; retain a
-  stable handler reference when it must later be removed.
-- Mark never-reassigned members `readonly`. Prefer constructor parameter properties for obvious
-  assignments and field initializers for non-parameter state. Initialize optional later-filled
-  fields to `undefined` to preserve object shape.
-- Use TypeScript `private`, not `#private` fields or bracket access that bypasses visibility.
-  Minimize visibility, omit redundant `public`, and do not mark framework template properties
-  private when they are accessed outside class lexical scope.
-- Accessor getters must be pure and at least one accessor must do meaningful work. Prefer a public
-  field over pass-through accessors. Avoid private static methods when a module-local function is
-  equally readable, and never use static `this` or inherited static dispatch.
+Regardless of technical support, mutable exports can create hard to understand
+and debug code, in particular with re-exports across multiple modules. One way
+to paraphrase this style point is that `export let` is not allowed.
+If one needs to support externally accessible and mutable bindings, they
+*should* instead use explicit getter functions.
+For the common pattern of conditionally exporting either of two values, first do
+the conditional check, then the export. Make sure that all exports are final
+after the module's body has executed.
 
-### Control flow and errors
+## Import type
 
-- Use braced blocks for control flow; only a complete one-line `if` may omit braces. Prefer
-  assignment before a condition; use extra parentheses when assignment in a condition is truly
-  intentional.
-- Iterate arrays with `for...of` unless an index is required. Never use `for...in` for arrays;
-  prefer `Object.keys`, `Object.values`, or `Object.entries` for objects, or filter inherited
-  properties explicitly.
-- Use `===` and `!==`; comparison with literal `null` may use `==` or `!=` when intentionally
-  covering both `null` and `undefined`.
-- Every `switch` has a final `default`. Non-empty cases terminate with `break`, `return`, or
-  `throw`; only empty case groups may fall through.
-- Instantiate and throw `Error` or a subclass, including for Promise rejection. Catch as
-  `unknown`, narrow to `Error`, and handle non-`Error` values only for a documented violating API.
-  Explain a deliberately empty catch block and keep `try` blocks focused when readability allows.
-- Compare enum values explicitly rather than coercing them to booleans. Use `Number()` for numeric
-  parsing and validate `NaN` or non-finite cases; do not use unary `+`, `parseFloat`, or decimal
-  `parseInt` as shortcuts.
+You may use `import type {...}` when you use the imported symbol only as a type.
+Use regular imports for values:
+```
+import type {Foo} from './foo';
+import {Bar} from './foo';
 
-### Types
+import {type Foo, Bar} from './foo';
+```
 
-- Rely on inference for obvious literal and constructor types. Add annotations when they clarify
-  a complex expression, stabilize an API, or surface errors earlier.
-- Use interfaces for object shapes and type aliases for unions, tuples, primitives, and other
-  expressions. Put the interface type on structural implementations so errors appear at the
-  declaration rather than a distant call site.
-- Add `|null` or `|undefined` at each use site, not inside a reusable alias. Prefer optional fields
-  and parameters to `|undefined` when omission is valid, and handle absence near its source.
-- Use `T[]` or `readonly T[]` for simple element types and `Array<T>` or `ReadonlyArray<T>` for
-  complex element types. Prefer `Map` and `Set` to object dictionaries when their semantics fit.
-- Avoid `any`; use a specific interface, generic, or `unknown` plus narrowing. If `any` is truly
-  necessary, suppress the lint rule narrowly and explain why. Avoid `{}`; choose `unknown`,
-  `object`, or `Record<string, T>` according to the contract.
-- Prefer simple explicit types over mapped and conditional types when a little repetition is
-  easier to understand and refactor. Avoid APIs with generics used only in the return type.
-- Avoid type and non-null assertions. Prefer runtime checks; when an assertion is locally safe,
-  make the reason obvious or document it. Use `as`, never angle-bracket assertion syntax, and use
-  a type annotation rather than asserting an object literal.
-- Use primitive types `string`, `boolean`, and `number`, never wrapper types. Do not instantiate
-  wrapper objects.
+## Export type
 
-### Names, documentation, and forbidden features
+Use `export type` when re-exporting a type, e.g.:
+```
+export type {AnInterface} from './foo';
+```
 
-- Use `UpperCamelCase` for classes, interfaces, types, enums, decorators, and type parameters;
-  `lowerCamelCase` for variables, parameters, functions, methods, properties, and module aliases;
-  and `CONSTANT_CASE` only for module-level constants, module-level enum values, and static
-  readonly constants.
-- Use descriptive ASCII names. Treat acronyms as words, such as `loadHttpUrl` and `customerId`.
-  Do not encode type information in names, prefix interfaces with `I`, or use leading/trailing
-  underscores. Short names are allowed only in a non-exported scope of roughly ten lines or less.
-- Document every top-level export with JSDoc unless it exists only for tooling. Document public or
-  non-obvious members without restating types. Use JSDoc for user contracts and `//` comments for
-  implementation details; multi-line implementation comments use consecutive `//` lines.
-- Do not repeat TypeScript types or modifiers in JSDoc. Put documentation before decorators and
-  place each JSDoc block tag on its own line.
-- Do not define new decorators; use only framework decorators. Do not use `eval`, the
-  `Function(string)` constructor, `const enum`, debugger statements, `with`, prototype mutation,
-  or nonstandard platform/language features.
-- Do not use `@ts-ignore`, `@ts-nocheck`, or related blanket suppression. `@ts-expect-error` is
-  permitted in tests only rarely; prefer a narrow cast with an explanation.
+## Use modules not namespaces
 
-## Verification and review output
+TypeScript supports two methods to organize code: *namespaces* and *modules*,
+but namespaces are disallowed. That
+is, your code *must* refer to code in other files using imports and exports of
+the form `import {foo} from 'bar';`
+Your code *must not* use the `namespace Foo { ... }` construct. `namespace`s
+*may* only be used when required to interface with external, third party code.
+To semantically namespace your code, use separate files.
+Code *must not* use `require` (as in `import x = require('...');`) for imports.
+Use ES6 module syntax.
 
-Lead with `Ready`, `Needs changes`, or `Blocked`, then report:
+## Use const and let
 
-- `Required findings`: location, violated rule or conformance requirement, impact, and fix.
-- `API and type safety`: exports, nullability, inference, assertions, `any`, and error contracts.
-- `Tool results`: formatter, compiler, linter, conformance checks, and tests, with exact outcomes.
-- `Not run`: unavailable checks and why.
-- `Residual risk`: runtime import effects, target compatibility, unsafe narrowing, suppression, or
-  exception path not exercised.
+Always use `const` or `let` to declare variables. Use `const` by default, unless
+a variable needs to be reassigned. Never use `var`.
+Variables *must not* be used before their declaration.
+
+## Use readonly
+
+Mark properties that are never reassigned outside of the constructor with the
+`readonly` modifier (these need not be deeply immutable).
+
+## Properties used outside of class lexical scope
+
+Properties used from outside the lexical scope of their containing class, such
+as an Angular component's properties used from a template, *must not* use
+`private` visibility, as they are used outside of the lexical scope of their
+containing class.
+TypeScript code *must not* use `obj['foo']` to bypass the visibility of a
+property.
+
+## Getters and setters
+
+Getters and setters, also known as accessors, for class members *may* be used.
+The getter method *must* be a
+[pure function](https://en.wikipedia.org/wiki/Pure_function) (i.e., result is
+consistent and has no side effects: getters *must not* change observable state).
+They are also useful as a means of restricting the visibility of internal or
+verbose implementation details (shown below).
+If an accessor is used to hide a class property, the hidden property *may* be
+prefixed or suffixed with any whole word, like `internal` or `wrapped`. When
+using these private properties, access the value through the accessor whenever
+possible. At least one accessor for a property *must* be non-trivial: do not
+define "pass-through" accessors only for the purpose of hiding a property.
+Instead, make the property public (or consider making it `readonly` rather than
+just defining a getter with no setter).
+Getters and setters *must not* be defined using `Object.defineProperty`, since
+this interferes with property renaming.
+
+## Visibility
+
+Restricting visibility of properties, methods, and entire types helps with
+keeping code decoupled.
+- Limit symbol visibility as much as possible.
+- Consider converting private methods to non-exported functions within the
+  same file but outside of any class, and moving private properties into a
+  separate, non-exported class.
+- TypeScript symbols are public by default. Never use the `public` modifier
+  except when declaring non-readonly public parameter properties (in
+  constructors).
+
+## Prefer function declarations for named functions
+
+Prefer function declarations over arrow functions or function expressions when
+defining named functions.
+Arrow functions *may* be used, for example, when an explicit type annotation is
+required.
+
+## Arrow function bodies
+
+Use arrow functions with concise bodies (i.e. expressions) or block bodies as
+appropriate.
+Only use a concise body if the return value of the function is actually used.
+The block body makes sure the return type is `void` then and prevents potential
+side effects.
+Tip: The `void` operator can be used to ensure an arrow function with an
+expression body returns `undefined` when the result is unused.
+
+## Prefer passing arrow functions as callbacks
+
+Callbacks can be invoked with unexpected arguments that can pass a type check
+but still result in logical errors.
+Avoid passing a named callback to a higher-order function, unless you are sure
+of the stability of both functions' call signatures. Beware, in particular, of
+less-commonly-used optional parameters.
+Instead, prefer passing an arrow-function that explicitly forwards parameters to
+the named callback.
+
+## Prefer rest and spread when appropriate
+
+Use a *rest* parameter instead of accessing `arguments`. Never name a local
+variable or parameter `arguments`, which confusingly shadows the built-in name.
+Use function spread syntax instead of `Function.prototype.apply`.
+
+## Control flow statements and blocks
+
+Control flow statements (`if`, `else`, `for`, `do`, `while`, etc) always use
+braced blocks for the containing code, even if the body contains only a single
+statement. The first statement of a non-empty block must begin on its own line.
+**Exception:** `if` statements fitting on one line *may* elide the block.
+
+## Iterating containers
+
+Prefer `for (... of someArr)` to iterate over arrays. `Array.prototype.forEach` and vanilla `for`
+loops are also allowed:
+```
+for (const x of someArr) {
+  // x is a value of someArr.
+}
+
+for (let i = 0; i < someArr.length; i++) {
+  // Explicitly count if the index is needed, otherwise use the for/of form.
+  const x = someArr[i];
+  // ...
+}
+for (const [i, x] of someArr.entries()) {
+  // Alternative version of the above.
+}
+```
+`Object.prototype.hasOwnProperty` should be used in `for`-`in` loops to exclude
+unwanted prototype properties. Prefer `for`-`of` with `Object.keys`,
+`Object.values`, or `Object.entries` over `for`-`in` when possible.
+
+## Only throw errors
+
+JavaScript (and thus TypeScript) allow throwing or rejecting a Promise with
+arbitrary values. However if the thrown or rejected value is not an `Error`, it
+does not populate stack trace information, making debugging hard. This treatment
+extends to `Promise` rejection values as `Promise.reject(obj)` is equivalent to
+`throw obj;` in async functions.
+Instead, only throw (subclasses of) `Error`:
+```
+// Throw only Errors
+throw new Error('oh noes!');
+// ... or subtypes of Error.
+class MyError extends Error {}
+throw new MyError('my oh noes!');
+// For promises
+new Promise((resolve) => resolve()); // No reject is OK.
+new Promise((resolve, reject) => void reject(new Error('oh noes!')));
+Promise.reject(new Error('oh noes!'));
+```
+
+## Catching and rethrowing
+
+When catching errors, code *should* assume that all thrown errors are instances
+of `Error`.
+Exception handlers *must not* defensively handle non-`Error` types unless the
+called API is conclusively known to throw non-`Error`s in violation of the above
+rule. In that case, a comment should be included to specifically identify where
+the non-`Error`s originate.
+
+## Empty catch blocks
+
+It is very rarely correct to do nothing in response to a caught exception. When
+it truly is appropriate to take no action whatsoever in a catch block, the
+reason this is justified is explained in a comment.
+
+## Switch statements
+
+All `switch` statements *must* contain a `default` statement group, even if it
+contains no code. The `default` statement group must be last.
+```
+switch (x) {
+  case Y:
+    doSomethingElse();
+    break;
+  default:
+    // nothing to do.
+}
+```
+Within a switch block, each statement group either terminates abruptly with a
+`break`, a `return` statement, or by throwing an exception. Non-empty statement
+groups (`case ...`) *must not* fall through (enforced by the compiler):
+```
+switch (x) {
+  case X:
+    doSomething();
+    // fall through - not allowed!
+  case Y:
+    // ...
+}
+```
+
+## Equality checks
+
+Always use triple equals (`===`) and not equals (`!==`). The double equality
+operators cause error prone type coercions that are hard to understand and
+slower to implement for JavaScript Virtual Machines. See also the
+[JavaScript equality table](https://dorey.github.io/JavaScript-Equality-Table/).
+**Exception:** Comparisons to the literal `null` value *may* use the `==` and
+`!=` operators to cover both `null` and `undefined` values.
+
+## Type and non-nullability assertions
+
+Type assertions (`x as SomeType`) and non-nullability assertions (`y!`) are
+unsafe. Both only silence the TypeScript compiler, but do not insert any runtime
+checks to match these assertions, so they can cause your program to crash at
+runtime.
+Because of this, you *should not* use type and non-nullability assertions
+without an obvious or explicit reason for doing so.
+When you want to assert a type or non-nullability the best answer is to
+explicitly write a runtime check that performs that check.
+Sometimes due to some local property of your code you can be sure that the
+assertion form is safe. In those situations, you *should* add clarification to
+explain why you are ok with the unsafe behavior:
+If the reasoning behind a type or non-nullability assertion is obvious, the
+comments *may* not be necessary. For example, generated proto code is always
+nullable, but perhaps it is well-known in the context of the code that certain
+fields are always provided by the backend. Use your judgement.
+
+## Type assertions and object literals
+
+Use type annotations (`: Foo`) instead of type assertions (`as Foo`) to specify
+the type of an object literal. This allows detecting refactoring bugs when the
+fields of an interface change over time.
+
+## Dynamic code evaluation
+
+Do not use `eval` or the `Function(...string)` constructor (except for code
+loaders). These features are potentially dangerous and simply do not work in
+environments using strict
+[Content Security Policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
+
+## Modifying builtin objects
+
+Never modify builtin types, either by adding methods to their constructors or to
+their prototypes. Avoid depending on libraries that do
+this.
+Do not add symbols to the global object unless absolutely necessary (e.g.
+required by a third-party API).
+
+## Descriptive names
+
+Names *must* be descriptive and clear to a new reader. Do not use abbreviations
+that are ambiguous or unfamiliar to readers outside your project, and do not
+abbreviate by deleting letters within a word.
+- **Exception:** Variables that are in scope for 10 lines or fewer, including
+  arguments that are *not* part of an exported API, *may* use short (e.g.
+  single letter) variable names.
+
+## Camel case
+
+Treat abbreviations like acronyms in names as whole words, i.e. use
+`loadHttpUrl`, not ~~`loadHTTPURL`~~, unless required by a platform name (e.g.
+`XMLHttpRequest`).
+
+## `_` prefix/suffix
+
+Identifiers must not use `_` as a prefix or suffix.
+This also means that `_` *must not* be used as an identifier by itself (e.g. to
+indicate a parameter is unused).
+
+## Constants
+
+**Immutable**: `CONSTANT_CASE` indicates that a value is *intended* to not be
+changed, and *may* be used for values that can technically be modified (i.e.
+values that are not deeply frozen) to indicate to users that they must not be
+modified.
+**Global**: Only symbols declared on the module level, static fields of module
+level classes, and values of module level enums, *may* use `CONST_CASE`. If a
+value can be instantiated more than once over the lifetime of the program (e.g.
+a local variable declared within a function, or a static field on a class nested
+in a function) then it *must* use `lowerCamelCase`.
+
+## Type inference
+
+Code *may* rely on type inference as implemented by the TypeScript compiler for
+all type expressions (variables, fields, return types, etc).
+```
+const x = 15;  // Type inferred.
+```
+Leave out type annotations for trivially inferred types: variables or parameters
+initialized to a `string`, `number`, `boolean`, `RegExp` literal or `new`
+expression.
+Explicitly specifying types may be required to prevent generic type parameters
+from being inferred as `unknown`. For example, initializing generic types with
+no values (e.g. empty arrays, objects, `Map`s, or `Set`s).
+```
+const x = new Set<string>();
+```
+
+## Nullable/undefined type aliases
+
+Type aliases *must not* include `|null` or `|undefined` in a union type.
+Nullable aliases typically indicate that null values are being passed around
+through too many layers of an application, and this clouds the source of the
+original issue that resulted in `null`. They also make it unclear when specific
+values on a class or interface might be absent.
+Instead, code *must* only add `|null` or `|undefined` when the alias is actually
+used. Code *should* deal with null values close to where they arise, using the
+above techniques.
+
+## Prefer optional over `|undefined`
+
+In addition, TypeScript supports a special construct for optional parameters and
+fields, using `?`:
+Optional parameters implicitly include `|undefined` in their type. However, they
+are different in that they can be left out when constructing a value or calling
+a method. For example, `{sugarCubes: 1}` is a valid `CoffeeOrder` because `milk`
+is optional.
+Use optional fields (on interfaces or classes) and parameters rather than a
+`|undefined` type.
+For classes preferably avoid this pattern altogether and initialize as many
+fields as possible.
+
+## Use structural types
+
+TypeScript's type system is structural, not nominal. That is, a value matches a
+type if it has at least all the properties the type requires and the properties'
+types match, recursively.
+When providing a structural-based implementation, explicitly include the type at
+the declaration of the symbol (this allows more precise type checking and error
+reporting).
+Use interfaces to define structural types, not classes
+
+## Prefer interfaces over type literal aliases
+
+TypeScript supports
+[type aliases](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases)
+for naming a type expression. This can be used to name primitives, unions,
+tuples, and any other types.
+However, when declaring types for objects, use interfaces instead of a type
+alias for the object literal expression.
+
+## Mapped and conditional types
+
+TypeScript's
+[mapped types](https://www.typescriptlang.org/docs/handbook/2/mapped-types.html)
+and
+[conditional types](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html)
+allow specifying new types based on other types. TypeScript's standard library
+includes several type operators based on these (`Record`, `Partial`, `Readonly`
+etc).
+These type system features allow succinctly specifying types and constructing
+powerful yet type safe abstractions. They come with a number of drawbacks
+though:
+The style recommendation is:
+- Always use the simplest type construct that can possibly express your code.
+- A little bit of repetition or verbosity is often much cheaper than the long
+  term cost of complex type expressions.
+- Mapped & conditional types may be used, subject to these considerations.
+
+## `any` Type
+
+TypeScript's `any` type is a super and subtype of all other types, and allows
+dereferencing all properties. As such, `any` is dangerous - it can mask severe
+programming errors, and its use undermines the value of having static types in
+the first place.
+**Consider *not* to use `any`.** In circumstances where you want to use `any`,
+consider one of:
+- Provide a more specific type
+- Use `unknown`
+- Suppress the lint warning and document why
+
+## Using `unknown` over `any`
+
+The `any` type allows assignment into any other type and dereferencing any
+property off it. Often this behaviour is not necessary or desirable, and code
+just needs to express that a type is unknown. Use the built-in type `unknown` in
+that situation — it expresses the concept and is much safer as it does not allow
+dereferencing arbitrary properties.
+To safely use `unknown` values, narrow the type using a
+[type guard](https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types)
+
+## `{}` Type
+
+The `{}` type, also known as an *empty interface* type, represents a interface
+with no properties. An empty interface type has no specified properties and
+therefore any non-nullish value is assignable to it.
+Google3 code **should not** use `{}` for most use cases. `{}` represents any
+non-nullish primitive or object type, which is rarely appropriate. Prefer one of
+the following more-descriptive types:
+- `unknown` can hold any value, including `null` or `undefined`, and is
+  generally more appropriate for opaque values.
+- `Record<string, T>` is better for dictionary-like objects, and provides
+  better type safety by being explicit about the type `T` of contained values
+  (which may itself be `unknown`).
+- `object` excludes primitives as well, leaving only non-nullish functions and
+  objects, but without any other assumptions about what properties may be
+  available.
+
+## Wrapper types
+
+There are a few types related to JavaScript primitives that *should not* ever be
+used:
+- `String`, `Boolean`, and `Number` have slightly different meaning from the
+  corresponding primitive types `string`, `boolean`, and `number`. Always use
+  the lowercase version.
+- `Object` has similarities to both `{}` and `object`, but is slightly looser.
+  Use `{}` for a type that include everything except `null` and `undefined`,
+  or lowercase `object` to further exclude the other primitive types (the
+  three mentioned above, plus `symbol` and `bigint`).
+Further, never invoke the wrapper types as constructors (with `new`).
+
+## @ts-ignore
+
+Do not use `@ts-ignore` nor the variants `@ts-expect-error` or `@ts-nocheck`.
+You may use `@ts-expect-error` in unit tests, though you generally *should not*.
+`@ts-expect-error` suppresses all errors. It's easy to accidentally over-match
+and suppress more serious errors. Consider one of:
+- When testing APIs that need to deal with unchecked values at runtime, add
+  casts to the expected type or to `any` and add an explanatory comment. This
+  limits error suppression to a single expression.
+- Suppress the lint warning and document why, similar to
+  suppressing `any` lint warnings.
+
+## Conformance
+
+These rules are commonly used to enforce critical restrictions (such as defining
+globals, which could break the codebase) and security patterns (such as using
+`eval` or assigning to `innerHTML`), or more loosely to improve code quality.
+Google-style TypeScript must abide by any applicable global or framework-local
+conformance rules.
+
+## JSDoc versus comments
+
+There are two types of comments, JSDoc (`/** ... */`) and non-JSDoc ordinary
+comments (`// ...` or `/* ... */`).
+- Use `/** JSDoc */` comments for documentation, i.e. comments a user of the
+  code should read.
+- Use `// line comments` for implementation comments, i.e. comments that only
+  concern the implementation of the code itself.
+
+## Document all top-level exports of modules
+
+Use `/** JSDoc */` comments to communicate information to the users of your
+code. Avoid merely restating the property or parameter name. You *should* also
+document all properties and methods (exported/public or not) whose purpose is
+not immediately obvious from their name, as judged by your reviewer.
+**Exception:** Symbols that are only exported to be consumed by tooling, such as
+@NgModule classes, do not require comments.

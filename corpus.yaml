@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 generator:
   python: "3.13.7"
 generated_roots:
@@ -68,8 +68,52 @@ collections:
           including headers, naming, classes, functions, ownership, exceptions, and formatting.
           Do not use as a general C++ language tutorial.
         tags: [language, cpp, style, review]
-        recipe: recipes/google-cpp-style.md
         inputs: [cppguide.html]
+        excerpts:
+          - {input: cppguide.html, heading: "C++ Version", blocks: [0]}
+          - {input: cppguide.html, heading: "Self-contained Headers", blocks: [0, 1]}
+          - {input: cppguide.html, heading: "The #define Guard", blocks: [0]}
+          - {input: cppguide.html, heading: "Include What You Use", blocks: [0, 1]}
+          - {input: cppguide.html, heading: "Forward Declarations", blocks: [0, 7]}
+          - {input: cppguide.html, heading: "Names and Order of Includes", blocks: [0, 9, 13]}
+          - {input: cppguide.html, heading: "Namespaces", blocks: [0]}
+          - {input: cppguide.html, heading: "Internal Linkage", blocks: [0]}
+          - {input: cppguide.html, heading: "Local Variables", blocks: [0]}
+          - {input: cppguide.html, heading: "Static and Global Variables", blocks: [0]}
+          - {input: cppguide.html, heading: 'thread\_local Variables', blocks: [0]}
+          - {input: cppguide.html, heading: "Doing Work in Constructors", blocks: [0, 4]}
+          - {input: cppguide.html, heading: "Implicit Conversions", blocks: [0, 9, 11]}
+          - {input: cppguide.html, heading: "Copyable and Movable Types", blocks: [0, 10, 11, 15]}
+          - {input: cppguide.html, heading: "Structs vs. Classes", blocks: [0, 2, 3]}
+          - {input: cppguide.html, heading: "Inheritance", blocks: [0, 8]}
+          - {input: cppguide.html, heading: "Access Control", blocks: [0]}
+          - {input: cppguide.html, heading: "Inputs and Outputs", blocks: [1, 2, 3, 4]}
+          - {input: cppguide.html, heading: "Write Short Functions", blocks: [0]}
+          - {input: cppguide.html, heading: "Function Overloading", blocks: [0, 6]}
+          - {input: cppguide.html, heading: "Default Arguments", blocks: [0, 6]}
+          - {input: cppguide.html, heading: "Ownership and Smart Pointers", blocks: [0, 7]}
+          - {input: cppguide.html, heading: "Exceptions", blocks: [0, 8]}
+          - {input: cppguide.html, heading: "Run-Time Type Information (RTTI)", blocks: [0, 8, 9, 14]}
+          - {input: cppguide.html, heading: "Casting", blocks: [0]}
+          - {input: cppguide.html, heading: "Use of const", blocks: [0, 7]}
+          - {input: cppguide.html, heading: "Use of constexpr, constinit, and consteval", blocks: [0]}
+          - {input: cppguide.html, heading: "Integer Types", blocks: [0, 7]}
+          - {input: cppguide.html, heading: "Preprocessor Macros", blocks: [0, 8]}
+          - {input: cppguide.html, heading: "0 and nullptr/NULL", blocks: [0]}
+          - {input: cppguide.html, heading: "Type Deduction (including auto)", blocks: [0]}
+          - {input: cppguide.html, heading: "Concepts and Constraints", blocks: [0]}
+          - {input: cppguide.html, heading: "Nonstandard Extensions", blocks: [0, 4]}
+          - {input: cppguide.html, heading: "Choosing Names", blocks: [0]}
+          - {input: cppguide.html, heading: "File Names", blocks: [0]}
+          - {input: cppguide.html, heading: "Type Names", blocks: [0]}
+          - {input: cppguide.html, heading: "Variable Names", blocks: [0]}
+          - {input: cppguide.html, heading: "Constant Names", blocks: [0, 1]}
+          - {input: cppguide.html, heading: "Function Names", blocks: [0, 3]}
+          - {input: cppguide.html, heading: "Namespace Names", blocks: [0, 2]}
+          - {input: cppguide.html, heading: "Macro Names", blocks: [1]}
+          - {input: cppguide.html, heading: "Function Declarations", blocks: [0]}
+          - {input: cppguide.html, heading: "Line Length", blocks: [0, 5]}
+          - {input: cppguide.html, heading: "Looping and branching statements", blocks: [3, 13]}
 
       - name: google-csharp-style
         title: C# at Google Style Guide
@@ -78,8 +122,33 @@ collections:
           formatting, language features, and source organization. Do not use for unrelated
           .NET architecture or framework selection.
         tags: [language, csharp, style, review]
-        recipe: recipes/google-csharp-style.md
         inputs: [csharp-style.md]
+        excerpts:
+          - {input: csharp-style.md, heading: "Code", blocks: [0]}
+          - {input: csharp-style.md, heading: "Files", blocks: [0]}
+          - {input: csharp-style.md, heading: "Organization", blocks: [0]}
+          - {input: csharp-style.md, heading: "Whitespace rules", blocks: [1]}
+          - {input: csharp-style.md, heading: "Example", blocks: [0]}
+          - {input: csharp-style.md, heading: "Constants", blocks: [0]}
+          - {input: csharp-style.md, heading: "IEnumerable vs IList vs IReadOnlyList", blocks: [0]}
+          - {input: csharp-style.md, heading: "Generators vs containers", blocks: [0]}
+          - {input: csharp-style.md, heading: "Property styles", blocks: [0]}
+          - {input: csharp-style.md, heading: "Expression body syntax", blocks: [2]}
+          - {input: csharp-style.md, heading: "Structs and classes:", blocks: [0, 1, 2, 3, 4]}
+          - {input: csharp-style.md, heading: "Lambdas vs named methods", blocks: [0]}
+          - {input: csharp-style.md, heading: "Extension methods", blocks: [0]}
+          - {input: csharp-style.md, heading: "ref and out", blocks: [0]}
+          - {input: csharp-style.md, heading: "LINQ", blocks: [0]}
+          - {input: csharp-style.md, heading: "Array vs List", blocks: [0]}
+          - {input: csharp-style.md, heading: "Folders and file locations", blocks: [0]}
+          - {input: csharp-style.md, heading: "Use of tuple as a return type", blocks: [0]}
+          - {input: csharp-style.md, heading: "`using`", blocks: [0]}
+          - {input: csharp-style.md, heading: "Object Initializer syntax", blocks: [2]}
+          - {input: csharp-style.md, heading: "Namespace naming", blocks: [0]}
+          - {input: csharp-style.md, heading: "Calling delegates", blocks: [0]}
+          - {input: csharp-style.md, heading: "The `var` keyword", blocks: [0, 1, 2, 3]}
+          - {input: csharp-style.md, heading: "Attributes", blocks: [0]}
+          - {input: csharp-style.md, heading: "Argument Naming", blocks: [1, 2]}
 
       - name: google-documentation-guide
         title: Google Documentation Guide
@@ -88,13 +157,47 @@ collections:
           and documentation maintenance using Google's documentation philosophy and practices.
           Do not use for prose that is not technical documentation.
         tags: [documentation, markdown, readme, review]
-        recipe: recipes/google-documentation-guide.md
         inputs:
-          - docguide/README.md
           - docguide/philosophy.md
           - docguide/best_practices.md
           - docguide/style.md
           - docguide/READMEs.md
+        excerpts:
+          - {input: docguide/philosophy.md, heading: "Radical simplicity", blocks: [0, 1, 2, 3, 4]}
+          - {input: docguide/philosophy.md, heading: "Readable source text", blocks: [0, 1, 2, 3]}
+          - {input: docguide/best_practices.md, heading: "Minimum Viable Documentation", blocks: [0, 1]}
+          - {input: docguide/best_practices.md, heading: "Update Docs with Code", blocks: [0, 1]}
+          - {input: docguide/best_practices.md, heading: "Delete Dead Documentation", blocks: [0, 1, 2]}
+          - {input: docguide/best_practices.md, heading: "Documentation is the Story of Your Code", blocks: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15]}
+          - {input: docguide/best_practices.md, heading: "Duplication is Evil", blocks: [0]}
+          - {input: docguide/style.md, heading: "Better is better than best", blocks: [0, 1, 2, 3]}
+          - {input: docguide/style.md, heading: "Character line limit", blocks: [0]}
+          - {input: docguide/style.md, heading: "Exceptions", blocks: [0, 1]}
+          - {input: docguide/style.md, heading: "Trailing whitespace", blocks: [0, 2, 4]}
+          - {input: docguide/style.md, heading: "Document layout", blocks: [0, 1, 2, 4, 6, 7]}
+          - {input: docguide/style.md, heading: "Use unique, complete names for headings", blocks: [0]}
+          - {input: docguide/style.md, heading: "Add spacing to headings", blocks: [0, 1]}
+          - {input: docguide/style.md, heading: "Use a single H1 heading", blocks: [0]}
+          - {input: docguide/style.md, heading: "Use lazy numbering for long lists", blocks: [0, 1, 2, 3]}
+          - {input: docguide/style.md, heading: "Nested list spacing", blocks: [0, 1]}
+          - {input: docguide/style.md, heading: "Inline", blocks: [0, 1, 2, 3]}
+          - {input: docguide/style.md, heading: "Codeblocks", blocks: [0, 1]}
+          - {input: docguide/style.md, heading: "Declare the language", blocks: [0]}
+          - {input: docguide/style.md, heading: "Use fenced code blocks instead of indented code blocks", blocks: [0, 1, 2]}
+          - {input: docguide/style.md, heading: "Escape newlines", blocks: [0, 1]}
+          - {input: docguide/style.md, heading: "Links", blocks: [0]}
+          - {input: docguide/style.md, heading: "Use explicit paths for links within Markdown", blocks: [0, 1, 2, 3]}
+          - {input: docguide/style.md, heading: "Avoid relative paths unless within the same directory", blocks: [0, 1, 2, 3]}
+          - {input: docguide/style.md, heading: "Use informative Markdown link titles", blocks: [0, 1, 2, 3, 4]}
+          - {input: docguide/style.md, heading: "Use reference links for long links", blocks: [0, 7]}
+          - {input: docguide/style.md, heading: "Use reference links to reduce duplication", blocks: [0]}
+          - {input: docguide/style.md, heading: "Define reference links after their first use", blocks: [0, 1, 2, 3]}
+          - {input: docguide/style.md, heading: "Images", blocks: [1]}
+          - {input: docguide/style.md, heading: "Tables", blocks: [0, 1, 5, 6, 7]}
+          - {input: docguide/style.md, heading: "Strongly prefer Markdown to HTML", blocks: [0, 1]}
+          - {input: docguide/READMEs.md, heading: "Overview", blocks: [0]}
+          - {input: docguide/READMEs.md, heading: "Where to put your README", blocks: [0, 1]}
+          - {input: docguide/READMEs.md, heading: "What to put in your README", blocks: [0, 1, 2]}
 
       - name: google-go-style
         title: Google Go Style Guide
@@ -103,11 +206,49 @@ collections:
           practices, including naming, APIs, errors, documentation, tests, and maintainability.
           Do not use as a replacement for the Go language specification.
         tags: [language, go, style, review, testing]
-        recipe: recipes/google-go-style.md
         inputs:
           - go/guide.md
           - go/decisions.md
           - go/best-practices.md
+        excerpts:
+          - {input: go/guide.md, heading: "Style principles", blocks: [0, 1]}
+          - {input: go/guide.md, heading: "Simplicity", blocks: [0, 1, 2]}
+          - {input: go/guide.md, heading: "Least mechanism", blocks: [0, 1]}
+          - {input: go/guide.md, heading: "Maintainability", blocks: [0, 2, 12]}
+          - {input: go/guide.md, heading: "Formatting", blocks: [0]}
+          - {input: go/guide.md, heading: "MixedCaps", blocks: [0, 1]}
+          - {input: go/guide.md, heading: "Naming", blocks: [0, 1]}
+          - {input: go/decisions.md, heading: "Package names", blocks: [1]}
+          - {input: go/decisions.md, heading: "Receiver names", blocks: [1, 2]}
+          - {input: go/decisions.md, heading: "Constant names", blocks: [0]}
+          - {input: go/decisions.md, heading: "Initialisms", blocks: [1]}
+          - {input: go/decisions.md, heading: "Getters", blocks: [1, 2]}
+          - {input: go/decisions.md, heading: "Doc comments", blocks: [1, 3]}
+          - {input: go/decisions.md, heading: "Import grouping", blocks: [0, 1, 2, 3, 4]}
+          - {input: go/decisions.md, heading: 'Import "blank" (`import _`)', blocks: [1, 5, 9]}
+          - {input: go/decisions.md, heading: 'Import "dot" (`import .`)', blocks: [2]}
+          - {input: go/decisions.md, heading: "Returning errors", blocks: [1, 3, 5]}
+          - {input: go/decisions.md, heading: "Error strings", blocks: [1, 4]}
+          - {input: go/decisions.md, heading: "Handle errors", blocks: [1, 2, 4]}
+          - {input: go/decisions.md, heading: "In-band errors", blocks: [1, 5, 10]}
+          - {input: go/decisions.md, heading: "Indent error flow", blocks: [1, 2]}
+          - {input: go/decisions.md, heading: "Don't panic", blocks: [1]}
+          - {input: go/decisions.md, heading: "Goroutine lifetimes", blocks: [1, 6, 9]}
+          - {input: go/decisions.md, heading: "Interfaces", blocks: [1, 4, 5, 6]}
+          - {input: go/decisions.md, heading: "Pass values", blocks: [1, 2]}
+          - {input: go/decisions.md, heading: "Receiver type", blocks: [3, 7, 9, 18, 20, 22, 23]}
+          - {input: go/decisions.md, heading: "Synchronous functions", blocks: [1, 2, 3]}
+          - {input: go/decisions.md, heading: "Flags", blocks: [4, 5]}
+          - {input: go/decisions.md, heading: "Contexts", blocks: [3, 14, 18]}
+          - {input: go/decisions.md, heading: "Use package `testing`", blocks: [0]}
+          - {input: go/decisions.md, heading: "Identify the function", blocks: [0]}
+          - {input: go/decisions.md, heading: "Got before want", blocks: [0]}
+          - {input: go/decisions.md, heading: "Compare stable results", blocks: [0]}
+          - {input: go/decisions.md, heading: "Table-driven tests", blocks: [0]}
+          - {input: go/decisions.md, heading: "Test helpers", blocks: [0, 1]}
+          - {input: go/best-practices.md, heading: "Util packages", blocks: [0, 1, 2]}
+          - {input: go/best-practices.md, heading: "Adding information to errors", blocks: [0, 2, 4, 15, 16, 21]}
+          - {input: go/best-practices.md, heading: "Global state", blocks: [0, 1, 6, 27]}
 
       - name: google-html-css-style
         title: Google HTML/CSS Style Guide
@@ -116,8 +257,49 @@ collections:
           semantics, accessibility, formatting, naming, and organization. Do not use for visual
           design-system decisions.
         tags: [language, html, css, style, accessibility]
-        recipe: recipes/google-html-css-style.md
         inputs: [htmlcssguide.html]
+        excerpts:
+          - {input: htmlcssguide.html, heading: "Protocol", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Indentation", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Capitalization", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Trailing Whitespace", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Encoding", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Comments", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Action Items", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Document Type", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "HTML Validity", blocks: [0, 1, 2, 3]}
+          - {input: htmlcssguide.html, heading: "Semantics", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Multimedia Fallback", blocks: [0, 1, 2, 3]}
+          - {input: htmlcssguide.html, heading: "Separation of Concerns", blocks: [0, 1, 2, 3, 4]}
+          - {input: htmlcssguide.html, heading: "Entity References", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Optional Tags", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "`type` Attributes", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "`id` Attributes", blocks: [0, 1, 2, 3]}
+          - {input: htmlcssguide.html, heading: "General Formatting", blocks: [0, 1, 2, 3]}
+          - {input: htmlcssguide.html, heading: "HTML Line-Wrapping", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "HTML Quotation Marks", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "CSS Validity", blocks: [0, 1, 2, 3]}
+          - {input: htmlcssguide.html, heading: "Class Naming", blocks: [0, 1, 2, 3, 4]}
+          - {input: htmlcssguide.html, heading: "Class Name Style", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Class Name Delimiters", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Prefixes", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Type Selectors", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "ID Selectors", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Shorthand Properties", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "0 and Units", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Leading 0s", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Hexadecimal Notation", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Important Declarations", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Hacks", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Declaration Order", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Block Content Indentation", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Declaration Stops", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Property Name Stops", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Declaration Block Separation", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Selector and Declaration Separation", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "Rule Separation", blocks: [0, 1]}
+          - {input: htmlcssguide.html, heading: "CSS Quotation Marks", blocks: [0, 1, 2]}
+          - {input: htmlcssguide.html, heading: "Section Comments", blocks: [0, 1]}
 
       - name: google-java-style
         title: Google Java Style Guide
@@ -126,8 +308,58 @@ collections:
           ordering, Javadoc, and programming-practice conventions. Do not use for Java API
           design questions outside the guide's scope.
         tags: [language, java, style, review]
-        recipe: recipes/google-java-style.md
         inputs: [javaguide.html]
+        excerpts:
+          - {input: javaguide.html, heading: "1.2 Guide notes", blocks: [0]}
+          - {input: javaguide.html, heading: "2.1 File name", blocks: [0]}
+          - {input: javaguide.html, heading: "2.2 File encoding: UTF-8", blocks: [0]}
+          - {input: javaguide.html, heading: "2.3.1 Whitespace characters", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "3 Source file structure", blocks: [0, 1, 2]}
+          - {input: javaguide.html, heading: "3.2 Package declaration", blocks: [0]}
+          - {input: javaguide.html, heading: "3.3.1 No wildcard imports", blocks: [0]}
+          - {input: javaguide.html, heading: "3.3.1.1 No module imports", blocks: [0]}
+          - {input: javaguide.html, heading: "3.3.2 No line-wrapping", blocks: [0]}
+          - {input: javaguide.html, heading: "3.3.3 Ordering and spacing", blocks: [0, 1, 2, 3]}
+          - {input: javaguide.html, heading: "3.3.4 No static import for classes", blocks: [0]}
+          - {input: javaguide.html, heading: "3.4.1 Exactly one top-level class declaration", blocks: [0]}
+          - {input: javaguide.html, heading: "3.4.2 Ordering of class contents", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "3.4.2.1 Overloads: never split", blocks: [0]}
+          - {input: javaguide.html, heading: "4.1.1 Use of optional braces", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "4.1.2 Nonempty blocks: K & R style", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "4.2 Block indentation: +2 spaces", blocks: [0]}
+          - {input: javaguide.html, heading: "4.3 One statement per line", blocks: [0]}
+          - {input: javaguide.html, heading: "4.4 Column limit: 100", blocks: [0, 3]}
+          - {input: javaguide.html, heading: "4.5.1 Where to break", blocks: [0, 1, 2, 3]}
+          - {input: javaguide.html, heading: "4.5.2 Indent continuation lines at least +4 spaces", blocks: [0]}
+          - {input: javaguide.html, heading: "4.8.2.1 One variable per declaration", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "4.8.2.2 Declared when needed", blocks: [0]}
+          - {input: javaguide.html, heading: "4.8.3.2 No C-style array declarations", blocks: [0]}
+          - {input: javaguide.html, heading: "4.8.4.2 Fall-through: commented", blocks: [0, 3]}
+          - {input: javaguide.html, heading: "4.8.4.3 Exhaustiveness and presence of the `default` label", blocks: [0]}
+          - {input: javaguide.html, heading: "4.8.4.4 Switch expressions", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "4.8.5.1 Type-use annotations", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "4.8.5.2 Class, package, and module annotations", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "4.8.5.3 Method and constructor annotations", blocks: [0, 1, 2, 3]}
+          - {input: javaguide.html, heading: "4.8.6.2 TODO comments", blocks: [0, 1, 4, 6]}
+          - {input: javaguide.html, heading: "4.8.7 Modifiers", blocks: [0, 1, 2, 3]}
+          - {input: javaguide.html, heading: "5.1 Rules common to all identifiers", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "5.2.1 Package and module names", blocks: [0]}
+          - {input: javaguide.html, heading: "5.2.2 Class names", blocks: [0, 3]}
+          - {input: javaguide.html, heading: "5.2.3 Method names", blocks: [0, 2]}
+          - {input: javaguide.html, heading: "5.2.4 Constant names", blocks: [0, 1, 2]}
+          - {input: javaguide.html, heading: "5.2.5 Non-constant field names", blocks: [0]}
+          - {input: javaguide.html, heading: "5.2.6 Parameter names", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "5.2.7 Local variable names", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "5.2.8 Type variable names", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "5.3 Camel case: defined", blocks: [0, 2]}
+          - {input: javaguide.html, heading: "6.1 `@Override`: always used", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "6.2 Caught exceptions: not ignored", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "6.3 Static members: qualified using class", blocks: [0]}
+          - {input: javaguide.html, heading: "6.4 Finalizers: not used", blocks: [0]}
+          - {input: javaguide.html, heading: "7.2 The summary fragment", blocks: [0, 1, 2]}
+          - {input: javaguide.html, heading: "7.3 Where Javadoc is used", blocks: [0]}
+          - {input: javaguide.html, heading: "7.3.1 Exception: self-explanatory members", blocks: [0, 1]}
+          - {input: javaguide.html, heading: "7.3.2 Exception: overrides", blocks: [0]}
 
       - name: google-javascript-style
         title: Google JavaScript Style Guide
@@ -136,8 +368,57 @@ collections:
           module, language-feature, JSDoc, and policy conventions. The upstream guide is no
           longer updated. For TypeScript, use google-typescript-style instead.
         tags: [language, javascript, style, review]
-        recipe: recipes/google-javascript-style.md
         inputs: [jsguide.html]
+        excerpts:
+          - {input: jsguide.html, heading: "2.1 File name", blocks: [0]}
+          - {input: jsguide.html, heading: "3 Source file structure", blocks: [0, 1, 2, 3]}
+          - {input: jsguide.html, heading: "3.4.1.1.1 File extensions in import paths", blocks: [0]}
+          - {input: jsguide.html, heading: "3.4.2.1 Named vs default exports", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "3.4.2.2 Mutability of exports", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "3.4.3 Circular Dependencies in ES modules", blocks: [0]}
+          - {input: jsguide.html, heading: "3.6 `goog.require` and `goog.requireType` statements", blocks: [0, 1, 2, 7, 8, 9]}
+          - {input: jsguide.html, heading: "4.1.1 Braces are used for all control structures", blocks: [0, 3]}
+          - {input: jsguide.html, heading: "4.2 Block indentation: +2 spaces", blocks: [0]}
+          - {input: jsguide.html, heading: "4.3.2 Semicolons are required", blocks: [0]}
+          - {input: jsguide.html, heading: "4.4 Column limit: 80", blocks: [0, 2]}
+          - {input: jsguide.html, heading: "4.5.1 Where to break", blocks: [0, 7, 8]}
+          - {input: jsguide.html, heading: "4.5.2 Indent continuation lines at least +4 spaces", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "5.1.1 Use `const` and `let`", blocks: [0]}
+          - {input: jsguide.html, heading: "5.1.2 One variable per declaration", blocks: [0]}
+          - {input: jsguide.html, heading: "5.1.3 Declared when needed, initialized as soon as possible", blocks: [0]}
+          - {input: jsguide.html, heading: "5.2.1 Use trailing commas", blocks: [0]}
+          - {input: jsguide.html, heading: "5.3.3 Do not mix quoted and unquoted keys", blocks: [0, 3]}
+          - {input: jsguide.html, heading: "5.4.2 Fields", blocks: [0]}
+          - {input: jsguide.html, heading: "5.4.6 Do not manipulate `prototype`s directly", blocks: [0]}
+          - {input: jsguide.html, heading: "5.4.11 Do not create static container classes", blocks: [0]}
+          - {input: jsguide.html, heading: "5.4.12 Do not define nested namespaces", blocks: [0]}
+          - {input: jsguide.html, heading: "5.5.3 Arrow functions", blocks: [0, 1, 4]}
+          - {input: jsguide.html, heading: "5.5.5.2 Rest parameters", blocks: [0]}
+          - {input: jsguide.html, heading: "5.6.1 Use single quotes", blocks: [0, 2]}
+          - {input: jsguide.html, heading: "5.6.3 No line continuations", blocks: [0]}
+          - {input: jsguide.html, heading: "5.8.1 For loops", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "5.8.2 Exceptions", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "5.8.2.1 Empty catch blocks", blocks: [0]}
+          - {input: jsguide.html, heading: "5.8.3.1 Fall-through: commented", blocks: [0]}
+          - {input: jsguide.html, heading: "5.8.3.2 The `default` case is present", blocks: [0]}
+          - {input: jsguide.html, heading: "5.10 Equality Checks", blocks: [0]}
+          - {input: jsguide.html, heading: "5.10.1 Exceptions Where Coercion is Desirable", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "5.11.2 Dynamic code evaluation", blocks: [0]}
+          - {input: jsguide.html, heading: "5.11.4 Non-standard features", blocks: [0]}
+          - {input: jsguide.html, heading: "5.11.5 Wrapper objects for primitive types", blocks: [0, 3]}
+          - {input: jsguide.html, heading: "5.11.6 Modifying builtin objects", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "6.1 Rules common to all identifiers", blocks: [0, 1, 5]}
+          - {input: jsguide.html, heading: "6.2.2 Class names", blocks: [0]}
+          - {input: jsguide.html, heading: "6.2.3 Method names", blocks: [0]}
+          - {input: jsguide.html, heading: "6.2.5 Constant names", blocks: [0]}
+          - {input: jsguide.html, heading: "6.2.8 Local variable names", blocks: [0]}
+          - {input: jsguide.html, heading: "7.8 Method and function comments", blocks: [0, 1]}
+          - {input: jsguide.html, heading: "7.10.1 Nullability", blocks: [0, 2]}
+          - {input: jsguide.html, heading: "7.11 Visibility annotations", blocks: [0]}
+          - {input: jsguide.html, heading: "8.2.2 How to handle a warning", blocks: [0, 1, 2]}
+          - {input: jsguide.html, heading: "8.2.3 Suppress a warning at the narrowest reasonable scope", blocks: [0, 3]}
+          - {input: jsguide.html, heading: "8.4.1 Reformatting existing code", blocks: [1]}
+          - {input: jsguide.html, heading: "8.4.2 Newly added code: use Google Style", blocks: [0, 2]}
 
       - name: google-common-lisp-style
         title: Google Common Lisp Style Guide
@@ -146,8 +427,41 @@ collections:
           documentation, macro, error-handling, and language-usage conventions. Do not use for
           other Lisp dialects without checking compatibility.
         tags: [language, common-lisp, style, review]
-        recipe: recipes/google-common-lisp-style.md
         inputs: [lispguide.xml]
+        excerpts:
+          - {input: lispguide.xml, heading: "Must, Should, May, or Not", blocks: [0, 1]}
+          - {input: lispguide.xml, heading: "Priorities", blocks: [0, 1, 5, 6]}
+          - {input: lispguide.xml, heading: "Using Libraries", blocks: [0]}
+          - {input: lispguide.xml, heading: "Spelling and Abbreviations", blocks: [0, 2]}
+          - {input: lispguide.xml, heading: "Line length", blocks: [0]}
+          - {input: lispguide.xml, heading: "Indentation", blocks: [0, 1, 2]}
+          - {input: lispguide.xml, heading: "Vertical white space", blocks: [0, 4]}
+          - {input: lispguide.xml, heading: "Horizontal white space", blocks: [0, 1, 2, 6, 7, 18]}
+          - {input: lispguide.xml, heading: "Document everything", blocks: [0, 3, 4]}
+          - {input: lispguide.xml, heading: "Comment semicolons", blocks: [0, 2, 4, 6]}
+          - {input: lispguide.xml, heading: "Symbol guidelines", blocks: [0, 1, 3, 9, 10]}
+          - {input: lispguide.xml, heading: "Denote intent, not content", blocks: [0, 1, 2]}
+          - {input: lispguide.xml, heading: "Global variables and constants", blocks: [0, 1, 2]}
+          - {input: lispguide.xml, heading: "Predicate names", blocks: [0, 1]}
+          - {input: lispguide.xml, heading: "Omit library prefixes", blocks: [0]}
+          - {input: lispguide.xml, heading: "Packages", blocks: [0, 2, 3, 4, 8, 10, 11]}
+          - {input: lispguide.xml, heading: "Mostly Functional Style", blocks: [0, 2, 3, 4]}
+          - {input: lispguide.xml, heading: "Recursion", blocks: [0, 3, 4]}
+          - {input: lispguide.xml, heading: "Special variables", blocks: [0]}
+          - {input: lispguide.xml, heading: "Assignment", blocks: [0]}
+          - {input: lispguide.xml, heading: "Assertions and Conditions", blocks: [0, 1, 2, 3]}
+          - {input: lispguide.xml, heading: "Type Checking", blocks: [0]}
+          - {input: lispguide.xml, heading: "CLOS", blocks: [0, 1, 2, 3, 10]}
+          - {input: lispguide.xml, heading: "Macros", blocks: [0, 7, 16]}
+          - {input: lispguide.xml, heading: "EVAL-WHEN", blocks: [0]}
+          - {input: lispguide.xml, heading: "EVAL", blocks: [0]}
+          - {input: lispguide.xml, heading: "INTERN and UNINTERN", blocks: [0]}
+          - {input: lispguide.xml, heading: "NIL: empty-list, false and I Don't Know", blocks: [0]}
+          - {input: lispguide.xml, heading: "Do not abuse lists", blocks: [0]}
+          - {input: lispguide.xml, heading: "Lists vs. structures vs. multiple values", blocks: [0]}
+          - {input: lispguide.xml, heading: "Lists vs. Arrays", blocks: [0]}
+          - {input: lispguide.xml, heading: "Lists vs. Sets", blocks: [0]}
+          - {input: lispguide.xml, heading: "Defining Functions", blocks: [0]}
 
       - name: google-objective-c-style
         title: Google Objective-C Style Guide
@@ -156,8 +470,45 @@ collections:
           formatting, Cocoa-pattern, memory-management, and documentation conventions. Do not
           use as a Swift style guide.
         tags: [language, objective-c, style, review]
-        recipe: recipes/google-objective-c-style.md
         inputs: [objcguide.md]
+        excerpts:
+          - {input: objcguide.md, heading: "Be consistent with Apple SDKs", blocks: [0]}
+          - {input: objcguide.md, heading: "Inclusive Language", blocks: [0]}
+          - {input: objcguide.md, heading: "File Names", blocks: [0, 2, 3, 5]}
+          - {input: objcguide.md, heading: "Prefixes", blocks: [0, 1]}
+          - {input: objcguide.md, heading: "Category Naming", blocks: [0, 1, 4]}
+          - {input: objcguide.md, heading: "Objective-C Method Names", blocks: [0, 1, 3, 4, 6, 9, 10, 12, 13, 19]}
+          - {input: objcguide.md, heading: "Function Names", blocks: [0, 2]}
+          - {input: objcguide.md, heading: "Variable Names", blocks: [0, 1]}
+          - {input: objcguide.md, heading: "Constants", blocks: [0, 1, 3, 4, 5, 6, 7]}
+          - {input: objcguide.md, heading: "Method Declarations", blocks: [0]}
+          - {input: objcguide.md, heading: "Local Variables", blocks: [0]}
+          - {input: objcguide.md, heading: "Static Variables", blocks: [0]}
+          - {input: objcguide.md, heading: "Unsigned Integers", blocks: [0, 1, 4]}
+          - {input: objcguide.md, heading: "Types with Inconsistent Sizes", blocks: [0, 3]}
+          - {input: objcguide.md, heading: "Declaration Comments", blocks: [0, 1, 5, 7, 8, 9]}
+          - {input: objcguide.md, heading: "Macros", blocks: [0, 2, 3, 6]}
+          - {input: objcguide.md, heading: "Nonstandard Extensions", blocks: [0]}
+          - {input: objcguide.md, heading: "Identify Designated Initializers", blocks: [0, 2, 3]}
+          - {input: objcguide.md, heading: "Initialization", blocks: [0]}
+          - {input: objcguide.md, heading: "Instance Variables In Headers Should Be @protected or @private", blocks: [0]}
+          - {input: objcguide.md, heading: "Do Not Use +new", blocks: [0]}
+          - {input: objcguide.md, heading: "Keep the Public API Simple", blocks: [0, 1, 2]}
+          - {input: objcguide.md, heading: "#import and #include", blocks: [0, 1]}
+          - {input: objcguide.md, heading: "Order of Includes", blocks: [0, 1, 2, 3]}
+          - {input: objcguide.md, heading: "Avoid Messaging the Current Object Within Initializers and `-dealloc`", blocks: [0, 1, 2, 3, 6, 10]}
+          - {input: objcguide.md, heading: "Mutables, Copies and Ownership", blocks: [0, 1, 3]}
+          - {input: objcguide.md, heading: "Copy Potentially Mutable Objects", blocks: [0, 1, 2, 6, 8, 10]}
+          - {input: objcguide.md, heading: "Use Lightweight Generics to Document Contained Types", blocks: [0, 1, 3, 5]}
+          - {input: objcguide.md, heading: "Avoid Throwing Exceptions", blocks: [0, 2]}
+          - {input: objcguide.md, heading: "`nil` Checks", blocks: [0, 3, 4]}
+          - {input: objcguide.md, heading: "Nullability", blocks: [0, 3]}
+          - {input: objcguide.md, heading: "BOOL Expressions and Conversions", blocks: [0, 1, 3, 5, 8, 11]}
+          - {input: objcguide.md, heading: "Delegate Pattern", blocks: [0, 1, 2, 3]}
+          - {input: objcguide.md, heading: "Style Matches the Language", blocks: [0, 1, 2, 4]}
+          - {input: objcguide.md, heading: "Method Declarations and Definitions", blocks: [0, 4]}
+          - {input: objcguide.md, heading: "Conditionals", blocks: [0, 2, 5, 8]}
+          - {input: objcguide.md, heading: "Indicating style exceptions", blocks: [0]}
 
       - name: google-python-style
         title: Google Python Style Guide
@@ -166,8 +517,40 @@ collections:
           imports, exceptions, typing, naming, comments, tests, and formatting. Do not use as a
           Python beginner tutorial.
         tags: [language, python, style, review, testing]
-        recipe: recipes/google-python-style.md
         inputs: [pyguide.md]
+        excerpts:
+          - {input: pyguide.md, heading: "2.1.4 Decision", blocks: [0, 1, 4]}
+          - {input: pyguide.md, heading: "2.2.4 Decision", blocks: [0, 3]}
+          - {input: pyguide.md, heading: "2.4.4 Decision", blocks: [0, 1, 2, 5, 6, 7, 9, 10]}
+          - {input: pyguide.md, heading: "2.5.4 Decision", blocks: [0, 1, 2]}
+          - {input: pyguide.md, heading: "2.7.4 Decision", blocks: [0]}
+          - {input: pyguide.md, heading: "2.9.4 Decision", blocks: [0, 1, 2]}
+          - {input: pyguide.md, heading: "2.10.4 Decision", blocks: [0, 1]}
+          - {input: pyguide.md, heading: "2.12.4 Decision", blocks: [0, 1]}
+          - {input: pyguide.md, heading: "2.13.4 Decision", blocks: [0, 1]}
+          - {input: pyguide.md, heading: "2.14.4 Decision", blocks: [0, 1, 2, 3, 8]}
+          - {input: pyguide.md, heading: "2.18 Threading", blocks: [0, 2]}
+          - {input: pyguide.md, heading: "2.21.4 Decision", blocks: [0]}
+          - {input: pyguide.md, heading: "3.2 Line length", blocks: [0, 3, 4]}
+          - {input: pyguide.md, heading: "3.4 Indentation", blocks: [0, 1]}
+          - {input: pyguide.md, heading: "3.8.1 Docstrings", blocks: [0]}
+          - {input: pyguide.md, heading: "3.8.3 Functions and Methods", blocks: [1, 2, 3]}
+          - {input: pyguide.md, heading: "3.8.4 Classes", blocks: [0, 2]}
+          - {input: pyguide.md, heading: "3.8.5 Block and Inline Comments", blocks: [0]}
+          - {input: pyguide.md, heading: "3.10 Strings", blocks: [0, 3, 6]}
+          - {input: pyguide.md, heading: "3.10.1 Logging", blocks: [0]}
+          - {input: pyguide.md, heading: "3.10.2 Error Messages", blocks: [0, 1, 2, 3]}
+          - {input: pyguide.md, heading: "3.11 Files, Sockets, and similar Stateful Resources", blocks: [0, 6, 8, 10]}
+          - {input: pyguide.md, heading: "3.13 Imports formatting", blocks: [0, 4, 5, 6, 8, 9, 10, 11, 12, 13, 17]}
+          - {input: pyguide.md, heading: "3.16 Naming", blocks: [0, 1, 2, 3]}
+          - {input: pyguide.md, heading: "3.16.1 Names to Avoid", blocks: [0, 1, 2, 4, 5, 6]}
+          - {input: pyguide.md, heading: "3.16.2 Naming Conventions", blocks: [1, 2]}
+          - {input: pyguide.md, heading: "3.16.5 Mathematical Notation", blocks: [0, 1, 2]}
+          - {input: pyguide.md, heading: "3.17 Main", blocks: [0, 5]}
+          - {input: pyguide.md, heading: "3.19.1 General Rules", blocks: [4, 5, 6]}
+          - {input: pyguide.md, heading: "3.19.5 NoneType", blocks: [0, 1]}
+          - {input: pyguide.md, heading: "3.19.12 Imports For Typing", blocks: [0, 1, 4, 5, 6]}
+          - {input: pyguide.md, heading: "3.19.15 Generics", blocks: [0]}
 
       - name: google-shell-style
         title: Google Shell Style Guide
@@ -176,8 +559,45 @@ collections:
           scope, features, naming, comments, quoting, command substitution, and error handling.
           Do not use for non-Bourne-compatible shells without checking applicability.
         tags: [language, shell, bash, style, review]
-        recipe: recipes/google-shell-style.md
         inputs: [shellguide.md]
+        excerpts:
+          - {input: shellguide.md, heading: "Which Shell to Use", blocks: [0, 1, 3]}
+          - {input: shellguide.md, heading: "When to use Shell", blocks: [0, 2, 3]}
+          - {input: shellguide.md, heading: "File Extensions", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "SUID/SGID", blocks: [0, 2]}
+          - {input: shellguide.md, heading: "STDOUT vs STDERR", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "File Header", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Function Comments", blocks: [0, 1, 2, 3]}
+          - {input: shellguide.md, heading: "Implementation Comments", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "TODO Comments", blocks: [0, 2]}
+          - {input: shellguide.md, heading: "Indentation", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Line Length and Long Strings", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Pipelines", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Control Flow", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Case statement", blocks: [0, 1, 3]}
+          - {input: shellguide.md, heading: "Variable expansion", blocks: [0, 1, 2, 3, 4]}
+          - {input: shellguide.md, heading: "Quoting", blocks: [0]}
+          - {input: shellguide.md, heading: "ShellCheck", blocks: [0]}
+          - {input: shellguide.md, heading: "Command Substitution", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Test, `[ … ]`, and `[[ … ]]`", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Testing Strings", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Wildcard Expansion of Filenames", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Eval", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Arrays", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Arrays Decision", blocks: [0]}
+          - {input: shellguide.md, heading: "Pipes to While", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Arithmetic", blocks: [0, 1, 2, 3]}
+          - {input: shellguide.md, heading: "Aliases", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Function Names", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Variable Names", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Constants, Environment Variables, and readonly Variables", blocks: [0]}
+          - {input: shellguide.md, heading: "Source Filenames", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Use Local Variables", blocks: [0, 1, 2]}
+          - {input: shellguide.md, heading: "Function Location", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "main", blocks: [0, 1, 2, 3]}
+          - {input: shellguide.md, heading: "Checking Return Values", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "Builtin Commands vs. External Commands", blocks: [0, 1]}
+          - {input: shellguide.md, heading: "When in Doubt: Be Consistent", blocks: [0, 1]}
 
       - name: google-typescript-style
         title: Google TypeScript Style Guide
@@ -186,8 +606,53 @@ collections:
           module, documentation, and conformance conventions. Do not use for plain JavaScript;
           use google-javascript-style instead.
         tags: [language, typescript, style, review]
-        recipe: recipes/google-typescript-style.md
         inputs: [tsguide.html]
+        excerpts:
+          - {input: tsguide.html, heading: "Import paths", blocks: [0, 1, 2]}
+          - {input: tsguide.html, heading: "Namespace versus named imports", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Exports", blocks: [0, 2]}
+          - {input: tsguide.html, heading: "Mutable exports", blocks: [0, 2, 4]}
+          - {input: tsguide.html, heading: "Import type", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Export type", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Use modules not namespaces", blocks: [0, 1, 2]}
+          - {input: tsguide.html, heading: "Use const and let", blocks: [0, 4]}
+          - {input: tsguide.html, heading: "Use readonly", blocks: [0]}
+          - {input: tsguide.html, heading: "Properties used outside of class lexical scope", blocks: [0, 2]}
+          - {input: tsguide.html, heading: "Getters and setters", blocks: [0, 3, 6]}
+          - {input: tsguide.html, heading: "Visibility", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Prefer function declarations for named functions", blocks: [0, 3]}
+          - {input: tsguide.html, heading: "Arrow function bodies", blocks: [0, 2, 5]}
+          - {input: tsguide.html, heading: "Prefer passing arrow functions as callbacks", blocks: [0, 1, 3]}
+          - {input: tsguide.html, heading: "Prefer rest and spread when appropriate", blocks: [0, 2]}
+          - {input: tsguide.html, heading: "Control flow statements and blocks", blocks: [0, 3]}
+          - {input: tsguide.html, heading: "Iterating containers", blocks: [0, 1, 4]}
+          - {input: tsguide.html, heading: "Only throw errors", blocks: [0, 2, 3]}
+          - {input: tsguide.html, heading: "Catching and rethrowing", blocks: [0, 2]}
+          - {input: tsguide.html, heading: "Empty catch blocks", blocks: [0]}
+          - {input: tsguide.html, heading: "Switch statements", blocks: [0, 1, 2, 3]}
+          - {input: tsguide.html, heading: "Equality checks", blocks: [0, 3]}
+          - {input: tsguide.html, heading: "Type and non-nullability assertions", blocks: [0, 1, 4, 6, 8]}
+          - {input: tsguide.html, heading: "Type assertions and object literals", blocks: [0]}
+          - {input: tsguide.html, heading: "Dynamic code evaluation", blocks: [0]}
+          - {input: tsguide.html, heading: "Modifying builtin objects", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Descriptive names", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Camel case", blocks: [0]}
+          - {input: tsguide.html, heading: "`_` prefix/suffix", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Constants", blocks: [0, 4]}
+          - {input: tsguide.html, heading: "Type inference", blocks: [0, 1, 2, 5, 6]}
+          - {input: tsguide.html, heading: "Nullable/undefined type aliases", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Prefer optional over `|undefined`", blocks: [0, 2, 3, 4]}
+          - {input: tsguide.html, heading: "Use structural types", blocks: [0, 1, 4]}
+          - {input: tsguide.html, heading: "Prefer interfaces over type literal aliases", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Mapped and conditional types", blocks: [0, 1, 3, 4]}
+          - {input: tsguide.html, heading: "`any` Type", blocks: [0, 1, 2]}
+          - {input: tsguide.html, heading: "Using `unknown` over `any`", blocks: [0, 3]}
+          - {input: tsguide.html, heading: "`{}` Type", blocks: [0, 3, 4]}
+          - {input: tsguide.html, heading: "Wrapper types", blocks: [0, 1, 2]}
+          - {input: tsguide.html, heading: "@ts-ignore", blocks: [0, 4, 5]}
+          - {input: tsguide.html, heading: "Conformance", blocks: [1, 2]}
+          - {input: tsguide.html, heading: "JSDoc versus comments", blocks: [0, 1]}
+          - {input: tsguide.html, heading: "Document all top-level exports of modules", blocks: [0, 1]}
 
       - name: google-vimscript-style
         title: Google Vimscript Style Guide
@@ -195,8 +660,33 @@ collections:
           Use when writing or reviewing Vimscript under Google's naming, formatting, command,
           function, mapping, and plugin conventions. Do not use for Lua-based Neovim code.
         tags: [language, vimscript, vim, style]
-        recipe: recipes/google-vimscript-style.md
         inputs: [vimscriptguide.xml]
+        excerpts:
+          - {input: vimscriptguide.xml, heading: "Portability", blocks: [0]}
+          - {input: vimscriptguide.xml, heading: "Strings", blocks: [0, 1, 2]}
+          - {input: vimscriptguide.xml, heading: "Matching Strings", blocks: [0, 1]}
+          - {input: vimscriptguide.xml, heading: "Regular Expressions", blocks: [0, 1, 2]}
+          - {input: vimscriptguide.xml, heading: "Dangerous commands", blocks: [0, 1, 2]}
+          - {input: vimscriptguide.xml, heading: "Fragile commands", blocks: [0, 1, 2, 3]}
+          - {input: vimscriptguide.xml, heading: "Catching Exceptions", blocks: [0, 1]}
+          - {input: vimscriptguide.xml, heading: "Messaging", blocks: [0, 1, 2]}
+          - {input: vimscriptguide.xml, heading: "Type checking", blocks: [0, 1, 2, 4]}
+          - {input: vimscriptguide.xml, heading: "Python", blocks: [0, 1]}
+          - {input: vimscriptguide.xml, heading: "Other Languages", blocks: [0, 1]}
+          - {input: vimscriptguide.xml, heading: "Plugin layout", blocks: [0]}
+          - {input: vimscriptguide.xml, heading: "Functions", blocks: [0, 1, 2, 3, 4, 5]}
+          - {input: vimscriptguide.xml, heading: "Commands", blocks: [0, 1, 2]}
+          - {input: vimscriptguide.xml, heading: "Autocommands", blocks: [0, 1, 2, 3]}
+          - {input: vimscriptguide.xml, heading: "Mappings", blocks: [1, 2]}
+          - {input: vimscriptguide.xml, heading: "Settings", blocks: [0, 1]}
+          - {input: vimscriptguide.xml, heading: "Style", blocks: [0]}
+          - {input: vimscriptguide.xml, heading: "Whitespace", blocks: [0, 1, 2, 3, 4, 5, 6, 7]}
+          - {input: vimscriptguide.xml, heading: "Naming", blocks: [0, 1]}
+          - {input: vimscriptguide.xml, heading: "plugin-names-like-this", blocks: [0]}
+          - {input: vimscriptguide.xml, heading: "FunctionNamesLikeThis", blocks: [0, 1, 2]}
+          - {input: vimscriptguide.xml, heading: "CommandNamesLikeThis", blocks: [0]}
+          - {input: vimscriptguide.xml, heading: 'variable\_names\_like\_this', blocks: [0]}
+          - {input: vimscriptguide.xml, heading: "Prefix all variables with their scope.", blocks: [0, 1, 2, 3]}
 
       - name: google-xml-style
         title: Google XML Document Format Style Guide
@@ -205,8 +695,24 @@ collections:
           structure, extensibility, namespace, validation, and schema conventions. Do not use
           merely to pretty-print an existing XML file.
         tags: [language, xml, schema, style]
-        recipe: recipes/google-xml-style.md
         inputs: [xmlstyle.html]
+        excerpts:
+          - {input: xmlstyle.html, heading: "Introduction", blocks: [0, 1, 2, 3, 4]}
+          - {input: xmlstyle.html, heading: "1. To design or not to design, that is the question", blocks: [0]}
+          - {input: xmlstyle.html, heading: "2. Schemas", blocks: [0]}
+          - {input: xmlstyle.html, heading: "3. Namespaces", blocks: [0]}
+          - {input: xmlstyle.html, heading: "4. Names and enumerated values", blocks: [0, 1]}
+          - {input: xmlstyle.html, heading: "5. Elements", blocks: [0]}
+          - {input: xmlstyle.html, heading: "6. Attributes", blocks: [0]}
+          - {input: xmlstyle.html, heading: "7. Values", blocks: [0]}
+          - {input: xmlstyle.html, heading: "8. Key-value pairs", blocks: [0]}
+          - {input: xmlstyle.html, heading: "9. Binary data", blocks: [0, 1]}
+          - {input: xmlstyle.html, heading: "10. Processing instructions", blocks: [0]}
+          - {input: xmlstyle.html, heading: "11. Representation of XML document instances", blocks: [0, 1]}
+          - {input: xmlstyle.html, heading: "12. Elements vs. Attributes", blocks: [0]}
+          - {input: xmlstyle.html, heading: "12.1. General points:", blocks: [0]}
+          - {input: xmlstyle.html, heading: "12.2 Using elements", blocks: [0]}
+          - {input: xmlstyle.html, heading: "12.3 Using attributes", blocks: [0]}
 
   google-engineering-practices:
     repository: eng-practices
@@ -220,13 +726,40 @@ collections:
           description, responding to comments, or resolving review disagreement using Google's
           engineering practices. Do not use when acting only as the reviewer.
         tags: [engineering, code-review, author, changelist]
-        recipe: recipes/google-code-review-author.md
         inputs:
-          - review/developer/index.md
           - review/developer/small-cls.md
           - review/developer/cl-descriptions.md
           - review/developer/handling-comments.md
+          - review/reviewer/standard.md
           - review/emergencies.md
+        excerpts:
+          - {input: review/developer/small-cls.md, heading: "Why Write Small CLs? {#why}", blocks: [0, 1]}
+          - {input: review/developer/small-cls.md, heading: "What is Small? {#what-is-small}", blocks: [1, 2, 3, 4]}
+          - {input: review/developer/small-cls.md, heading: "When are Large CLs Okay? {#large-okay}", blocks: [1, 2]}
+          - {input: review/developer/small-cls.md, heading: "Splitting CLs {#splitting}", blocks: [0, 1, 2]}
+          - {input: review/developer/small-cls.md, heading: "Stacking Multiple Changes on Top of Each Other {#stacking}", blocks: [0]}
+          - {input: review/developer/small-cls.md, heading: "Splitting by Files {#splitting-files}", blocks: [0, 1, 2]}
+          - {input: review/developer/small-cls.md, heading: "Splitting Horizontally {#splitting-horizontally}", blocks: [0]}
+          - {input: review/developer/small-cls.md, heading: "Splitting Vertically {#splitting-vertically}", blocks: [0]}
+          - {input: review/developer/small-cls.md, heading: "Separate Out Refactorings {#refactoring}", blocks: [0, 1]}
+          - {input: review/developer/small-cls.md, heading: "Keep related test code in the same CL {#test-code}", blocks: [1, 2, 3, 4, 5]}
+          - {input: review/developer/small-cls.md, heading: "Don't Break the Build {#break}", blocks: [0]}
+          - {input: review/developer/small-cls.md, heading: "Can't Make it Small Enough {#cant}", blocks: [0, 1, 2]}
+          - {input: review/developer/cl-descriptions.md, heading: "Writing good CL descriptions", blocks: [0, 1, 2, 3, 4, 5, 6]}
+          - {input: review/developer/cl-descriptions.md, heading: "First Line {#first-line}", blocks: [1, 2, 3, 4]}
+          - {input: review/developer/cl-descriptions.md, heading: "Body is Informative {#informative}", blocks: [0, 1, 2]}
+          - {input: review/developer/cl-descriptions.md, heading: "Bad CL Descriptions {#bad}", blocks: [0, 1, 2]}
+          - {input: review/developer/cl-descriptions.md, heading: "Generated CL descriptions", blocks: [0]}
+          - {input: review/developer/cl-descriptions.md, heading: "Review the description before submitting the CL", blocks: [0]}
+          - {input: review/developer/handling-comments.md, heading: "How to handle reviewer comments", blocks: [0]}
+          - {input: review/developer/handling-comments.md, heading: "Don't Take it Personally {#personal}", blocks: [0, 2, 3]}
+          - {input: review/developer/handling-comments.md, heading: "Fix the Code {#code}", blocks: [0, 1]}
+          - {input: review/developer/handling-comments.md, heading: "Think Collaboratively {#think}", blocks: [1, 2, 3, 5, 6, 7]}
+          - {input: review/reviewer/standard.md, heading: "Resolving Conflicts {#conflicts}", blocks: [1, 2]}
+          - {input: review/emergencies.md, heading: "Emergencies", blocks: [0]}
+          - {input: review/emergencies.md, heading: "What Is An Emergency? {#what}", blocks: [0, 1, 2]}
+          - {input: review/emergencies.md, heading: "What Is NOT An Emergency? {#not}", blocks: [0, 1]}
+          - {input: review/emergencies.md, heading: "What Is a Hard Deadline? {#deadlines}", blocks: [0, 1, 2, 3, 4]}
 
       - name: google-code-review-reviewer
         title: Google's Code Review Guide for Reviewers
@@ -235,15 +768,45 @@ collections:
           standard, writing comments, reviewing quickly, navigating a change, or handling
           pushback. Do not use when only preparing your own change for review.
         tags: [engineering, code-review, reviewer, readability]
-        recipe: recipes/google-code-review-reviewer.md
         inputs:
-          - review/reviewer/index.md
           - review/reviewer/standard.md
           - review/reviewer/looking-for.md
           - review/reviewer/navigate.md
           - review/reviewer/comments.md
           - review/reviewer/speed.md
           - review/reviewer/pushback.md
+        excerpts:
+          - {input: review/reviewer/standard.md, heading: "The Standard of Code Review", blocks: [0, 2, 3, 5, 6, 9, 10, 11]}
+          - {input: review/reviewer/standard.md, heading: "Principles {#principles}", blocks: [0, 1, 2, 3]}
+          - {input: review/reviewer/standard.md, heading: "Resolving Conflicts {#conflicts}", blocks: [0, 2]}
+          - {input: review/reviewer/looking-for.md, heading: "Design", blocks: [0]}
+          - {input: review/reviewer/looking-for.md, heading: "Functionality", blocks: [0, 1]}
+          - {input: review/reviewer/looking-for.md, heading: "Complexity", blocks: [0, 1]}
+          - {input: review/reviewer/looking-for.md, heading: "Tests", blocks: [0, 1, 2, 3]}
+          - {input: review/reviewer/looking-for.md, heading: "Naming", blocks: [0]}
+          - {input: review/reviewer/looking-for.md, heading: "Comments", blocks: [0, 2]}
+          - {input: review/reviewer/looking-for.md, heading: "Style", blocks: [0, 1]}
+          - {input: review/reviewer/looking-for.md, heading: "Consistency", blocks: [0, 1, 2]}
+          - {input: review/reviewer/looking-for.md, heading: "Documentation", blocks: [0]}
+          - {input: review/reviewer/looking-for.md, heading: "Every Line {#every-line}", blocks: [0, 1, 2]}
+          - {input: review/reviewer/looking-for.md, heading: "Context", blocks: [0, 1]}
+          - {input: review/reviewer/looking-for.md, heading: "Good Things {#good-things}", blocks: [0]}
+          - {input: review/reviewer/navigate.md, heading: "Summary", blocks: [1]}
+          - {input: review/reviewer/navigate.md, heading: "Step One: Take a broad view of the change {#step_one}", blocks: [0]}
+          - {input: review/reviewer/navigate.md, heading: "Step Two: Examine the main parts of the CL {#step_two}", blocks: [0, 1]}
+          - {input: review/reviewer/navigate.md, heading: "Step Three: Look through the rest of the CL in an appropriate sequence {#step_three}", blocks: [0]}
+          - {input: review/reviewer/comments.md, heading: "Courtesy", blocks: [0, 1, 2]}
+          - {input: review/reviewer/comments.md, heading: "Explain Why {#why}", blocks: [0]}
+          - {input: review/reviewer/comments.md, heading: "Giving Guidance {#guidance}", blocks: [0, 1]}
+          - {input: review/reviewer/comments.md, heading: "Label comment severity {#label-comment-severity}", blocks: [0, 2, 3]}
+          - {input: review/reviewer/comments.md, heading: "Accepting Explanations {#explanations}", blocks: [0, 1]}
+          - {input: review/reviewer/speed.md, heading: "How Fast Should Code Reviews Be? {#fast}", blocks: [0]}
+          - {input: review/reviewer/speed.md, heading: "Speed vs. Interruption {#interruption}", blocks: [0]}
+          - {input: review/reviewer/speed.md, heading: "Fast Responses {#responses}", blocks: [0, 2]}
+          - {input: review/reviewer/speed.md, heading: "LGTM With Comments {#lgtm-with-comments}", blocks: [0, 1]}
+          - {input: review/reviewer/speed.md, heading: "Large CLs {#large}", blocks: [0]}
+          - {input: review/reviewer/pushback.md, heading: "Who is right? {#who_is_right}", blocks: [0, 1]}
+          - {input: review/reviewer/pushback.md, heading: "Cleaning It Up Later {#later}", blocks: [0, 1]}
 
   software-engineering-at-google:
     repository: abseil
@@ -475,6 +1038,9 @@ collections:
             heading: "Code Review Flow"
             blocks: [1, 2]
           - input: resources/swe-book/html/ch09.html
+            heading: "How Code Review Works at Google"
+            blocks: [1, 2]
+          - input: resources/swe-book/html/ch09.html
             heading: "Code Correctness"
             blocks: [0, 2, 3, 4, 5]
           - input: resources/swe-book/html/ch09.html
@@ -524,15 +1090,11 @@ collections:
           tests, test doubles, integration tests, or end-to-end tests.
         tags: [engineering, testing, unit-testing, test-doubles]
         inputs:
-          - resources/swe-book/html/ch01.html
           - resources/swe-book/html/ch11.html
           - resources/swe-book/html/ch12.html
           - resources/swe-book/html/ch13.html
           - resources/swe-book/html/ch14.html
         excerpts:
-          - input: resources/swe-book/html/ch01.html
-            heading: "Trade-offs and Costs"
-            blocks: [1, 2]
           - input: resources/swe-book/html/ch11.html
             heading: "Test Size"
             blocks: [0, 3]
@@ -541,7 +1103,10 @@ collections:
             blocks: [0, 1]
           - input: resources/swe-book/html/ch11.html
             heading: "Test Scope"
-            blocks: [0, 3, 6, 11]
+            blocks: [0, 3, 7, 8]
+          - input: resources/swe-book/html/ch12.html
+            heading: "Strive for Unchanging Tests"
+            blocks: [0, 4, 6]
           - input: resources/swe-book/html/ch12.html
             heading: "Test via Public APIs"
             blocks: [0]
@@ -601,7 +1166,7 @@ collections:
             blocks: [1, 2, 4]
           - input: resources/swe-book/html/ch14.html
             heading: "Owning Large Tests"
-            blocks: [0]
+            blocks: [0, 1, 2]
 
       - name: google-swe-change-management
         title: "Software Engineering at Google: Change Management"

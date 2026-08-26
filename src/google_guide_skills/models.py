@@ -81,7 +81,7 @@ class Repository:
 
 @dataclass(frozen=True)
 class SourceExcerpt:
-    """Source blocks selected for a local-only skill."""
+    """Source blocks selected for a generated skill."""
 
     input: str
     heading: str
@@ -101,8 +101,7 @@ class Artifact:
     description: str
     tags: tuple[str, ...]
     inputs: tuple[str, ...]
-    recipe: str | None = None
-    excerpts: tuple[SourceExcerpt, ...] = ()
+    excerpts: tuple[SourceExcerpt, ...]
     license_note: str | None = None
     supplemental_licenses: tuple[SupplementalLicense, ...] = ()
 

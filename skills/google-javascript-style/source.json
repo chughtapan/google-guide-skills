@@ -2,8 +2,384 @@
   "artifact": "google-javascript-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "2.1 File name",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "3 Source file structure",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.4.1.1.1 File extensions in import paths",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "3.4.2.1 Named vs default exports",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "3.4.2.2 Mutability of exports",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.4.3 Circular Dependencies in ES modules",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        7,
+        8,
+        9
+      ],
+      "heading": "3.6 `goog.require` and `goog.requireType` statements",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "4.1.1 Braces are used for all control structures",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.2 Block indentation: +2 spaces",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.3.2 Semicolons are required",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "4.4 Column limit: 80",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        7,
+        8
+      ],
+      "heading": "4.5.1 Where to break",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.5.2 Indent continuation lines at least +4 spaces",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.1.1 Use `const` and `let`",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.1.2 One variable per declaration",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.1.3 Declared when needed, initialized as soon as possible",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.2.1 Use trailing commas",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "5.3.3 Do not mix quoted and unquoted keys",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.4.2 Fields",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.4.6 Do not manipulate `prototype`s directly",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.4.11 Do not create static container classes",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.4.12 Do not define nested namespaces",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4
+      ],
+      "heading": "5.5.3 Arrow functions",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.5.5.2 Rest parameters",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "5.6.1 Use single quotes",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.6.3 No line continuations",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.8.1 For loops",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.8.2 Exceptions",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.8.2.1 Empty catch blocks",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.8.3.1 Fall-through: commented",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.8.3.2 The `default` case is present",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.10 Equality Checks",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.10.1 Exceptions Where Coercion is Desirable",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.11.2 Dynamic code evaluation",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.11.4 Non-standard features",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "5.11.5 Wrapper objects for primitive types",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.11.6 Modifying builtin objects",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        5
+      ],
+      "heading": "6.1 Rules common to all identifiers",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6.2.2 Class names",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6.2.3 Method names",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6.2.5 Constant names",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6.2.8 Local variable names",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "7.8 Method and function comments",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "7.10.1 Nullability",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "7.11 Visibility annotations",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "8.2.2 How to handle a warning",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "8.2.3 Suppress a warning at the narrowest reasonable scope",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "8.4.1 Reformatting existing code",
+      "input": "jsguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "8.4.2 Newly added code: use Google Style",
+      "input": "jsguide.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +388,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "html-to-markdown",
       "path": "jsguide.html",
       "sha256": "302729a2a2ca6ff67056c916d6733a1b10194c61390113256612d2f320a04997"
     }
@@ -27,11 +403,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-javascript-style.md",
-    "sha256": "82b0a8b44f457d7a6fedf87d1574f2fcade167bca2fd64027a4ecbad27c0efe5"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +415,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

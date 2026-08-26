@@ -16,7 +16,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import __version__
-from .convert import source_to_markdown
+from .convert import (
+    MARKDOWN_IMAGE_RE,
+    MARKDOWN_LINK_RE,
+    markdown_fenced_segments,
+    markdown_inline_segments,
+    next_markdown_fence,
+    source_to_markdown,
+)
 from .errors import BuildError
 from .git_safe import command as git_command
 from .git_safe import environment as git_environment
@@ -296,33 +303,19 @@ def verify_license_evidence(
     return license_info
 
 
-def _recipe(manifest: Manifest, artifact: Artifact) -> tuple[str, dict[str, str]]:
-    """Read a curated recipe and return its content and provenance."""
-    if artifact.recipe is None:
-        raise BuildError(f"{artifact.name}: committed skill has no recipe")
-    path = require_safe_project_path(
-        manifest.project_root,
-        manifest.project_root / artifact.recipe,
-        context="Skill recipe",
-        error_type=BuildError,
-    )
-    if path.is_symlink() or not path.is_file():
-        raise BuildError(f"{artifact.name}: missing skill recipe: {artifact.recipe}")
-    content = path.read_text(encoding="utf-8").strip()
-    if not content:
-        raise BuildError(f"{artifact.name}: skill recipe is empty")
-    if content.startswith("---"):
-        raise BuildError(f"{artifact.name}: recipes must not contain frontmatter")
-    return content, {"path": artifact.recipe, "sha256": _sha256(path)}
-
-
-def _render_recipe(artifact: Artifact, recipe: str) -> str:
-    return f"{_frontmatter(artifact.name, artifact.description).rstrip()}\n\n{recipe.rstrip()}\n"
-
-
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
-IMAGE_RE = re.compile(r"!\[([^]]*)\]\(([^)]+)\)")
-LINK_RE = re.compile(r"(?<!!)\[([^]]+)\]\(([^)]+)\)")
+FULL_REFERENCE_IMAGE_RE = re.compile(r"(?<!\\)!\[([^]\n]*)\]\[([^]\n]*)\]")
+SHORT_REFERENCE_IMAGE_RE = re.compile(r"(?<!\\)!\[([^]\n]*)\](?!\s*[\[(])")
+FULL_REFERENCE_LINK_RE = re.compile(r"(?<![!\\])\[([^]\n]+)\]\[([^]\n]*)\]")
+SHORT_REFERENCE_LINK_RE = re.compile(r"(?<![!\\])\[([^]\n]+)\](?!\s*[\[(])")
+REFERENCE_DEFINITION_RE = re.compile(r"(?m)^ {0,3}\[([^]\n]+)\]:[ \t]*(?:<([^>\n]+)>|(\S+))")
+ESCAPED_MARKDOWN_RE = re.compile(r"\\!?\[[^]\n]*\](?:\[[^]\n]*\]|\([^\n)]*\))?")
+OMITTED_LOCAL_REFERENCE = "\ue002"
+
+
+def _reference_label(value: str) -> str:
+    """Normalize a Markdown reference label for matching."""
+    return " ".join(value.split()).casefold()
 
 
 def _heading_text(value: str) -> str:
@@ -333,22 +326,16 @@ def _markdown_blocks(lines: list[str]) -> tuple[str, ...]:
     """Split a Markdown section into stable paragraph, list, table, or code blocks."""
     blocks: list[str] = []
     current: list[str] = []
-    fence: str | None = None
+    fence: tuple[str, int] | None = None
 
     def finish() -> None:
-        text = "\n".join(current).strip()
-        if text:
-            blocks.append(text)
+        text = "\n".join(current).rstrip()
+        if text.strip():
+            blocks.append(text.lstrip("\n"))
         current.clear()
 
     for line in lines:
-        stripped = line.lstrip()
-        marker = stripped[:3] if stripped.startswith(("```", "~~~")) else None
-        if marker:
-            if fence is None:
-                fence = marker
-            elif marker == fence:
-                fence = None
+        fence = next_markdown_fence(line, fence)
         if not line.strip() and fence is None:
             finish()
         else:
@@ -357,41 +344,268 @@ def _markdown_blocks(lines: list[str]) -> tuple[str, ...]:
     return tuple(blocks)
 
 
-def _section_blocks(markdown: str, heading: str, source: str) -> tuple[str, tuple[str, ...]]:
+def _section_blocks(markdown: str, heading: str, source: str) -> tuple[str, str, tuple[str, ...]]:
     """Return the document title and direct content blocks under one exact heading."""
     lines = markdown.splitlines()
-    headings = [
-        (index, _heading_text(match.group(2)))
-        for index, line in enumerate(lines)
-        if (match := HEADING_RE.match(line))
-    ]
+    headings: list[tuple[int, int, str]] = []
+    fence: tuple[str, int] | None = None
+    for index, line in enumerate(lines):
+        was_fenced = fence is not None
+        next_fence = next_markdown_fence(line, fence)
+        is_fence_line = next_fence != fence
+        fence = next_fence
+        if was_fenced or is_fence_line:
+            continue
+        if fence is None and (match := HEADING_RE.match(line)):
+            headings.append((index, len(match.group(1)), _heading_text(match.group(2))))
     if not headings:
         raise BuildError(f"{source}: converted source has no Markdown headings")
     wanted = _heading_text(heading).casefold()
-    matches = [item for item in headings if item[1].casefold() == wanted]
+    matches = [item for item in headings if item[2].casefold() == wanted]
     if len(matches) != 1:
         raise BuildError(f"{source}: expected one heading {heading!r}, found {len(matches)}")
-    start = matches[0][0] + 1
-    end = next((index for index, _value in headings if index >= start), len(lines))
+    selected_index, selected_level, selected_heading = matches[0]
+    start = selected_index + 1
+    end = next((index for index, _level, _value in headings if index >= start), len(lines))
     blocks = _markdown_blocks(lines[start:end])
     if not blocks:
         raise BuildError(f"{source}: heading {heading!r} has no direct content blocks")
-    return headings[0][1], blocks
+    display_heading = selected_heading
+    if re.match(r"^\d+(?:\.\d+)+\s+Decision$", selected_heading, re.IGNORECASE):
+        parent = next(
+            (
+                value
+                for index, level, value in reversed(headings)
+                if index < selected_index and level < selected_level
+            ),
+            None,
+        )
+        if parent:
+            display_heading = parent
+    return headings[0][2], display_heading, blocks
 
 
-def _sanitize_excerpt(block: str) -> str:
+def _sanitize_excerpt(
+    block: str,
+    reference_links: dict[str, str] | None = None,
+    context: str = "Selected excerpt",
+) -> str:
     """Remove links that would break outside the source site while retaining their text."""
-    block = IMAGE_RE.sub(lambda match: match.group(1).strip(), block)
+    reference_links = reference_links or {}
+    fenced_segments = markdown_fenced_segments(block)
+    if len(fenced_segments) == 1 and fenced_segments[0][0]:
+        return block.rstrip()
 
-    def replace_link(match: re.Match[str]) -> str:
-        label, target = match.groups()
-        if target.startswith(("https://", "http://", "mailto:")):
-            return match.group(0)
-        if label.strip().isdigit():
-            return ""
-        return label
+    def sanitize_text(text: str) -> str:
+        placeholders: dict[str, str] = {}
 
-    return LINK_RE.sub(replace_link, block).strip()
+        def protect(value: str) -> str:
+            token = f"\ue000{len(placeholders)}\ue001"
+            placeholders[token] = value
+            return token
+
+        text = ESCAPED_MARKDOWN_RE.sub(lambda match: protect(match.group(0)), text)
+        protected: list[str] = []
+        for is_code, segment in markdown_inline_segments(text):
+            if is_code:
+                protected.append(protect(segment))
+            else:
+                protected.append(segment)
+        text = "".join(protected)
+        text = MARKDOWN_IMAGE_RE.sub(lambda match: match.group(1).strip(), text)
+        text = FULL_REFERENCE_IMAGE_RE.sub(lambda match: match.group(1).strip(), text)
+        text = SHORT_REFERENCE_IMAGE_RE.sub(lambda match: match.group(1).strip(), text)
+
+        def restore(value: str) -> str:
+            for token, code in placeholders.items():
+                value = value.replace(token, code)
+            return value
+
+        def replace_link(match: re.Match[str]) -> str:
+            label, target = match.groups()
+            if target.startswith(("https://", "http://", "mailto:")):
+                return match.group(0)
+            plain_label = restore(label).strip()
+            if (
+                plain_label == "??"
+                or target.casefold().startswith("#example")
+                or re.fullmatch(
+                    r"(?:Figure|Table|Example)\s+\d+(?:[-.]\d+)?",
+                    plain_label,
+                    flags=re.IGNORECASE,
+                )
+            ):
+                return OMITTED_LOCAL_REFERENCE
+            if plain_label.isdigit():
+                return ""
+            return label
+
+        cleaned = MARKDOWN_LINK_RE.sub(replace_link, text)
+        parenthetical = re.compile(
+            rf"\s*\((?:(?:see\s+the\s+example\s+in|see|but\s+see)\s+)?"
+            rf"{OMITTED_LOCAL_REFERENCE}(?:\s+and\s+{OMITTED_LOCAL_REFERENCE})*\)"
+            rf"(?P<punct>[.,]?)",
+            re.IGNORECASE,
+        )
+
+        def remove_parenthetical(match: re.Match[str]) -> str:
+            punctuation = match.group("punct")
+            before = match.string[: match.start()].rstrip()
+            if punctuation == "." and before.endswith((".", "!", "?")):
+                return ""
+            if punctuation == ",":
+                return ","
+            return punctuation
+
+        cleaned = parenthetical.sub(remove_parenthetical, cleaned)
+        cleaned = re.sub(rf",\s+as\s+explained\s+in\s+{OMITTED_LOCAL_REFERENCE}", "", cleaned)
+        cleaned = re.sub(
+            rf"\s+as\s+defined\s+in\s+{OMITTED_LOCAL_REFERENCE}\.[ \t]*",
+            ".\n",
+            cleaned,
+        )
+        cleaned = re.sub(
+            rf",\s+as\s+(?:demonstrated|illustrated)\s+in\s+"
+            rf"(?:Figure\s+\d+(?:-\d+)?|{OMITTED_LOCAL_REFERENCE})",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            rf"\s*(?:Figure\s+\d+(?:-\d+)?|{OMITTED_LOCAL_REFERENCE})\s+depicts[^.]*\.",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            rf",\s+such\s+as\s+that\s+shown\s+in\s+{OMITTED_LOCAL_REFERENCE}",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            rf",\s+such\s+as\s+{OMITTED_LOCAL_REFERENCE}\s+that\s+[^.]*\.",
+            ".",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            rf"\s+To\s+illustrate,\s+{OMITTED_LOCAL_REFERENCE}\s+presents[^.]*\.",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            rf"\s+{OMITTED_LOCAL_REFERENCE}\s+(?:illustrates|presents|shows)[^.]*\.",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            rf"\bAs\s+shown\s+in\s+(?:the\s+)?{OMITTED_LOCAL_REFERENCE},\s+the\s+",
+            "The ",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"\s*\(See\s+the\s+example\s+in\s+Section\s+[^)]*\)",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"[ \t]*We(?:'|’)ll\s+look\s+at\s+an\s+example[^.]*"
+            r"later\s+in\s+this\s+chapter\.",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"[ \t]*\(see\s+(?:Case\s+Study:\s+[^)]+|Style\s+Guides\s+and\s+Rules)\)",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r",\s+which\s+we\s+explore\s+further\s+in\s+[^.]+\.",
+            ".",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"[ \t]*We(?:'|’)ll\s+cover\s+[^.]+\s+in\s+the\s+next\s+section\.",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"[ \t]*\(we\s+look\s+at\s+[^)]*later\s+in\s+this\s+chapter\)",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r"[ \t]*See\s+Style\s+Guides\s+and\s+Rules\.",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(
+            r";\s+see\s+below\s+for\s+details\.",
+            ".",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        if OMITTED_LOCAL_REFERENCE in cleaned:
+            raise BuildError(f"{context} contains an unresolved source cross-reference")
+
+        def render_reference(label: str, reference: str) -> str:
+            key = _reference_label(restore(reference or label))
+            target = reference_links.get(key, "").strip("<>")
+            if target.startswith(("https://", "http://", "mailto:")):
+                return f"[{label}]({target})"
+            return label
+
+        cleaned = FULL_REFERENCE_LINK_RE.sub(
+            lambda match: render_reference(match.group(1), match.group(2)),
+            cleaned,
+        )
+
+        def replace_short_reference(match: re.Match[str]) -> str:
+            label = match.group(1)
+            restored = restore(label)
+            key = _reference_label(restored)
+            return render_reference(label, key) if key in reference_links else match.group(0)
+
+        return restore(SHORT_REFERENCE_LINK_RE.sub(replace_short_reference, cleaned))
+
+    cleaned = (
+        "".join(
+            segment if is_code else sanitize_text(segment) for is_code, segment in fenced_segments
+        )
+        .rstrip()
+        .lstrip("\n")
+    )
+    first_line = cleaned.lstrip().splitlines()[0] if cleaned.strip() else ""
+    if cleaned[:1].isspace() and not re.match(r"(?:[-*+] |\d+[.)] )", first_line):
+        cleaned = textwrap.dedent(cleaned)
+    return cleaned
+
+
+def _reference_links(markdown: str) -> dict[str, str]:
+    """Collect reference-link targets outside fenced examples."""
+    links: dict[str, str] = {}
+    for is_code, segment in markdown_fenced_segments(markdown):
+        if is_code:
+            continue
+        for label, angle_target, bare_target in REFERENCE_DEFINITION_RE.findall(segment):
+            links.setdefault(_reference_label(label), angle_target or bare_target)
+    return links
+
+
+def _display_heading(value: str) -> str:
+    """Remove source-only anchor syntax from a rendered heading."""
+    return re.sub(r"\s+\{#[^{}]+\}$", "", _sanitize_excerpt(value)).replace(r"\_", "_")
 
 
 def _selected_excerpts(
@@ -401,6 +615,7 @@ def _selected_excerpts(
     input_paths = {path.relative_to(checkout).as_posix(): path for path in inputs}
     converted: dict[str, str] = {}
     conversions: dict[str, str] = {}
+    reference_links: dict[str, dict[str, str]] = {}
     sections: list[_SelectedExcerpt] = []
     for selector in artifact.excerpts:
         source_path = input_paths.get(selector.input)
@@ -408,7 +623,8 @@ def _selected_excerpts(
             raise BuildError(f"{artifact.name}: excerpt input was not expanded: {selector.input}")
         if selector.input not in converted:
             converted[selector.input], conversions[selector.input] = source_to_markdown(source_path)
-        source_title, available = _section_blocks(
+            reference_links[selector.input] = _reference_links(converted[selector.input])
+        source_title, section_heading, available = _section_blocks(
             converted[selector.input], selector.heading, selector.input
         )
         invalid = [index for index in selector.blocks if index >= len(available)]
@@ -418,7 +634,15 @@ def _selected_excerpts(
                 f"cannot select {invalid}"
             )
         blocks = tuple(
-            cleaned for index in selector.blocks if (cleaned := _sanitize_excerpt(available[index]))
+            cleaned
+            for index in selector.blocks
+            if (
+                cleaned := _sanitize_excerpt(
+                    available[index],
+                    reference_links[selector.input],
+                    f"{selector.input}: heading {selector.heading!r} block {index}",
+                )
+            )
         )
         if not blocks:
             raise BuildError(
@@ -426,8 +650,8 @@ def _selected_excerpts(
             )
         sections.append(
             _SelectedExcerpt(
-                source_title=_sanitize_excerpt(source_title),
-                heading=_sanitize_excerpt(selector.heading),
+                source_title=_display_heading(source_title),
+                heading=_display_heading(section_heading),
                 blocks=blocks,
             )
         )
@@ -435,7 +659,7 @@ def _selected_excerpts(
 
 
 def _render_excerpts(artifact: Artifact, sections: list[_SelectedExcerpt]) -> str:
-    """Render selected source blocks as one self-contained operational skill."""
+    """Render selected source blocks as one self-contained skill."""
     lines = [
         _frontmatter(artifact.name, artifact.description).rstrip(),
         "",
@@ -443,28 +667,20 @@ def _render_excerpts(artifact: Artifact, sections: list[_SelectedExcerpt]) -> st
         "",
         "Apply this guidance to the actual project. Repository requirements and newer "
         "authoritative guidance take precedence.",
-        "",
-        "## Workflow",
-        "",
-        "1. Identify the decision, affected users, constraints, expected lifetime, and scale.",
-        "2. Inspect the relevant code, tests, documents, metrics, and operating evidence.",
-        "3. Apply the source guidance below and record material tradeoffs or exceptions.",
-        "4. Recommend a concrete action and a way to verify the result.",
     ]
     previous_source: str | None = None
     for section in sections:
+        show_source = section.source_title.casefold() != artifact.title.casefold()
         if section.source_title != previous_source:
-            lines.extend(["", f"## {section.source_title}", ""])
+            if show_source:
+                lines.extend(["", f"## {section.source_title}", ""])
             previous_source = section.source_title
-        lines.extend([f"### {section.heading}", "", *section.blocks, ""])
-    lines.extend(
-        [
-            "## Deliverable",
-            "",
-            "State the recommendation first. Tie material findings to observed evidence, then "
-            "name the action, validation step, and remaining risk.",
-        ]
-    )
+        if section.heading.casefold() != section.source_title.casefold():
+            level = "###" if show_source else "##"
+            if lines[-1]:
+                lines.append("")
+            lines.extend([f"{level} {section.heading}", ""])
+        lines.extend([*section.blocks, ""])
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -642,7 +858,6 @@ def _source_metadata(
     artifact: Artifact,
     prepared: _PreparedSources,
     provenance_inputs: list[dict[str, str]],
-    recipe: dict[str, str] | None,
 ) -> dict[str, object]:
     return {
         "artifact": artifact.name,
@@ -656,9 +871,8 @@ def _source_metadata(
             "markdownify": importlib.metadata.version("markdownify"),
         },
         "inputs": provenance_inputs,
-        "recipe": recipe,
         "excerpts": [excerpt.to_dict() for excerpt in artifact.excerpts],
-        "rendering": "curated" if recipe else "source-excerpts",
+        "rendering": "source-excerpts",
         "license": prepared.license_info.to_dict(),
         "license_note": artifact.license_note,
         "wrapper_license": wrapper_license_metadata(),
@@ -682,15 +896,9 @@ def _stage_skill(
     staged: Path,
 ) -> list[dict[str, str]]:
     staged.mkdir(parents=True)
-    recipe_metadata: dict[str, str] | None = None
-    if artifact.recipe:
-        recipe_text, recipe_metadata = _recipe(manifest, artifact)
-        skill_text = _render_recipe(artifact, recipe_text)
-        provenance_inputs = _input_provenance(prepared.inputs, prepared.checkout)
-    else:
-        sections, conversions = _selected_excerpts(artifact, prepared.inputs, prepared.checkout)
-        skill_text = _render_excerpts(artifact, sections)
-        provenance_inputs = _input_provenance(prepared.inputs, prepared.checkout, conversions)
+    sections, conversions = _selected_excerpts(artifact, prepared.inputs, prepared.checkout)
+    skill_text = _render_excerpts(artifact, sections)
+    provenance_inputs = _input_provenance(prepared.inputs, prepared.checkout, conversions)
     (staged / "SKILL.md").write_text(skill_text, encoding="utf-8")
     _write_licenses(
         manifest,
@@ -705,7 +913,6 @@ def _stage_skill(
             artifact,
             prepared,
             provenance_inputs,
-            recipe_metadata,
         ),
     )
     return provenance_inputs

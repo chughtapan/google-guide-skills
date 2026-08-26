@@ -2,8 +2,322 @@
   "artifact": "google-shell-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        3
+      ],
+      "heading": "Which Shell to Use",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3
+      ],
+      "heading": "When to use Shell",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "File Extensions",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "SUID/SGID",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "STDOUT vs STDERR",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "File Header",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Function Comments",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Implementation Comments",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "TODO Comments",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Indentation",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Line Length and Long Strings",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Pipelines",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Control Flow",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3
+      ],
+      "heading": "Case statement",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Variable expansion",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Quoting",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "ShellCheck",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Command Substitution",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Test, `[ … ]`, and `[[ … ]]`",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Testing Strings",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Wildcard Expansion of Filenames",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Eval",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Arrays",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Arrays Decision",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Pipes to While",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Arithmetic",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Aliases",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Function Names",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Variable Names",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Constants, Environment Variables, and readonly Variables",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Source Filenames",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Use Local Variables",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Function Location",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "main",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Checking Return Values",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Builtin Commands vs. External Commands",
+      "input": "shellguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "When in Doubt: Be Consistent",
+      "input": "shellguide.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +326,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "shellguide.md",
       "sha256": "af0e99572b65d9c64da0035a7d9fbc3c32d81dc7289ca41340d1078726a464bf"
     }
@@ -27,11 +341,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-shell-style.md",
-    "sha256": "20bc2662d7246eaea5adb80db58b2e05b92e4ebc4c1eef9ffc300f0b1f27e9e3"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +353,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

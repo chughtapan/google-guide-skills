@@ -2,8 +2,328 @@
   "artifact": "google-go-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Style principles",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Simplicity",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Least mechanism",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        12
+      ],
+      "heading": "Maintainability",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Formatting",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "MixedCaps",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Naming",
+      "input": "go/guide.md"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Package names",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Receiver names",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Constant names",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Initialisms",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Getters",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        3
+      ],
+      "heading": "Doc comments",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Import grouping",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        5,
+        9
+      ],
+      "heading": "Import \"blank\" (`import _`)",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        2
+      ],
+      "heading": "Import \"dot\" (`import .`)",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        3,
+        5
+      ],
+      "heading": "Returning errors",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        4
+      ],
+      "heading": "Error strings",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        2,
+        4
+      ],
+      "heading": "Handle errors",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        5,
+        10
+      ],
+      "heading": "In-band errors",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Indent error flow",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Don't panic",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        6,
+        9
+      ],
+      "heading": "Goroutine lifetimes",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "heading": "Interfaces",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Pass values",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        3,
+        7,
+        9,
+        18,
+        20,
+        22,
+        23
+      ],
+      "heading": "Receiver type",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        1,
+        2,
+        3
+      ],
+      "heading": "Synchronous functions",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        4,
+        5
+      ],
+      "heading": "Flags",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        3,
+        14,
+        18
+      ],
+      "heading": "Contexts",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use package `testing`",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Identify the function",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Got before want",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Compare stable results",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Table-driven tests",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Test helpers",
+      "input": "go/decisions.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Util packages",
+      "input": "go/best-practices.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        4,
+        15,
+        16,
+        21
+      ],
+      "heading": "Adding information to errors",
+      "input": "go/best-practices.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        6,
+        27
+      ],
+      "heading": "Global state",
+      "input": "go/best-practices.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,17 +332,17 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "go/guide.md",
       "sha256": "f12051c22045953c3688a85f9eba94f7cf61b6a769762671cdbf1ca4d2b3aa1b"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "go/decisions.md",
       "sha256": "3a0b54ef41aca49f8bf0a4d4ce2d0b4662721b52197256d121b6cc95616f4850"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "go/best-practices.md",
       "sha256": "e44180b492c3585b4a20bd44e7cb277a55a9f264ad352f33f287b639e9e75b56"
     }
@@ -37,11 +357,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-go-style.md",
-    "sha256": "88a2e0d846b40fd3d6484d16bcc7dca8d86f0595b9b2e239894527a5f0ee54f8"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -53,7 +369,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

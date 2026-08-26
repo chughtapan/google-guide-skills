@@ -1,6 +1,6 @@
 # Agent Skills and distribution research
 
-This note records why the project uses standard skill folders, self-contained guides, a
+This note records why the project uses standard skill folders, inline guides, a
 source-checkout installer, and a manifest-driven generator. Research was checked on 2026-08-22
 against first-party documentation.
 
@@ -15,8 +15,8 @@ The first generated pack treated large guides as navigation files over chapter r
 practice, a generic instruction to read “the relevant sections” did not tell agents which file to
 open, and selective reading skipped important rules. The current pack instead prunes obsolete,
 historical, and navigational material, groups guidance by task, and keeps each usable guide in one
-`SKILL.md`. The 16 public main files are 888–2,078 tokens; the 8 local SWE-book files are
-4,254–4,733 tokens.
+`SKILL.md`. The 16 public main files are 1,635–4,984 tokens; the 8 local SWE-book files are
+4,160–4,893 tokens.
 
 The specification's
 [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions)

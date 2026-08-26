@@ -2,8 +2,369 @@
   "artifact": "google-html-css-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Protocol",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Indentation",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Capitalization",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Trailing Whitespace",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Encoding",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Comments",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Action Items",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Document Type",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "HTML Validity",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Semantics",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Multimedia Fallback",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Separation of Concerns",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Entity References",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Optional Tags",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "`type` Attributes",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "`id` Attributes",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "General Formatting",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "HTML Line-Wrapping",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "HTML Quotation Marks",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "CSS Validity",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Class Naming",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Class Name Style",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Class Name Delimiters",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Prefixes",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Type Selectors",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "ID Selectors",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Shorthand Properties",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "0 and Units",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Leading 0s",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Hexadecimal Notation",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Important Declarations",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Hacks",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Declaration Order",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Block Content Indentation",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Declaration Stops",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Property Name Stops",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Declaration Block Separation",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Selector and Declaration Separation",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Rule Separation",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "CSS Quotation Marks",
+      "input": "htmlcssguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Section Comments",
+      "input": "htmlcssguide.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +373,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "html-to-markdown",
       "path": "htmlcssguide.html",
       "sha256": "b4400d7cb3628c63664c17fdf1c5185b5ac707c4a56bb0348cf3f59b030c04d3"
     }
@@ -27,11 +388,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-html-css-style.md",
-    "sha256": "12e052f70fb3c956ed633f48dfc2ee5fea4ea9d8f2fbf10465329bc5331eaac7"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +400,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

@@ -2,8 +2,192 @@
   "artifact": "google-csharp-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Code",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Files",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Organization",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Whitespace rules",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Example",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Constants",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "IEnumerable vs IList vs IReadOnlyList",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Generators vs containers",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Property styles",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        2
+      ],
+      "heading": "Expression body syntax",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Structs and classes:",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Lambdas vs named methods",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Extension methods",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "ref and out",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "LINQ",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Array vs List",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Folders and file locations",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use of tuple as a return type",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "`using`",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        2
+      ],
+      "heading": "Object Initializer syntax",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Namespace naming",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Calling delegates",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "The `var` keyword",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Attributes",
+      "input": "csharp-style.md"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Argument Naming",
+      "input": "csharp-style.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +196,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "csharp-style.md",
       "sha256": "1a3e393d03a19a3cc480b35b250d97535f808974ad8ccd9a495d4fc750207e3c"
     }
@@ -27,11 +211,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-csharp-style.md",
-    "sha256": "4f9a455f08a9e3c2176347d56c9c7ba74fd7ee923d091bea5ad7774c884c3fa9"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +223,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

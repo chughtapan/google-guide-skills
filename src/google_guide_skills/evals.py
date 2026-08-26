@@ -450,6 +450,7 @@ class _AgentRunSettings:
     prompt: str
     timeout: int
     model: str | None
+    reasoning_effort: str | None
 
 
 @dataclass(frozen=True)
@@ -967,6 +968,7 @@ def build_agent_command(
     output_path: Path,
     *,
     model: str | None = None,
+    reasoning_effort: str | None = None,
 ) -> list[str]:
     """Build a non-interactive command for one supported agent CLI."""
     if agent == "codex":
@@ -987,6 +989,8 @@ def build_agent_command(
             "-C",
             str(project),
         ]
+        if reasoning_effort:
+            command.extend(["-c", f'model_reasoning_effort="{reasoning_effort}"'])
     elif agent == "claude-code":
         command = [
             "claude",
@@ -1347,6 +1351,7 @@ def _invoke_agent_process(
             settings.prompt,
             EVAL_SANDBOX_OUTPUT / "final.txt",
             model=settings.model,
+            reasoning_effort=settings.reasoning_effort,
         )
         command = _filesystem_sandbox_command(
             settings.agent,
@@ -1410,6 +1415,7 @@ def _run_agent(
     *,
     timeout: int,
     model: str | None,
+    reasoning_effort: str | None = None,
     isolation_root: Path | None = None,
 ) -> dict[str, object]:
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -1417,7 +1423,7 @@ def _run_agent(
     if shutil.which(binary) is None:
         raise EvaluationError(f"Required agent CLI is not installed: {binary}")
     sandbox_root = (isolation_root or project.parent).resolve()
-    settings = _AgentRunSettings(agent, prompt, timeout, model)
+    settings = _AgentRunSettings(agent, prompt, timeout, model, reasoning_effort)
     result = _invoke_agent_process(settings, project, raw_dir, sandbox_root)
     (raw_dir / "trace.jsonl").write_text(result.trace, encoding="utf-8")
     (raw_dir / "stderr.txt").write_text(result.stderr, encoding="utf-8")

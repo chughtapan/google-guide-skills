@@ -2,8 +2,400 @@
   "artifact": "google-java-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "1.2 Guide notes",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "2.1 File name",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "2.2 File encoding: UTF-8",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "2.3.1 Whitespace characters",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "3 Source file structure",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.2 Package declaration",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.3.1 No wildcard imports",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.3.1.1 No module imports",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.3.2 No line-wrapping",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "3.3.3 Ordering and spacing",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.3.4 No static import for classes",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.4.1 Exactly one top-level class declaration",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "3.4.2 Ordering of class contents",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.4.2.1 Overloads: never split",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.1.1 Use of optional braces",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.1.2 Nonempty blocks: K & R style",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.2 Block indentation: +2 spaces",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.3 One statement per line",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "4.4 Column limit: 100",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "4.5.1 Where to break",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.5.2 Indent continuation lines at least +4 spaces",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.8.2.1 One variable per declaration",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.8.2.2 Declared when needed",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.8.3.2 No C-style array declarations",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "4.8.4.2 Fall-through: commented",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "4.8.4.3 Exhaustiveness and presence of the `default` label",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.8.4.4 Switch expressions",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.8.5.1 Type-use annotations",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4.8.5.2 Class, package, and module annotations",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "4.8.5.3 Method and constructor annotations",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4,
+        6
+      ],
+      "heading": "4.8.6.2 TODO comments",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "4.8.7 Modifiers",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.1 Rules common to all identifiers",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.2.1 Package and module names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "5.2.2 Class names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "5.2.3 Method names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "5.2.4 Constant names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5.2.5 Non-constant field names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.2.6 Parameter names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.2.7 Local variable names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "5.2.8 Type variable names",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "5.3 Camel case: defined",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "6.1 `@Override`: always used",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "6.2 Caught exceptions: not ignored",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6.3 Static members: qualified using class",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6.4 Finalizers: not used",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "7.2 The summary fragment",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "7.3 Where Javadoc is used",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "7.3.1 Exception: self-explanatory members",
+      "input": "javaguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "7.3.2 Exception: overrides",
+      "input": "javaguide.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +404,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "html-to-markdown",
       "path": "javaguide.html",
       "sha256": "9cc671f4c74d8bb4ea4c93861f4ec0e88d0f21267c73abe46817c14bdeb6d6b2"
     }
@@ -27,11 +419,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-java-style.md",
-    "sha256": "d89c2ecc07a26e7e1c09f3700a345fcb5f3a4818c489c8634c692b247a530c16"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +431,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

@@ -227,7 +227,10 @@ def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
     if not isinstance(supplemental_raw, list):
         raise ManifestError(f"{context}.supplemental_licenses must be a list")
     inputs = tuple(_safe_relative(str(value), f"{context}.inputs") for value in inputs_raw)
-    recipe = _optional_text(item.get("recipe"))
+    if any(any(marker in input_path for marker in "*?[") for input_path in inputs):
+        raise ManifestError(f"{context}.inputs must name exact source files")
+    if "recipe" in item:
+        raise ManifestError(f"{context}.recipe is no longer supported; use source excerpts")
     excerpts_raw = item.get("excerpts", [])
     if not isinstance(excerpts_raw, list):
         raise ManifestError(f"{context}.excerpts must be a list")
@@ -255,7 +258,7 @@ def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
             raise ManifestError(
                 f"{excerpt_context}.blocks must be strictly increasing nonnegative integers"
             )
-        key = (input_path, heading)
+        key = (input_path, " ".join(heading.split()).casefold())
         if key in seen_excerpts:
             raise ManifestError(f"{excerpt_context} duplicates an input and heading selector")
         seen_excerpts.add(key)
@@ -266,7 +269,6 @@ def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
         description=description,
         tags=tuple(tags_raw),
         inputs=inputs,
-        recipe=_safe_relative(recipe, f"{context}.recipe") if recipe else None,
         excerpts=tuple(excerpts),
         license_note=_optional_text(item.get("license_note")),
         supplemental_licenses=tuple(
@@ -302,38 +304,20 @@ def _collection(
         _artifact(candidate, f"{context}.artifacts[{index}]", seen_names)
         for index, candidate in enumerate(artifacts_raw)
     )
-    missing_recipes = [artifact.name for artifact in artifacts if artifact.recipe is None]
-    unexpected_recipes = [artifact.name for artifact in artifacts if artifact.recipe is not None]
     missing_excerpts = [artifact.name for artifact in artifacts if not artifact.excerpts]
-    unexpected_excerpts = [artifact.name for artifact in artifacts if artifact.excerpts]
     incomplete_excerpts = [
         artifact.name
         for artifact in artifacts
         if artifact.excerpts
         and {excerpt.input for excerpt in artifact.excerpts} != set(artifact.inputs)
     ]
-    if distribution == "committed" and missing_recipes:
+    if missing_excerpts:
         raise ManifestError(
-            f"{context} committed artifacts require recipes: {', '.join(missing_recipes)}"
+            f"{context} artifacts require source excerpts: {', '.join(missing_excerpts)}"
         )
-    if distribution == "local-only" and unexpected_recipes:
+    if incomplete_excerpts:
         raise ManifestError(
-            f"{context} local-only artifacts must be generated from source excerpts: "
-            f"{', '.join(unexpected_recipes)}"
-        )
-    if distribution == "committed" and unexpected_excerpts:
-        raise ManifestError(
-            f"{context} committed artifacts must not declare source excerpts: "
-            f"{', '.join(unexpected_excerpts)}"
-        )
-    if distribution == "local-only" and missing_excerpts:
-        raise ManifestError(
-            f"{context} local-only artifacts require source excerpts: {', '.join(missing_excerpts)}"
-        )
-    if distribution == "local-only" and incomplete_excerpts:
-        raise ManifestError(
-            f"{context} local-only artifacts must select from every input: "
-            f"{', '.join(incomplete_excerpts)}"
+            f"{context} artifacts must select from every input: {', '.join(incomplete_excerpts)}"
         )
     override = item.get("license_override")
     if distribution == "local-only" and override is None:
@@ -461,7 +445,7 @@ def load_manifest(path: Path | None = None) -> Manifest:
     manifest_path = (path or (find_project_root() / "corpus.yaml")).resolve()
     data = _read_manifest(manifest_path)
     schema_version = data.get("schema_version")
-    if schema_version != 1:
+    if schema_version != 2:
         raise ManifestError(f"Unsupported schema_version: {schema_version!r}")
     generator = require_mapping(data.get("generator"), "generator")
     canonical_python = _text(generator, "python", "generator")

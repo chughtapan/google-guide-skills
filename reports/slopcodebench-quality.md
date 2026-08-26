@@ -1,226 +1,153 @@
 # SlopCodeBench quality experiment
 
-The guide-led workflow did not improve hidden-test correctness on this run. The baseline and
-guided solutions both finished at 93 of 104 tests, and the review loop changed no hidden-test
-score at any checkpoint.
+On this task, the Google skills improved code structure without improving hidden-test correctness.
+At the default reasoning effort, the guided and baseline arms both scored 95/104. At `xhigh`, the
+baseline scored 100/104 and the guided arm scored 97/104.
 
-It did change the code. The guided solution spread complexity across smaller units, had less
-structural erosion at every checkpoint, and its reviewers found contract defects that the hidden
-suite did not cover, including a fix path that could truncate a source file. It was also more
-verbose, used four times as many model calls, and lost one earlier review fix because no regression
-test preserved it.
+The result supports a narrow claim: the skills can help an agent organize code without requiring a
+large workflow. It does not show that the skills make the implementation more correct.
 
-This is evidence for improving the workflow, not evidence that the current workflow raises task
-correctness.
+## Question
 
-## Hypothesis
+Can an agent use the rewritten source-excerpt skills under a short project instruction and produce
+code that is easier to maintain without losing correctness?
 
-Reading the applicable style guide before implementation, then running separate code and testing
-reviews in parallel and applying verified findings, should produce code that is easier to maintain
-and more correct than a just-solve prompt.
+## Method
 
-The experiment tested both parts:
+Both arms solved all five checkpoints of SlopCodeBench's `code_search` problem. Each checkpoint
+started a fresh model conversation and continued from the previous checkpoint's files. Hidden tests
+ran only after each snapshot was frozen.
 
-- hidden tests measured checkpoint correctness;
-- `scb-check` and a source review measured structural quality;
-- the trajectories showed which defects the reviews found, fixed, missed, or later regressed.
+The task prompt was the same in every call:
 
-## Setup
+> Implement the current checkpoint described in `TASK.md`.
 
-Both arms solved all five checkpoints of SlopCodeBench's `code_search` problem. Each arm had its
-own persistent workspace, while each model call started without conversation history. Agents
-could see the public specification through the current checkpoint, but not future specifications,
-hidden tests, the benchmark repository, or the other arm.
+`TASK.md` contained the cumulative public specification. The baseline received no skills or project
+instructions. The guided arm received these four skills:
+
+- `google-python-style`
+- `google-code-review-author`
+- `google-code-review-reviewer`
+- `google-swe-testing`
+
+Its lifecycle instruction was:
+
+> For material changes, own the work through verification. Use your judgment and the relevant
+> skills.
+
+The agent chose which skills to read and how to implement, test, and review the change. The harness
+did not create review rounds or ask for specific tests.
 
 | Input | Value |
 | --- | --- |
 | SlopCodeBench | `06b5c0687d4c05ee502e9696a4d0c22fc1eec5e0` |
 | Problem corpus | `4d38d300059667d57e43c31969bc455f5c338b52` |
-| Guide pack | `ee16171f13032b2e1fab9462458e23ab81174569` |
+| Guide pack digest | `edb8a9de246cc4cfb9eeae21c3ed4406b1a926d8dd3175f400f36c88b737722b` |
 | Client | Codex CLI 0.149.0 with the existing ChatGPT login |
-| Model | `gpt-5.6-sol`, Codex CLI default reasoning effort |
+| Model | `gpt-5.6-sol` |
 | Structural scorer | `scb-check==0.1.3` |
-| Cyclomatic-complexity scorer | Radon 6.0.1 |
-| Scope | One problem, five checkpoints, one run per arm |
+| Scope | One problem, five checkpoints, one run per cell |
 
-The baseline made one just-solve call per checkpoint.
+## Correctness
 
-The guided arm used this sequence at every checkpoint:
+| Effort | Checkpoint | Baseline | Guided |
+| --- | ---: | ---: | ---: |
+| Default | 1 | 13/13 | 13/13 |
+| Default | 2 | 25/25 | 25/25 |
+| Default | 3 | 45/47 | 46/47 |
+| Default | 4 | 70/75 | 70/75 |
+| Default | 5 | 95/104 | 95/104 |
+| `xhigh` | 1 | 13/13 | 13/13 |
+| `xhigh` | 2 | 25/25 | 25/25 |
+| `xhigh` | 3 | 44/47 | 43/47 |
+| `xhigh` | 4 | 72/75 | 70/75 |
+| `xhigh` | 5 | 100/104 | 97/104 |
 
-1. Invoke `google-python-style` and implement the public specification.
-2. Review separate copies in parallel with:
-   - `google-code-review-reviewer` and `google-python-style`;
-   - `google-swe-testing` and `google-python-style`.
-3. Invoke `google-python-style` and apply reproduced Required findings.
-4. Snapshot the workspace before revealing hidden results.
+The pinned reference implementation scored 103/104. It is useful context, not a perfect control.
 
-The review copies did not contain the implementation workspace's virtual environment. This
-prevented both checkpoint-4 reviewers and the final code reviewer from running the program. The
-final testing reviewer installed dependencies separately. That flaw is part of the result.
+At default effort, the guided arm gained one test at checkpoint 3, then finished tied with the
+baseline. At `xhigh`, the guided arm finished three tests behind the baseline. Higher effort raised
+the final baseline score by five and the final guided score by two, but these are single runs rather
+than variance estimates.
 
-## Correctness result
+The final `xhigh` guided failures covered literal-dollar handling, optional metavariables,
+multiline Python patterns, same-start ordering, match-before-fix ordering, a Go structural pattern,
+and a Java method pattern. Reading the testing guide did not make those cases apparent from the
+public specification.
 
-The arms tied at every checkpoint. The guided review-and-fix stage also produced zero hidden-test
-lift at every checkpoint.
+## Structure
 
-| Checkpoint | Baseline | Guided before review | Guided after review |
-| ---: | ---: | ---: | ---: |
-| 1 | 13/13 | 13/13 | 13/13 |
-| 2 | 25/25 | 25/25 | 25/25 |
-| 3 | 42/47 | 42/47 | 42/47 |
-| 4 | 69/75 | 69/75 | 69/75 |
-| 5 | 93/104 | 93/104 | 93/104 |
+Lower scores are better. Verbosity measures the share of code flagged by structural heuristics.
+Erosion measures how much measured complexity is concentrated in high-complexity functions.
 
-At checkpoint 5 the failures were not identical. The guided solution retained a JavaScript
-selector behavior that the baseline lost, but it failed a different cross-language structural
-pattern case. The equal total therefore hides one changed tradeoff, not identical programs.
+| Effort | Arm | Hidden tests | Verbosity | Erosion | Cognitive erosion |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Default | Baseline | 95/104 | 0.430 | 0.864 | 0.964 |
+| Default | Guided | 95/104 | 0.328 | 0.803 | 0.936 |
+| `xhigh` | Baseline | 100/104 | 0.494 | 0.966 | 0.989 |
+| `xhigh` | Guided | 97/104 | 0.242 | 0.741 | 0.920 |
+| — | Reference | 103/104 | 0.269 | 0.367 | 0.781 |
 
-The repository's checkpoint-5 reference implementation scored 103/104 under the same pinned
-runtime. It failed one selector regression, so it is context rather than a perfect control.
+The guided arm improved all three measures at both effort levels. The `xhigh` guided solution also
+contained more duplicated code than its baseline, so the structural result is positive but not
+uniform. These heuristics support a source review; they do not prove readability by themselves.
 
-## Structural result
+## Agent behavior
 
-Lower verbosity and erosion scores are better. Erosion is the share of measured complexity mass
-concentrated in high-complexity code. The line count is included to show scale, not to score
-quality: the reference implementation is the largest solution and has the lowest erosion.
+At default effort, the guided agent loaded Python style and testing for checkpoints 1–3, retained a
+passing test file, and used no skill for checkpoints 4–5. At `xhigh`, it loaded Python style and
+testing at every checkpoint and the author guide at checkpoint 5. Both guided workspaces retained
+tests.
 
-| Final snapshot | Hidden tests | Verbosity | Erosion | Cognitive erosion | Average CC | Maximum CC | LOC |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Baseline | 93/104 | 0.185 | 0.916 | 0.949 | 8.95 | 47 | 276 |
-| Guided | 93/104 | 0.241 | 0.752 | 0.898 | 5.00 | 37 | 1,235 |
-| Reference | 103/104 | 0.215 | 0.324 | 0.778 | 4.06 | 24 | 4,395 |
-
-The guided arm had lower structural erosion at every checkpoint and higher measured verbosity at
-every checkpoint:
-
-| Checkpoint | Baseline erosion | Guided erosion | Baseline verbosity | Guided verbosity |
-| ---: | ---: | ---: | ---: | ---: |
-| 1 | 0.852 | 0.644 | 0.035 | 0.339 |
-| 2 | 0.856 | 0.588 | 0.032 | 0.287 |
-| 3 | 0.828 | 0.638 | 0.191 | 0.341 |
-| 4 | 0.874 | 0.758 | 0.188 | 0.312 |
-| 5 | 0.916 | 0.752 | 0.185 | 0.241 |
-
-### What the code looks like
-
-The baseline put validated rule state into a compact mutable object and handled the schema in one
-dense function:
-
-```python
-@dataclass
-class Rule:
- id:str; kind:str; pattern:str; languages:frozenset[str]; regex:Pattern[str]|None=None; plans:dict[str,Plan]=field(default_factory=dict); fix:str|None=None
-def load_rules(path):
- try:raw=json.loads(path.read_text(encoding="utf-8"))
- except (OSError,UnicodeError,json.JSONDecodeError) as e:fail(f"cannot read rules file: {e}")
- if not isinstance(raw,list):fail("rules file must contain a JSON array")
- out=[];seen=set()
-```
-
-The guided result used named immutable records and separated argument parsing from rule loading:
-
-```python
-@dataclasses.dataclass(frozen=True)
-class _Rule:
-    """A validated search rule."""
-
-    rule_id: str
-    languages: frozenset[str]
-    text_pattern: re.Pattern[str] | None = None
-    structural_patterns: dict[str, _Pattern] | None = None
-    selector: str | None = None
-    fix: _Fix | None = None
-```
-
-The guided code is easier to scan locally and has lower average complexity. It still has a large
-selector table, a 37-complexity rule loader, and more code to navigate. The result is a
-maintainability improvement in one dimension, not a clean finish.
-
-## What the reviews changed
-
-Without access to hidden results, the reviewers found these defects. Several were not covered by
-the hidden suite:
-
-- Checkpoint 2: lone-CR line endings produced wrong coordinates.
-- Checkpoint 3: placeholder identifiers could collide with source identifiers; optional
-  metavariables mishandled list separators; literal-dollar handling was incomplete.
-- Checkpoint 4: several selectors returned containers or duplicate expressions instead of code
-  elements; fix templates could reference undefined captures.
-- Checkpoint 5: Rust and Haskell selector aliases were incomplete; nested arguments were skipped;
-  an unencodable replacement truncated the source file before returning an error.
-
-The final guided solution passes the review-derived ten-test contract suite. The baseline fails
-individual parameter and argument selection, nested arguments, two Rust selector cases, and the
-non-destructive encoding failure. This comparison is post hoc: the guided reviewers created the
-cases after seeing the guided code, so it shows what the workflow found, not an unbiased score.
-
-The trajectory also shows a failure in the workflow. The checkpoint-3 fix made optional leading
-arguments work and verified the behavior with a temporary probe. Checkpoint 5 regressed it. Both
-final solutions now fail that public-contract probe. A temporary check proved the fix once; it did
-not protect later checkpoints.
-
-## Why hidden correctness did not improve
-
-1. The prompt said not to add permanent tests. That contradicted the review guide's instruction
-   to require a test that fails for a confirmed defect. The missing regression let an accepted
-   fix disappear two checkpoints later.
-2. Reviewers did not receive a runnable copy of the environment. Several reviews relied on source
-   inspection where a public black-box check would have been stronger.
-3. The cumulative specification was included as prose, but no artifact mapped each normative
-   behavior to a test. Agents concentrated on the newest and most visible grammar mappings while
-   older ordering, default-language, optional, and dollar-escape behavior remained uncovered.
-4. The two reviewers were parallel but not independent in model or training. They found
-   complementary defects, yet shared blind spots around the hidden cross-language cases.
-5. The fix agent could make broad changes for valid findings without rerunning a stable
-   cumulative suite. Checkpoint 4 added 214 implementation lines and new tests while leaving the
-   benchmark score unchanged.
-
-The guides did provide useful review principles. The experiment prompt and workspace failed to
-turn them into a durable verification process.
+An earlier `xhigh` guided attempt used a lifecycle sentence that explicitly mentioned independent
+reviews. The agent entered repeated review and fix work, attempted a nested agent review, and hit
+the 30-minute cap at checkpoint 3. Its frozen state passed 33 self-written tests but only 42/47
+hidden tests. Removing the review cue let the same model and effort complete all five checkpoints.
+This is why the repository lifecycle states an outcome and leaves the workflow to the agent.
 
 ## Cost
 
-OAuth runs did not report a dollar cost, so token and elapsed counts are the honest comparison.
-Input counts below exclude cached input tokens.
+OAuth runs did not report dollar cost, so the report uses elapsed time and tokens. Input counts
+exclude cached tokens.
 
-| Measure | Baseline | Guided | Ratio |
-| --- | ---: | ---: | ---: |
-| Model calls | 5 | 20 | 4.00× |
-| Wall time | 13m 43s | 45m 09s | 3.29× |
-| Sum of call time | 13m 43s | 56m 01s | 4.08× |
-| Uncached input tokens | 205,198 | 853,086 | 4.16× |
-| Output tokens | 33,048 | 129,441 | 3.92× |
+| Effort | Arm | Calls | Wall time | Uncached input | Output |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Default | Baseline | 5 | 10m 54s | 173,667 | 26,944 |
+| Default | Guided | 5 | 11m 55s | 189,415 | 30,887 |
+| `xhigh` | Baseline | 5 | 48m 07s | 487,762 | 122,158 |
+| `xhigh` | Guided | 5 | 60m 03s | 610,777 | 154,602 |
 
-Parallel reviews account for the difference between guided wall time and summed call time.
+At default effort, the guided arm used 9% more uncached input and took 9% longer. At `xhigh`, it
+used 25% more uncached input and took 25% longer. The `xhigh` baseline itself took more than four
+times as long as the default baseline.
 
-## Next pipeline
+## Takeaway
 
-Keep the same basic flow, with four changes:
+Use the minimal lifecycle. It produced the clearest result and avoided turning review into an
+unbounded process.
 
-1. Implement after loading the applicable style guide.
-2. Maintain a small cumulative public-contract suite. Map each normative behavior to at least one
-   normal, boundary, or failure check where applicable.
-3. Run code and testing reviews in parallel inside runnable copies of the same environment. Every
-   Required correctness finding must include a reproducer.
-4. Apply only reproduced Required findings. Keep the smallest regression test for each accepted
-   defect, then run the cumulative suite before taking the snapshot. Skip the fix call when both
-   reviews have no Required findings.
+The current evidence says:
 
-Rerun this same five-checkpoint case once with that pipeline before adding more benchmark
-problems. The next run should be judged on hidden correctness, preservation of accepted fixes,
-erosion, verbosity, and cost. More scenarios are useful only after the process stops losing known
-behavior.
+- the skills route without a manually orchestrated prompt;
+- the guided solutions have better measured structure;
+- default-effort correctness was unchanged;
+- `xhigh` improved both arms in absolute terms, but did not make the guided arm beat its baseline;
+- `ultra` is not justified for this demo because `xhigh` already cost about an hour per guided run
+  without closing the correctness gap.
+
+The next useful experiment is another problem, not another effort level on this one. A broader
+quality claim needs multiple tasks and repeated runs.
 
 ## Limits and artifacts
 
-This is one problem, one model, and one run per arm. It cannot estimate variance or establish a
-general quality lift. The reviewer-created probes are diagnostic rather than preregistered. Both
-arms used SlopCodeBench's local environment instead of its container image, with identical test
-collection hashes at each checkpoint.
+This is one problem and one run per cell. It cannot establish a general effect or estimate
+variance. Both arms used the benchmark's local environment rather than its container image. The
+test collection hash was identical within each checkpoint.
 
-Raw prompts, traces, snapshots, review reports, hidden-test output, and metrics remain in the
-ignored local directory
-`evals/results/slopcodebench-v0.2-20260825T202647Z/`.
+Raw prompts, traces, snapshots, hidden-test output, and metrics remain in ignored local directories:
+
+- `evals/results/slopcodebench-autonomous-20260826T165249Z/`
+- `evals/results/slopcodebench-autonomous-xhigh-20260826T172910Z/`
 
 See the [SlopCodeBench paper](https://arxiv.org/pdf/2603.24755),
 [project](https://www.scbench.ai/), and
