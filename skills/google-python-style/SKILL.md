@@ -8,133 +8,439 @@ description: >-
 
 # Google Python Style Guide
 
-## Scope and precedence
+Apply this guidance to the actual project. Repository requirements and newer authoritative guidance take precedence.
 
-Apply this guide when writing or reviewing Python. Repository instructions, `pyproject.toml`,
-configured formatters and linters, and newer project requirements take precedence. Use
-surrounding conventions only for choices the guide leaves open; do not preserve an obsolete
-local pattern merely for consistency. This is a style and maintainability guide, not a Python
-tutorial.
+## 2.1 Lint
 
-## Workflow
+Make sure you run
+`pylint`
+on your code.
+Suppress warnings if they are inappropriate so that other issues are not hidden.
+To suppress warnings, you can set a line-level comment:
+If the reason for the suppression is not clear from the symbolic name, add an
+explanation.
 
-1. Read repository instructions and inspect `pyproject.toml`, lint and type-check configuration,
-   supported Python versions, nearby code, and test conventions.
-2. Identify public APIs, import boundaries, mutable state, resource lifetimes, error contracts,
-   and code that runs at import time.
-3. Implement the simplest readable control flow. Add type annotations to new or changed public
-   APIs and to code where types are difficult to infer or have caused bugs.
-4. Add contract docstrings and comments for non-obvious reasoning. Keep module import safe and
-   executable behavior behind `main()`.
-5. Run the configured formatter, `pylint`, type checker, and relevant tests. Use narrow,
-   explained suppressions only when the tool is wrong or an exception is necessary.
-6. Review the complete diff for naming, import order, exception breadth, mutable defaults,
-   cleanup, and documentation accuracy before reporting completion.
+## 2.2 Imports
 
-## High-impact rules
+*   Use `import x` for importing packages and modules.
+*   Use `from x import y` where `x` is the package prefix and `y` is the module
+    name with no prefix.
+*   Use `from x import y as z` in any of the following circumstances:
+    -   Two modules named `y` are to be imported.
+    -   `y` conflicts with a top-level name defined in the current module.
+    -   `y` conflicts with a common parameter name that is part of the public
+        API (e.g., `features`).
+    -   `y` is an inconveniently long name.
+    -   `y` is too generic in the context of your code (e.g., `from
+        storage.file_system import options as fs_options`).
+*   Use `import y as z` only when `z` is a standard abbreviation (e.g., `import
+    numpy as np`).
+Do not use relative names in imports. Even if the module is in the same package,
+use the full package name. This helps prevent unintentionally importing a
+package twice.
 
-### Imports and module structure
+## 2.4 Exceptions
 
-- Import packages and modules, not individual classes or functions. Specific imports from
-  `typing`, `collections.abc`, and `typing_extensions` are allowed for static analysis.
-- Use absolute package names. Prefer `import x`, `from package import module`, and aliases only
-  for collisions, standard abbreviations, overly generic names, or genuinely unwieldy modules.
-  Do not use relative imports.
-- Put imports after the module docstring and before globals. Group future imports, standard
-  library, third-party packages, then repository packages; sort each group lexicographically by
-  full package path. Put imports on separate lines except allowed typing imports.
-- Keep module top level free of work that should not run during import. Executables put behavior
-  in `main()` and guard it with `if __name__ == '__main__':`; use `app.run(main)` when using
-  Abseil.
-- Avoid mutable global state. If it is unavoidable, keep it internal, expose controlled access,
-  and document the design reason. Module constants use `CAPS_WITH_UNDERSCORES`.
+Exceptions must follow certain conditions:
+-   Make use of built-in exception classes when it makes sense. For example,
+    raise a `ValueError` to indicate a programming mistake like a violated
+    precondition, such as may happen when validating function arguments.
+-   Do not use `assert` statements in place of conditionals or validating
+    preconditions. They must not be critical to the application logic. A litmus
+    test would be that the `assert` could be removed without breaking the code.
+    `assert` conditionals are
+    [not guaranteed](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement)
+    to be evaluated. For [pytest](https://pytest.org) based tests, `assert` is
+    okay and expected to verify expectations. For
+    example:
+-   Libraries or packages may define their own exceptions. When doing so they
+    must inherit from an existing exception class. Exception names should end in
+    `Error` and should not introduce repetition (`foo.FooError`).
+-   Never use catch-all `except:` statements, or catch `Exception` or
+    `StandardError`, unless you are
+    -   re-raising the exception, or
+    -   creating an isolation point in the program where exceptions are not
+        propagated but are recorded and suppressed instead, such as protecting a
+        thread from crashing by guarding its outermost block.
+-   Minimize the amount of code in a `try`/`except` block. The larger the body
+    of the `try`, the more likely that an exception will be raised by a line of
+    code that you didn't expect to raise an exception. In those cases, the
+    `try`/`except` block hides a real error.
+-   Use the `finally` clause to execute code whether or not an exception is
+    raised in the `try` block. This is often useful for cleanup, i.e., closing a
+    file.
 
-### Language and control flow
+## 2.5 Mutable Global State
 
-- Use built-in exception classes where appropriate; custom exception names end in `Error` and
-  inherit from an existing exception type.
-- Never use a bare `except` or catch `Exception` unless re-raising or implementing a documented
-  outer isolation boundary. Keep `try` bodies narrow, use `finally` for mandatory cleanup, and do
-  not use `assert` for validation or application logic. `assert` is appropriate for test
-  expectations and internal facts whose removal would not change behavior.
-- Do not use mutable or dynamically evaluated default arguments. Use an immutable value or
-  `None`, then create state inside the function; never read an Abseil flag value in a default.
-- Prefer implicit truth testing for sequences and mappings. Compare explicitly with `None`, do
-  not compare booleans with `False`, and use explicit numeric comparisons where falsiness could
-  confuse zero with absence. Check NumPy array emptiness with `.size`.
-- Keep comprehensions simple: at most one `for` clause and one filter expression. Use ordinary
-  loops for nested or complicated transformations. Prefer default iterators and membership
-  operators, and never mutate a container while iterating over it.
-- Use generators when helpful, document them with `Yields:`, and ensure expensive resources are
-  closed even when iteration stops early.
-- Keep lambdas to simple one-line expressions; prefer a named function when the body approaches
-  60–80 characters. Use decorators only for a clear advantage, keep them free of fragile import-
-  time dependencies, and test them. Avoid `staticmethod`; reserve `classmethod` for named
-  constructors or necessary class-wide state.
-- Properties must be cheap, straightforward, and unsurprising. Make a plain attribute public
-  when access requires no logic; use a method when work or side effects are significant.
-- Do not rely on built-in operation atomicity across threads. Prefer `queue.Queue` for handoff and
-  `threading.Condition` over low-level locking where appropriate. Avoid metaclass tricks,
-  bytecode manipulation, import hacks, dynamic inheritance, and other power features.
+Avoid mutable global state.
+In those rare cases where using global state is warranted, mutable global
+entities should be declared at the module level or as a class attribute and made
+internal by prepending an `_` to the name. If necessary, external access to
+mutable global state must be done through public functions or class methods. See
+Naming below. Please explain the design reasons why mutable
+global state is being used in a comment or a doc linked to from a comment.
+Module-level constants are permitted and encouraged. For example:
+`_MAX_HOLY_HANDGRENADE_COUNT = 3` for an internal use constant or
+`SIR_LANCELOTS_FAVORITE_COLOR = "blue"` for a public API constant. Constants
+must be named using all caps with underscores. See Naming
+below.
 
-### Types and names
+## 2.7 Comprehensions & Generator Expressions
 
-- Strongly prefer build-time type analysis. Annotate public APIs and code whose types are complex,
-  error-prone, or stable enough to express clearly; do not add annotations that obscure the code.
-- Spell nullable values explicitly as `X | None` in supported Python versions. Use `Any` only
-  when the type truly cannot be expressed. Parameterize generic types rather than relying on
-  implicit `Any`.
-- Import typing symbols directly. Prefer abstract parameter types such as `Sequence` or `Mapping`
-  when callers need not provide a concrete container, and prefer built-in generic forms such as
-  `tuple[int, ...]`.
-- Name type aliases in `CapWords`, with a leading underscore when module-private. Give constrained
-  or public type variables descriptive names; single-letter private type variables are allowed
-  only when unconstrained and not externally visible.
-- Use `module_name.py`, `package_name`, `ClassName`, `ExceptionName`, `function_name`,
-  `method_name`, `local_variable`, and `GLOBAL_CONSTANT`. Prefix internal module and class members
-  with one underscore; avoid double-leading name mangling.
-- Prefer descriptive names and avoid unfamiliar abbreviations, embedded type names, offensive
-  terms, and single-character names outside small conventional scopes. Python filenames end in
-  `.py` and contain no dashes.
+Comprehensions are allowed, however multiple `for` clauses or filter expressions
+are not permitted. Optimize for readability, not conciseness.
 
-### Formatting, strings, and resources
+## 2.9 Generators
 
-- Use four spaces per indentation level and never tabs. Do not use semicolons or multiple
-  statements per line. Prefer lines of at most 80 characters, subject to documented exceptions
-  and the configured formatter; use implicit continuation inside delimiters, not backslashes.
-- Use two blank lines between top-level definitions and one between methods. Do not vertically
-  align assignment, comment, or dictionary punctuation with extra spaces.
-- Be consistent about single or double quotes within a file. Use f-strings, `%`, or `format()` for
-  formatting rather than repeated `+`; accumulate many fragments in a list and `''.join()` or an
-  `io.StringIO`.
-- Pass logging format literals and arguments separately rather than using f-strings. Error
-  messages must precisely describe the condition, clearly delimit interpolated values, and stay
-  stable enough to search.
-- Close files, sockets, database connections, and similar resources promptly with `with`; use
-  `contextlib.closing()` when no context manager exists. Document lifetime management when a
-  context manager is infeasible.
+Fine. Use "Yields:" rather than "Returns:" in the docstring for generator
+functions.
+If the generator manages an expensive resource, make sure to force the clean up.
+A good way to do the clean up is by wrapping the generator with a context
+manager [PEP-0533](https://peps.python.org/pep-0533/).
 
-### Documentation and comments
+## 2.10 Lambda Functions
 
-- Begin non-test modules with a triple-double-quoted docstring describing contents and usage.
-  Omit a test-module docstring when it would say nothing beyond “tests for X.”
-- Give public, non-trivial, or non-obvious functions docstrings sufficient to call them without
-  reading their bodies. Start with a summary line of at most 80 characters, then use `Args:`,
-  `Returns:` or `Yields:`, and `Raises:` sections only as needed by the contract.
-- Document classes as the thing an instance represents and list public non-property attributes.
-  An `@override` method may inherit documentation unless it changes the contract or side effects.
-- Comments explain why difficult code exists, not how Python syntax works. Write searchable TODOs
-  as `TODO: issue-or-context - explanation`, preferably with a tracked issue.
-- Prefer small, focused functions; reconsider a function beyond roughly 40 lines.
+Lambdas are allowed. If the code inside the lambda function spans multiple lines
+or is longer than 60-80 chars, it might be better to define it as a regular
+nested function.
+For common operations like multiplication, use the functions from the `operator`
+module instead of lambda functions. For example, prefer `operator.mul` to
+`lambda x, y: x * y`.
 
-## Verification and review output
+## 2.12 Default Argument Values
 
-Lead with `Ready`, `Needs changes`, or `Blocked`, then report:
+Okay to use with the following caveat:
+Do not use mutable objects as default values in the function or method
+definition.
 
-- `Required findings`: location, violated rule, behavioral or maintenance impact, and correction.
-- `API and typing`: missing or misleading contracts, annotations, exceptions, and mutable state.
-- `Tool results`: formatter, `pylint`, type checker, and tests run, including exact failures and
-  justified suppressions.
-- `Not run`: checks omitted and why.
-- `Residual risk`: import-time behavior, resource cleanup, threading, type suppression, or error
-  paths not exercised.
+## 2.13 Properties
+
+Properties are allowed, but, like operator overloading, should only be used when
+necessary and match the expectations of typical attribute access; follow the
+getters and setters rules otherwise.
+For example, using a property to simply both get and set an internal attribute
+isn't allowed: there is no computation occurring, so the property is unnecessary
+(make the attribute public instead). In comparison,
+using a property to control attribute access or to calculate a *trivially*
+derived value is allowed: the logic is simple and unsurprising.
+
+## 2.14 True/False Evaluations
+
+Use the "implicit" false if possible, e.g., `if foo:` rather than `if foo !=
+[]:`. There are a few caveats that you should keep in mind though:
+-   Always use `if foo is None:` (or `is not None`) to check for a `None` value.
+    E.g., when testing whether a variable or argument that defaults to `None`
+    was set to some other value. The other value might be a value that's false
+    in a boolean context!
+-   Never compare a boolean variable to `False` using `==`. Use `if not x:`
+    instead. If you need to distinguish `False` from `None` then chain the
+    expressions, such as `if not x and x is not None:`.
+-   For sequences (strings, lists, tuples), use the fact that empty sequences
+    are false, so `if seq:` and `if not seq:` are preferable to `if len(seq):`
+    and `if not len(seq):` respectively.
+-   Note that Numpy arrays may raise an exception in an implicit boolean
+    context. Prefer the `.size` attribute when testing emptiness of a `np.array`
+    (e.g. `if not users.size`).
+
+## 2.18 Threading
+
+Do not rely on the atomicity of built-in types.
+Use the `queue` module's `Queue` data type as the preferred way to communicate
+data between threads. Otherwise, use the `threading` module and its locking
+primitives. Prefer condition variables and `threading.Condition` instead of
+using lower-level locks.
+
+## 2.21 Type Annotated Code
+
+You are strongly encouraged to enable Python type analysis when updating code.
+When adding or modifying public APIs, include type annotations and enable
+checking via pytype in the build system. As static analysis is relatively new to
+Python, we acknowledge that undesired side-effects (such as
+wrongly
+inferred types) may prevent adoption by some projects. In those situations,
+authors are encouraged to add a comment with a TODO or link to a bug describing
+the issue(s) currently preventing type annotation adoption in the BUILD file or
+in the code itself as appropriate.
+
+## 3.2 Line length
+
+Maximum line length is *80 characters*.
+Do not use a backslash for
+[explicit line continuation](https://docs.python.org/3/reference/lexical_analysis.html#explicit-line-joining).
+Instead, make use of Python's
+[implicit line joining inside parentheses, brackets and braces](http://docs.python.org/reference/lexical_analysis.html#implicit-line-joining).
+If necessary, you can add an extra pair of parentheses around an expression.
+
+## 3.4 Indentation
+
+Indent your code blocks with *4 spaces*.
+Never use tabs. Implied line continuation should align wrapped elements
+vertically (see line length examples), or use a hanging
+4-space indent. Closing (round, square or curly) brackets can be placed at the
+end of the expression, or on separate lines, but then should be indented the
+same as the line with the corresponding opening bracket.
+
+## 3.8.1 Docstrings
+
+Python uses *docstrings* to document code. A docstring is a string that is the
+first statement in a package, module, class or function. These strings can be
+extracted automatically through the `__doc__` member of the object and are used
+by `pydoc`.
+(Try running `pydoc` on your module to see how it looks.) Always use the
+three-double-quote `"""` format for docstrings (per
+[PEP 257](https://peps.python.org/pep-0257/)). A docstring should be organized
+as a summary line (one physical line not exceeding 80 characters) terminated by
+a period, question mark, or exclamation point. When writing more (encouraged),
+this must be followed by a blank line, followed by the rest of the docstring
+starting at the same cursor position as the first quote of the first line. There
+are more formatting guidelines for docstrings below.
+
+## 3.8.3 Functions and Methods
+
+A docstring is mandatory for every function that has one or more of the
+following properties:
+-   being part of the public API
+-   nontrivial size
+-   non-obvious logic
+A docstring should give enough information to write a call to the function
+without reading the function's code. The docstring should describe the
+function's calling syntax and its semantics, but generally not its
+implementation details, unless those details are relevant to how the function is
+to be used. For example, a function that mutates one of its arguments as a side
+effect should note that in its docstring. Otherwise, subtle but important
+details of a function's implementation that are not relevant to the caller are
+better expressed as comments alongside the code than within the function's
+docstring.
+
+## 3.8.4 Classes
+
+Classes should have a docstring below the class definition describing the class.
+Public attributes, excluding properties, should be documented
+here in an `Attributes` section and follow the same formatting as a
+function's `Args` section.
+All class docstrings should start with a one-line summary that describes what
+the class instance represents. This implies that subclasses of `Exception`
+should also describe what the exception represents, and not the context in which
+it might occur. The class docstring should not repeat unnecessary information,
+such as that the class is a class.
+
+## 3.8.5 Block and Inline Comments
+
+The final place to have comments is in tricky parts of the code. If you're going
+to have to explain it at the next [code review](http://en.wikipedia.org/wiki/Code_review),
+you should comment it now. Complicated operations get a few lines of comments
+before the operations commence. Non-obvious ones get comments at the end of the
+line.
+
+## 3.10 Strings
+
+Use an
+[f-string](https://docs.python.org/3/reference/lexical_analysis.html#f-strings),
+the `%` operator, or the `format` method for formatting strings, even when the
+parameters are all strings. Use your best judgment to decide between string
+formatting options. A single join with `+` is okay but do not format with `+`.
+Avoid using the `+` and `+=` operators to accumulate a string within a loop. In
+some conditions, accumulating a string with addition can lead to quadratic
+rather than linear running time. Although common accumulations of this sort may
+be optimized on CPython, that is an implementation detail. The conditions under
+which an optimization applies are not easy to predict and may change. Instead,
+add each substring to a list and `''.join` the list after the loop terminates,
+or write each substring to an `io.StringIO` buffer. These techniques
+consistently have amortized-linear run-time complexity.
+Be consistent with your choice of string quote character within a file. Pick `'`
+or `"` and stick with it. It is okay to use the other quote character on a
+string to avoid the need to backslash-escape quote characters within the string.
+
+## 3.10.1 Logging
+
+For logging functions that expect a pattern-string (with %-placeholders) as
+their first argument: Always call them with a string literal (not an f-string!)
+as their first argument with pattern-parameters as subsequent arguments. Some
+logging implementations collect the unexpanded pattern-string as a queryable
+field. It also prevents spending time rendering a message that no logger is
+configured to output.
+
+## 3.10.2 Error Messages
+
+Error messages (such as: message strings on exceptions like `ValueError`, or
+messages shown to the user) should follow three guidelines:
+1.  The message needs to precisely match the actual error condition.
+2.  Interpolated pieces need to always be clearly identifiable as such.
+3.  They should allow simple automated processing (e.g. grepping).
+
+## 3.11 Files, Sockets, and similar Stateful Resources
+
+Explicitly close files and sockets when done with them. This rule naturally
+extends to closeable resources that internally use sockets, such as database
+connections, and also other resources that need to be closed down in a similar
+fashion. To name only a few examples, this also includes
+[mmap](https://docs.python.org/3/library/mmap.html) mappings,
+[h5py File objects](https://docs.h5py.org/en/stable/high/file.html), and
+[matplotlib.pyplot figure windows](https://matplotlib.org/2.1.0/api/_as_gen/matplotlib.pyplot.close.html).
+The preferred way to manage files and similar resources is using the
+[`with` statement](http://docs.python.org/reference/compound_stmts.html#the-with-statement):
+For file-like objects that do not support the `with` statement, use
+`contextlib.closing()`:
+In rare cases where context-based resource management is infeasible, code
+documentation must explain clearly how resource lifetime is managed.
+
+## 3.13 Imports formatting
+
+Imports should be on separate lines; there are
+exceptions for `typing` and `collections.abc` imports.
+Imports are always put at the top of the file, just after any module comments
+and docstrings and before module globals and constants. Imports should be
+grouped from most generic to least generic:
+1.  Python future import statements. For example:
+    ```python
+    from __future__ import annotations
+    ```
+2.  Python standard library imports. For example:
+    ```python
+    import sys
+    ```
+3.  [third-party](https://pypi.org/) module
+    or package imports. For example:
+    ```python
+    import tensorflow as tf
+    ```
+4.  Code repository
+    sub-package imports. For example:
+    ```python
+    from otherproject.ai import mind
+    ```
+Within each grouping, imports should be sorted lexicographically, ignoring case,
+according to each module's full package path (the `path` in `from path import
+...`). Code may optionally place a blank line between import sections.
+
+## 3.16 Naming
+
+`module_name`, `package_name`, `ClassName`, `method_name`, `ExceptionName`,
+`function_name`, `GLOBAL_CONSTANT_NAME`, `global_var_name`, `instance_var_name`,
+`function_parameter_name`, `local_var_name`, `query_proper_noun_for_thing`,
+`send_acronym_via_https`.
+Names should be descriptive. This includes functions, classes, variables,
+attributes, files and any other type of named entities.
+Avoid abbreviation. In particular, do not use abbreviations that are ambiguous
+or unfamiliar to readers outside your project, and do not abbreviate by deleting
+letters within a word.
+Always use a `.py` filename extension. Never use dashes.
+
+## 3.16.1 Names to Avoid
+
+-   single character names, except for specifically allowed cases:
+    -   counters or iterators (e.g. `i`, `j`, `k`, `v`, et al.)
+    -   `e` as an exception identifier in `try/except` statements.
+    -   `f` as a file handle in `with` statements
+    -   private type variables with no constraints (e.g.
+        `_T = TypeVar("_T")`, `_P = ParamSpec("_P")`)
+    -   names that match established notation in a reference paper or algorithm
+        (see Mathematical Notation)
+Please be mindful not to abuse single-character naming. Generally speaking,
+descriptiveness should be proportional to the name's scope of visibility.
+For example, `i` might be a fine name for 5-line code block but within
+multiple nested scopes, it is likely too vague.
+-   `__double_leading_and_trailing_underscore__` names (reserved by Python)
+-   offensive terms
+-   names that needlessly include the type of the variable (for example:
+    `id_to_name_dict`)
+
+## 3.16.2 Naming Conventions
+
+-   Prepending a single underscore (`_`) has some support for protecting module
+    variables and functions (linters will flag protected member access). Note
+    that it is okay for unit tests to access protected constants from the
+    modules under test.
+-   Prepending a double underscore (`__` aka "dunder") to an instance variable
+    or method effectively makes the variable or method private to its class
+    (using name mangling); we discourage its use as it impacts readability and
+    testability, and isn't *really* private. Prefer a single underscore.
+
+## 3.16.5 Mathematical Notation
+
+For mathematically-heavy code, short variable names that would otherwise violate
+the style guide are preferred when they match established notation in a
+reference paper or algorithm.
+When using names based on established notation:
+1.  Cite the source of all naming conventions, preferably with a hyperlink to
+    academic resource itself, in a comment or docstring. If the source is not
+    accessible, clearly document the naming conventions.
+2.  Prefer PEP8-compliant `descriptive_names` for public APIs, which are much
+    more likely to be encountered out of context.
+3.  Use a narrowly-scoped `pylint: disable=invalid-name` directive to silence
+    warnings. For just a few variables, use the directive as an endline comment
+    for each one; for more, apply the directive at the beginning of a block.
+
+## 3.17 Main
+
+In Python, `pydoc` as well as unit tests require modules to be importable. If a
+file is meant to be used as an executable, its main functionality should be in a
+`main()` function, and your code should always check `if __name__ == '__main__'`
+before executing your main program, so that it is not executed when the module
+is imported.
+All code at the top level will be executed when the module is imported. Be
+careful not to call functions, create objects, or perform other operations that
+should not be executed when the file is being `pydoc`ed.
+
+## 3.19.1 General Rules
+
+*   If any other variable or a returned type should not be expressed, use `Any`.
+*   You are not required to annotate all the functions in a module.
+    -   At least annotate your public APIs.
+    -   Use judgment to get to a good balance between safety and clarity on the
+        one hand, and flexibility on the other.
+    -   Annotate code that is prone to type-related errors (previous bugs or
+        complexity).
+    -   Annotate code that is hard to understand.
+    -   Annotate code as it becomes stable from a types perspective. In many
+        cases, you can annotate all the functions in mature code without losing
+        too much flexibility.
+
+## 3.19.5 NoneType
+
+In the Python type system, `NoneType` is a "first class" type, and for typing
+purposes, `None` is an alias for `NoneType`. If an argument can be `None`, it
+has to be declared! You can use `|` union type expressions (recommended in new
+Python 3.10+ code), or the older `Optional` and `Union` syntaxes.
+Use explicit `X | None` instead of implicit. Earlier versions of type checkers
+allowed `a: str = None` to be interpreted as `a: str | None = None`, but that is
+no longer the preferred behavior.
+
+## 3.19.12 Imports For Typing
+
+For symbols (including types, functions, and constants) from the `typing` or
+`collections.abc` modules used to support static analysis and type checking,
+always import the symbol itself. This keeps common annotations more concise and
+matches typing practices used around the world. You are explicitly allowed to
+import multiple specific symbols on one line from the `typing` and
+`collections.abc` modules. For example:
+```python
+from collections.abc import Mapping, Sequence
+from typing import Any, Generic, cast, TYPE_CHECKING
+```
+When annotating function signatures, prefer abstract container types like
+`collections.abc.Sequence` over concrete types like `list`. If you need to use a
+concrete type (for example, a `tuple` of typed elements), prefer built-in types
+like `tuple` over the parametric type aliases from the `typing` module (e.g.,
+`typing.Tuple`).
+```python
+from typing import List, Tuple
+
+def transform_coordinates(original: List[Tuple[float, float]]) ->
+    List[Tuple[float, float]]:
+  ...
+```
+```python
+from collections.abc import Sequence
+
+def transform_coordinates(original: Sequence[tuple[float, float]]) ->
+    Sequence[tuple[float, float]]:
+  ...
+```
+
+## 3.19.15 Generics
+
+When annotating, prefer to specify type parameters for
+[generic](https://docs.python.org/3/library/typing.html#generics) types in a
+parameter list; otherwise, the generics' parameters will be assumed to be
+[`Any`](https://docs.python.org/3/library/typing.html#the-any-type).

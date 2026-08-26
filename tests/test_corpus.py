@@ -92,7 +92,8 @@ def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
         for _collection, artifact in manifest.artifacts(include_local=False)
         if artifact.name == "google-go-style"
     )
-    assert go_artifact.recipe == "recipes/google-go-style.md"
+    assert go_artifact.excerpts
+    assert {excerpt.input for excerpt in go_artifact.excerpts} == set(go_artifact.inputs)
     go_skill = ROOT / "skills/google-go-style/SKILL.md"
     assert len(go_skill.read_text(encoding="utf-8").splitlines()) < 500
     assert not (go_skill.parent / "references").exists()

@@ -16,7 +16,7 @@ profile. Before model invocation, the harness recomputes the rendered metadata l
 path and rejects an over-budget install. This prevents host paths or truncation from confounding
 the result.
 
-Live evaluation is Linux-only in v0.1 and requires `bwrap` plus the selected client binaries. It
+Live evaluation is Linux-only and requires `bwrap` plus the selected client binaries. It
 uses existing OAuth logins, copied into temporary client homes for each run:
 
 | Client | Login used |
@@ -109,9 +109,10 @@ The saved five-client routing runs belong to an earlier 23-skill committed corpu
 expose an oversized Go skill, vague reference routing, and a routing index that added no measured
 value. Do not use their routing rates for the current 16-public/8-local pack.
 
-A current-corpus [SlopCodeBench quality experiment](../reports/slopcodebench-quality.md) compares
-a five-checkpoint just-solve trajectory with a guide, parallel review, and fix trajectory. The
-arms tied on hidden correctness. The guided code had less structural erosion and its reviewers
-found additional contract defects, but the workflow cost four times as many calls and later lost
-one accepted fix. The report defines the smaller next iteration. See the
+The [SlopCodeBench quality experiment](../reports/slopcodebench-quality.md) used the current
+source-excerpt pack with a one-sentence task prompt and a minimal project lifecycle. At default
+effort, baseline and guided arms both scored 95/104; the guided code had better structure metrics.
+At `xhigh`, the baseline scored 100/104 and the guided arm scored 97/104, again with better
+structure metrics. This is one task and one run per cell, so it is evidence about the workflow,
+not a general quality estimate. See the
 [version 0.1 plan review](../reports/v0.1-plan-review.md) for the broader release history.

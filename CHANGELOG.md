@@ -4,6 +4,26 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0.0] - 2026-08-26
+
+### Changed
+
+- All 24 retained skills now contain selected source passages organized around their tasks.
+- The generator selects exact headings and paragraph blocks, preserves Markdown structure, and
+  records the selections in each skill's source record.
+- Project instructions now state the development outcome and leave the workflow to the agent.
+
+### Removed
+
+- The 16 hand-written public recipes and broad progressive-disclosure bodies they replaced.
+
+### Evaluation
+
+- On one five-checkpoint SlopCodeBench task, the source-excerpt skills tied the baseline at 95/104
+  under default effort and improved the measured code structure. At `xhigh`, the guided arm scored
+  97/104 against a 100/104 baseline while retaining the structure advantage. This single-run demo
+  does not establish a general correctness effect.
+
 ## [0.2.0.0] - 2026-08-25
 
 ### Changed

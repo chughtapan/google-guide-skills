@@ -2,8 +2,298 @@
   "artifact": "google-python-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        4
+      ],
+      "heading": "2.1.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "2.2.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        5,
+        6,
+        7,
+        9,
+        10
+      ],
+      "heading": "2.4.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "2.5.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "2.7.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "2.9.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "2.10.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "2.12.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "2.13.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        8
+      ],
+      "heading": "2.14.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "2.18 Threading",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "2.21.4 Decision",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        3,
+        4
+      ],
+      "heading": "3.2 Line length",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "3.4 Indentation",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.8.1 Docstrings",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        1,
+        2,
+        3
+      ],
+      "heading": "3.8.3 Functions and Methods",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "3.8.4 Classes",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.8.5 Block and Inline Comments",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        3,
+        6
+      ],
+      "heading": "3.10 Strings",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.10.1 Logging",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "3.10.2 Error Messages",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        6,
+        8,
+        10
+      ],
+      "heading": "3.11 Files, Sockets, and similar Stateful Resources",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        17
+      ],
+      "heading": "3.13 Imports formatting",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "3.16 Naming",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "heading": "3.16.1 Names to Avoid",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "3.16.2 Naming Conventions",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "3.16.5 Mathematical Notation",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        5
+      ],
+      "heading": "3.17 Main",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        4,
+        5,
+        6
+      ],
+      "heading": "3.19.1 General Rules",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "3.19.5 NoneType",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4,
+        5,
+        6
+      ],
+      "heading": "3.19.12 Imports For Typing",
+      "input": "pyguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3.19.15 Generics",
+      "input": "pyguide.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +302,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "pyguide.md",
       "sha256": "0bd17ead9e6d60b45502399ef4341a1b1b8de4595c0b58e9c272eb73f4827ef4"
     }
@@ -27,11 +317,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-python-style.md",
-    "sha256": "253f1c4126d80c0cf00720ab192ef0afac35563ed556f575b709840a88af72d0"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +329,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

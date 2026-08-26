@@ -2,8 +2,350 @@
   "artifact": "google-cpp-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "C++ Version",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Self-contained Headers",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "The #define Guard",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Include What You Use",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        7
+      ],
+      "heading": "Forward Declarations",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        9,
+        13
+      ],
+      "heading": "Names and Order of Includes",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Namespaces",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Internal Linkage",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Local Variables",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Static and Global Variables",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "thread\\_local Variables",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        4
+      ],
+      "heading": "Doing Work in Constructors",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        9,
+        11
+      ],
+      "heading": "Implicit Conversions",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        10,
+        11,
+        15
+      ],
+      "heading": "Copyable and Movable Types",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3
+      ],
+      "heading": "Structs vs. Classes",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        8
+      ],
+      "heading": "Inheritance",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Access Control",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Inputs and Outputs",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Write Short Functions",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        6
+      ],
+      "heading": "Function Overloading",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        6
+      ],
+      "heading": "Default Arguments",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        7
+      ],
+      "heading": "Ownership and Smart Pointers",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        8
+      ],
+      "heading": "Exceptions",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        8,
+        9,
+        14
+      ],
+      "heading": "Run-Time Type Information (RTTI)",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Casting",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        7
+      ],
+      "heading": "Use of const",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use of constexpr, constinit, and consteval",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        7
+      ],
+      "heading": "Integer Types",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        8
+      ],
+      "heading": "Preprocessor Macros",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "0 and nullptr/NULL",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Type Deduction (including auto)",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Concepts and Constraints",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        4
+      ],
+      "heading": "Nonstandard Extensions",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Choosing Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "File Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Type Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Variable Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Constant Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "Function Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Namespace Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Macro Names",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Function Declarations",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        0,
+        5
+      ],
+      "heading": "Line Length",
+      "input": "cppguide.html"
+    },
+    {
+      "blocks": [
+        3,
+        13
+      ],
+      "heading": "Looping and branching statements",
+      "input": "cppguide.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +354,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "html-to-markdown",
       "path": "cppguide.html",
       "sha256": "f681e8c1b71ed5f2420555a28b7e7120f46914cfa126e9d8ec5e6e9851512caf"
     }
@@ -27,11 +369,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-cpp-style.md",
-    "sha256": "1c03e59edabe0204baf3642431c4576508834fc9ee5ec754d56c71a9e5f58468"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +381,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

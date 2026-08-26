@@ -2,8 +2,323 @@
   "artifact": "google-documentation-guide",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Radical simplicity",
+      "input": "docguide/philosophy.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Readable source text",
+      "input": "docguide/philosophy.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Minimum Viable Documentation",
+      "input": "docguide/best_practices.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Update Docs with Code",
+      "input": "docguide/best_practices.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Delete Dead Documentation",
+      "input": "docguide/best_practices.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        15
+      ],
+      "heading": "Documentation is the Story of Your Code",
+      "input": "docguide/best_practices.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Duplication is Evil",
+      "input": "docguide/best_practices.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Better is better than best",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Character line limit",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Exceptions",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        4
+      ],
+      "heading": "Trailing whitespace",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        4,
+        6,
+        7
+      ],
+      "heading": "Document layout",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use unique, complete names for headings",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Add spacing to headings",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use a single H1 heading",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Use lazy numbering for long lists",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Nested list spacing",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Inline",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Codeblocks",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Declare the language",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Use fenced code blocks instead of indented code blocks",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Escape newlines",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Links",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Use explicit paths for links within Markdown",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Avoid relative paths unless within the same directory",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Use informative Markdown link titles",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        7
+      ],
+      "heading": "Use reference links for long links",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use reference links to reduce duplication",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Define reference links after their first use",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        1
+      ],
+      "heading": "Images",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        5,
+        6,
+        7
+      ],
+      "heading": "Tables",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Strongly prefer Markdown to HTML",
+      "input": "docguide/style.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Overview",
+      "input": "docguide/READMEs.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Where to put your README",
+      "input": "docguide/READMEs.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "What to put in your README",
+      "input": "docguide/READMEs.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,27 +327,22 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
-      "path": "docguide/README.md",
-      "sha256": "80003ff6a719b4388728857238becbb29a4b22db12feaf1c368c7d71c4334ba2"
-    },
-    {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "docguide/philosophy.md",
       "sha256": "5715b9bd8a442c01f2ed2c064e50f847d9749e68208442745b250950b5bcd86b"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "docguide/best_practices.md",
       "sha256": "6f9843dc227b934807b2bd231ad9682512c522d83e8646b317f216e1a22b1e62"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "docguide/style.md",
       "sha256": "cf6ef17b4a4c72420a61621a196e964800e166c9a13304c8ab989e7604b2ee95"
     },
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "docguide/READMEs.md",
       "sha256": "5de33ff445b3897b39106f2d7f689f79142a12cf7fab1e191900be27d1b178b1"
     }
@@ -47,11 +357,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-documentation-guide.md",
-    "sha256": "9ab14357012bd0a479f9161a2d83306e7ff244296f0edeb267637e185eb7ce52"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -63,7 +369,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

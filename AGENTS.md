@@ -41,6 +41,10 @@ not add another lifecycle document or a wrapper around `$ship`.
 
 Do not use the safer skills unless the user asks.
 
+## Development lifecycle
+
+Own material changes through verification. Use your judgment.
+
 ## Project rules
 
 - Keep behavior changes, tests, and affected documentation in the same change.

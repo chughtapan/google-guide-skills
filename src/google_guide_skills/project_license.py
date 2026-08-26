@@ -21,7 +21,7 @@ def wrapper_license_metadata(path: str = WRAPPER_LICENSE_FILENAME) -> dict[str, 
         "name": "Apache License 2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0",
         "attribution": "Google Guide Skills contributors",
-        "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+        "scope": "Generator-authored frontmatter, section framing, and metadata.",
         "path": path,
         "sha256": PROJECT_LICENSE_SHA256,
     }

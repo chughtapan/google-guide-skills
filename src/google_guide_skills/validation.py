@@ -12,7 +12,12 @@ import tiktoken
 import yaml
 
 from . import __version__
-from .errors import GoogleGuideSkillsError
+from .convert import (
+    MARKDOWN_IMAGE_RE,
+    MARKDOWN_LINK_RE,
+    markdown_fenced_segments,
+    markdown_inline_segments,
+)
 from .git_safe import command as git_command
 from .git_safe import environment as git_environment
 from .metrics import (
@@ -21,7 +26,6 @@ from .metrics import (
     metadata_budget,
 )
 from .models import Artifact, Collection, Manifest, ValidationIssue
-from .path_policy import require_safe_project_path
 from .project_license import (
     PROJECT_LICENSE_SHA256,
     WRAPPER_LICENSE_FILENAME,
@@ -30,7 +34,6 @@ from .project_license import (
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n(.*)$", flags=re.DOTALL)
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 
 
 def _issue(severity: str, path: Path, root: Path, message: str) -> ValidationIssue:
@@ -63,19 +66,29 @@ def _parse_skill(path: Path, root: Path) -> tuple[dict[str, object], str, list[V
 def _validate_links(markdown_path: Path, project_root: Path) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
     text = markdown_path.read_text(encoding="utf-8")
-    for target in LINK_RE.findall(text):
-        target = target.split("#", 1)[0]
-        if not target or "://" in target or target.startswith(("mailto:", "#")):
+    for is_code, segment in markdown_fenced_segments(text):
+        if is_code:
             continue
-        resolved = (markdown_path.parent / target).resolve()
-        if not resolved.is_relative_to(project_root.resolve()):
-            issues.append(
-                _issue("error", markdown_path, project_root, f"Link escapes project root: {target}")
-            )
-        elif not resolved.exists():
-            issues.append(
-                _issue("error", markdown_path, project_root, f"Broken local link: {target}")
-            )
+        masked = "".join(
+            "code" if is_inline_code else inline_segment
+            for is_inline_code, inline_segment in markdown_inline_segments(segment)
+        )
+        destinations = (*MARKDOWN_LINK_RE.findall(masked), *MARKDOWN_IMAGE_RE.findall(masked))
+        for _label, target in destinations:
+            target = target.split("#", 1)[0]
+            if not target or "://" in target or target.startswith(("mailto:", "#")):
+                continue
+            resolved = (markdown_path.parent / target).resolve()
+            if not resolved.is_relative_to(project_root.resolve()):
+                issues.append(
+                    _issue(
+                        "error", markdown_path, project_root, f"Link escapes project root: {target}"
+                    )
+                )
+            elif not resolved.exists():
+                issues.append(
+                    _issue("error", markdown_path, project_root, f"Broken local link: {target}")
+                )
     return issues
 
 
@@ -223,7 +236,6 @@ def _artifact_provenance_checks(
     provenance: dict[str, object],
     expected_collection: Collection,
     artifact: Artifact,
-    expected_recipe: dict[str, str] | None,
 ) -> tuple[tuple[bool, str], ...]:
     repository = manifest.repositories[expected_collection.repository]
     return (
@@ -249,17 +261,13 @@ def _artifact_provenance_checks(
             == [supplemental.to_dict() for supplemental in artifact.supplemental_licenses],
             "Supplemental license provenance does not match corpus.yaml",
         ),
-        (
-            provenance.get("recipe") == expected_recipe,
-            "Recipe provenance does not match corpus.yaml",
-        ),
+        ("recipe" not in provenance, "Legacy recipe provenance is not allowed"),
         (
             provenance.get("excerpts", []) == [excerpt.to_dict() for excerpt in artifact.excerpts],
             "Excerpt provenance does not match corpus.yaml",
         ),
         (
-            provenance.get("rendering")
-            == ("curated" if expected_recipe is not None else "source-excerpts"),
+            provenance.get("rendering") == "source-excerpts",
             "Rendering provenance does not match corpus.yaml",
         ),
         (
@@ -326,42 +334,15 @@ def _artifact_provenance_issues(
 ) -> list[ValidationIssue]:
     root = manifest.project_root
     provenance_path = skill_dir / "source.json"
-    expected_recipe: dict[str, str] | None = None
-    recipe_issues: list[ValidationIssue] = []
-    if artifact.recipe is not None:
-        try:
-            recipe_path = require_safe_project_path(
-                manifest.project_root,
-                manifest.project_root / artifact.recipe,
-                context="Skill recipe",
-                error_type=GoogleGuideSkillsError,
-            )
-        except GoogleGuideSkillsError:
-            recipe_path = manifest.project_root / artifact.recipe
-            recipe_issues.append(
-                _issue("error", recipe_path, root, "Skill recipe is missing or unsafe")
-            )
-        else:
-            if recipe_path.is_symlink() or not recipe_path.is_file():
-                recipe_issues.append(
-                    _issue("error", recipe_path, root, "Skill recipe is missing or unsafe")
-                )
-            else:
-                expected_recipe = {
-                    "path": artifact.recipe,
-                    "sha256": sha256(recipe_path.read_bytes()).hexdigest(),
-                }
     checks = _artifact_provenance_checks(
         manifest,
         provenance,
         expected_collection,
         artifact,
-        expected_recipe,
     )
     issues = [
         _issue("error", provenance_path, root, message) for passed, message in checks if not passed
     ]
-    issues.extend(recipe_issues)
     if not _runtime_is_current(manifest, provenance):
         issues.append(
             _issue(

@@ -2,8 +2,128 @@
   "artifact": "google-xml-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Introduction",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "1. To design or not to design, that is the question",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "2. Schemas",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "3. Namespaces",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "4. Names and enumerated values",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "5. Elements",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "6. Attributes",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "7. Values",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "8. Key-value pairs",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "9. Binary data",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "10. Processing instructions",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "11. Representation of XML document instances",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "12. Elements vs. Attributes",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "12.1. General points:",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "12.2 Using elements",
+      "input": "xmlstyle.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "12.3 Using attributes",
+      "input": "xmlstyle.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +132,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "html-to-markdown",
       "path": "xmlstyle.html",
       "sha256": "49e0636b86d8804c5b34b2d134fd11440ee2864646435e887c092351d149830f"
     }
@@ -27,11 +147,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-xml-style.md",
-    "sha256": "ed3e4088857137f51c4dcb50ded447075b374e4de168eac5ab83f44157b60a14"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +159,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

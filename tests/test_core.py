@@ -71,7 +71,7 @@ def _license(
 
 def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "generator": {"python": platform.python_version()},
         "generated_roots": {
             "committed": "skills",
@@ -97,7 +97,13 @@ def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
                         "description": "Use when applying the public guide.",
                         "tags": ["public", "style"],
                         "inputs": ["guide.md"],
-                        "recipe": "recipes/public-guide.md",
+                        "excerpts": [
+                            {
+                                "input": "guide.md",
+                                "heading": "Upstream",
+                                "blocks": [0, 1, 2, 3],
+                            }
+                        ],
                     }
                 ],
             },
@@ -147,12 +153,6 @@ def _manifest_data(revision: str = "a" * 40) -> dict[str, object]:
 def _write_manifest(project: Path, data: dict[str, object]) -> Manifest:
     project.mkdir(parents=True, exist_ok=True)
     (project / "LICENSE").write_bytes((Path(__file__).parents[1] / "LICENSE").read_bytes())
-    recipes = project / "recipes"
-    recipes.mkdir(exist_ok=True)
-    (recipes / "public-guide.md").write_text(
-        "# Public Guide\n\nApply this reviewed recipe.\n",
-        encoding="utf-8",
-    )
     path = project / "corpus.yaml"
     path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     return manifest.load_manifest(path)
@@ -186,7 +186,14 @@ def built_project(tmp_path: Path) -> tuple[Manifest, Path]:
     checkout = tmp_path / ".cache" / "sources" / "example-repo"
     _init_git(checkout)
     (checkout / "LICENSE").write_text("Example license text\n", encoding="utf-8")
-    (checkout / "guide.md").write_text("# Upstream\n\nKeep this text verbatim.\n", encoding="utf-8")
+    (checkout / "guide.md").write_text(
+        "# Upstream\n\nKeep this text verbatim (see [??](#related-rule)). See "
+        "[reference][missing], [shortcut], and `[Symbol.iterator]`.\n\n"
+        "- parent\n\n    - child\n\n"
+        "```markdown\n# example comment\n[example](relative.md)\n```\n\n"
+        "[shortcut]: https://example.test\n",
+        encoding="utf-8",
+    )
     restricted = checkout / "restricted"
     restricted.mkdir()
     (restricted / "chapter.html").write_text(
@@ -232,7 +239,7 @@ def test_find_project_root_walks_parents_and_rejects_missing(tmp_path: Path) -> 
 def test_load_manifest_builds_typed_model_and_resolves_policy_roots(tmp_path: Path) -> None:
     loaded = _write_manifest(tmp_path, _manifest_data())
 
-    assert loaded.schema_version == 1
+    assert loaded.schema_version == 2
     assert loaded.root_for("committed") == tmp_path / "skills"
     assert loaded.root_for("local-only") == tmp_path / ".generated" / "skills"
     assert [artifact.name for _, artifact in loaded.artifacts(include_local=False)] == [
@@ -273,6 +280,11 @@ def test_manifest_rejects_unsafe_inputs_and_equal_roots(tmp_path: Path) -> None:
     unsafe["collections"]["public-guides"]["artifacts"][0]["inputs"] = ["../secret"]  # type: ignore[index]
     with pytest.raises(ManifestError, match="unsafe path"):
         _write_manifest(tmp_path / "unsafe", unsafe)
+
+    wildcard = _manifest_data()
+    wildcard["collections"]["public-guides"]["artifacts"][0]["inputs"] = ["*.md"]  # type: ignore[index]
+    with pytest.raises(ManifestError, match="exact source files"):
+        _write_manifest(tmp_path / "wildcard", wildcard)
 
     equal = _manifest_data()
     equal["generated_roots"]["local_only"] = "skills"  # type: ignore[index]
@@ -321,7 +333,7 @@ def test_manifest_normalizes_nested_mapping_errors(tmp_path: Path) -> None:
 
 def test_manifest_rejects_invalid_schema_revision_and_repository_reference(tmp_path: Path) -> None:
     bad_schema = _manifest_data()
-    bad_schema["schema_version"] = 2
+    bad_schema["schema_version"] = 1
     with pytest.raises(ManifestError, match="Unsupported schema_version"):
         _write_manifest(tmp_path / "schema", bad_schema)
 
@@ -359,23 +371,23 @@ def test_manifest_rejects_duplicate_skills_and_invalid_agent_skill_fields(tmp_pa
         _write_manifest(tmp_path / "description", long_description)
 
 
-def test_manifest_rejects_invalid_distribution_recipe_and_local_license(tmp_path: Path) -> None:
+def test_manifest_rejects_invalid_distribution_excerpts_and_local_license(tmp_path: Path) -> None:
     bad_distribution = _manifest_data()
     bad_distribution["collections"]["public-guides"]["distribution"] = "private"  # type: ignore[index]
     with pytest.raises(ManifestError, match="distribution"):
         _write_manifest(tmp_path / "distribution", bad_distribution)
 
-    missing_recipe = _manifest_data()
-    del missing_recipe["collections"]["public-guides"]["artifacts"][0]["recipe"]  # type: ignore[index]
-    with pytest.raises(ManifestError, match="require recipes"):
-        _write_manifest(tmp_path / "missing-recipe", missing_recipe)
+    missing_excerpts = _manifest_data()
+    del missing_excerpts["collections"]["public-guides"]["artifacts"][0]["excerpts"]  # type: ignore[index]
+    with pytest.raises(ManifestError, match="require source excerpts"):
+        _write_manifest(tmp_path / "missing-excerpts", missing_excerpts)
 
-    local_recipe = _manifest_data()
-    local_recipe["collections"]["restricted-guides"]["artifacts"][0]["recipe"] = (  # type: ignore[index]
+    legacy_recipe = _manifest_data()
+    legacy_recipe["collections"]["public-guides"]["artifacts"][0]["recipe"] = (  # type: ignore[index]
         "recipes/public-guide.md"
     )
-    with pytest.raises(ManifestError, match="generated from source excerpts"):
-        _write_manifest(tmp_path / "local-recipe", local_recipe)
+    with pytest.raises(ManifestError, match="recipe is no longer supported"):
+        _write_manifest(tmp_path / "legacy-recipe", legacy_recipe)
 
     unordered_blocks = _manifest_data()
     unordered_blocks["collections"]["restricted-guides"]["artifacts"][0]["excerpts"][0][  # type: ignore[index]
@@ -383,6 +395,13 @@ def test_manifest_rejects_invalid_distribution_recipe_and_local_license(tmp_path
     ] = [1, 0]
     with pytest.raises(ManifestError, match="strictly increasing"):
         _write_manifest(tmp_path / "unordered-blocks", unordered_blocks)
+
+    duplicate_selector = _manifest_data()
+    duplicate_selector["collections"]["public-guides"]["artifacts"][0]["excerpts"].append(  # type: ignore[index]
+        {"input": "guide.md", "heading": " upstream ", "blocks": [0]}
+    )
+    with pytest.raises(ManifestError, match="duplicates an input and heading"):
+        _write_manifest(tmp_path / "duplicate-selector", duplicate_selector)
 
     incomplete_excerpts = _manifest_data()
     incomplete_excerpts["collections"]["restricted-guides"]["artifacts"][0][  # type: ignore[index]
@@ -398,10 +417,6 @@ def test_manifest_rejects_invalid_distribution_recipe_and_local_license(tmp_path
 
     restricted_commit = _manifest_data()
     restricted_commit["collections"]["restricted-guides"]["distribution"] = "committed"  # type: ignore[index]
-    restricted_commit["collections"]["restricted-guides"]["artifacts"][0]["recipe"] = (  # type: ignore[index]
-        "recipes/public-guide.md"
-    )
-    del restricted_commit["collections"]["restricted-guides"]["artifacts"][0]["excerpts"]  # type: ignore[index]
     with pytest.raises(ManifestError, match="cannot use committed distribution"):
         _write_manifest(tmp_path / "restricted-commit", restricted_commit)
 
@@ -418,7 +433,7 @@ def test_manifest_wraps_yaml_and_mapping_errors(tmp_path: Path) -> None:
         manifest.load_manifest(non_mapping)
 
     duplicate = tmp_path / "duplicate.yaml"
-    duplicate.write_text("schema_version: 1\nschema_version: 1\n", encoding="utf-8")
+    duplicate.write_text("schema_version: 2\nschema_version: 2\n", encoding="utf-8")
     with pytest.raises(ManifestError, match="Duplicate YAML mapping key"):
         manifest.load_manifest(duplicate)
 
@@ -488,6 +503,183 @@ def test_source_to_markdown_uses_xml_mode(tmp_path: Path) -> None:
     assert "Text" in converted
 
 
+def test_source_to_markdown_preserves_google_styleguide_structure(tmp_path: Path) -> None:
+    path = tmp_path / "guide.xml"
+    path.write_text(
+        '<GUIDE title="Guide"><CATEGORY title="Category">'
+        '<STYLEPOINT title="Rule"><SUMMARY><p>Do this.</p></SUMMARY>'
+        "<BODY><CODE_SNIPPET>good()</CODE_SNIPPET>"
+        "<BAD_CODE_SNIPPET>bad()</BAD_CODE_SNIPPET></BODY>"
+        "</STYLEPOINT></CATEGORY></GUIDE>",
+        encoding="utf-8",
+    )
+
+    converted, mode = source_to_markdown(path)
+
+    assert mode == "google-styleguide-xml-to-markdown"
+    assert "# Guide" in converted
+    assert "## Category" in converted
+    assert "### Rule" in converted
+    assert "Do this." in converted
+    assert "good()" in converted
+    assert "**Bad code:**" in converted
+    assert "bad()" in converted
+
+
+def test_sanitize_excerpt_preserves_inline_code() -> None:
+    text = "Use `a[i][j]`, `items[key]`, and ``items[`key`]``."
+
+    assert builder._sanitize_excerpt(text, {"key": "https://example.test"}) == text
+
+
+def test_sanitize_excerpt_removes_reference_images() -> None:
+    text = r"Use ![full][arch], ![collapsed][], ![shortcut], and \![literal][arch]."
+
+    assert builder._sanitize_excerpt(text, {"arch": "https://example.test/a.png"}) == (
+        r"Use full, collapsed, shortcut, and \![literal][arch]."
+    )
+
+
+def test_sanitize_excerpt_handles_code_inside_link_labels() -> None:
+    text = "See [Test, `[ … ]`, and `[[ … ]]`](#tests) and [`format.Source`]."
+
+    assert builder._sanitize_excerpt(
+        text,
+        {"`format.source`": "https://pkg.go.dev/go/format#Source"},
+    ) == (
+        "See Test, `[ … ]`, and `[[ … ]]` and "
+        "[`format.Source`](https://pkg.go.dev/go/format#Source)."
+    )
+
+
+def test_sanitize_excerpt_handles_balanced_link_destinations() -> None:
+    assert builder._sanitize_excerpt("See [label](guide_(old).md).") == "See label."
+    assert builder._sanitize_excerpt("See ![diagram](images/a_(old).png).") == "See diagram."
+    assert builder._sanitize_excerpt("See [multi-line\nlabel](#section).") == (
+        "See multi-line\nlabel."
+    )
+
+
+def test_sanitize_excerpt_removes_unselected_cross_reference_clauses() -> None:
+    text = (
+        "Keep this rule.\n(See the example in [??](#missing-example)).\n"
+        "Wrap the line, as explained in [??](#missing-details).\n"
+        "Prefer small tests, as demonstrated in [Figure 11-2](#test-sizes).\n"
+        "[Figure 11-3](#test-pyramid) depicts the intended test mix.\n"
+        "Use whitespace, such as that shown in "
+        "[A well-structured test](#example_well_structured).\n"
+        "Prefer clarity. To illustrate, [A bad test](#example_bad) presents bad code.\n"
+        "State tests are stable. [A brittle test](#example_brittle) illustrates a bad test.\n"
+        "Use stubs for a specific state, such as "
+        "[A stub example](#example_stub) that requires a response.\n"
+        "As shown in the [example](#Example), the recommended order is stable.\n"
+        "Keep indentation. (See the example in Section 4.1.2, K & R Style.)\n"
+        "Use these tools (see [Figure 17-2](#tools)). For example, inspect a log.\n"
+        "Use dicts (but see [Figure 1](#example)), and avoid arrays.\n"
+        "Allow this in limited cases; see below for details.\n"
+        "Feedback must be actionable. We'll look at an example of this feedback later in this "
+        "chapter. By improving output, teams can act.\n"
+        "Automate the change (see Case Study: Operation RoseHub). Preserve readability "
+        "(see Style Guides and Rules).\n"
+        "Feature flags help, which we explore further in Continuous Delivery.\n"
+        "Approval matters. We'll cover approval in the next section. Keep reviewing.\n"
+        "Critique works (we look at the details later in this chapter) because culture matters.\n"
+        "Understand the rationale. See Style Guides and Rules. Apply it."
+    )
+
+    assert builder._sanitize_excerpt(text) == (
+        "Keep this rule.\nWrap the line.\nPrefer small tests.\nUse whitespace.\nPrefer clarity.\n"
+        "State tests are stable.\nUse stubs for a specific state.\n"
+        "The recommended order is stable.\nKeep indentation.\n"
+        "Use these tools. For example, inspect a log.\nUse dicts, and avoid arrays.\n"
+        "Allow this in limited cases.\n"
+        "Feedback must be actionable. By improving output, teams can act.\n"
+        "Automate the change. Preserve readability.\n"
+        "Feature flags help.\nApproval matters. Keep reviewing.\n"
+        "Critique works because culture matters.\nUnderstand the rationale. Apply it."
+    )
+
+
+def test_sanitize_excerpt_rejects_unresolved_visual_reference() -> None:
+    with pytest.raises(BuildError, match="guide.md.*unresolved source cross-reference"):
+        builder._sanitize_excerpt(
+            "Consult [Figure 1](#missing) before continuing.",
+            context="guide.md heading 'Rule' block 0",
+        )
+
+
+def test_reference_links_ignore_fenced_examples() -> None:
+    markdown = (
+        "[Foo   Bar]: https://first.example.test\n"
+        "[foo bar]: https://second.example.test\n"
+        "    [indented]: https://example.test\n\n"
+        "```markdown\n[fenced]: https://example.test\n```"
+    )
+    links = builder._reference_links(markdown)
+
+    assert links == {"foo bar": "https://first.example.test"}
+    assert builder._sanitize_excerpt(
+        r"Use [Foo Bar], \[Foo Bar], and \[Label][Foo Bar].", links
+    ) == (r"Use [Foo Bar](https://first.example.test), \[Foo Bar], and \[Label][Foo Bar].")
+
+
+def test_section_blocks_honors_fence_length() -> None:
+    markdown = """# Guide
+
+## Rule
+
+````markdown
+```python
+# code comment
+```
+````
+
+Keep this sentence.
+
+## Next rule
+
+Not selected.
+"""
+
+    _title, _heading, blocks = builder._section_blocks(markdown, "Rule", "guide.md")
+
+    assert blocks == (
+        "````markdown\n```python\n# code comment\n```\n````",
+        "Keep this sentence.",
+    )
+
+
+def test_section_blocks_keeps_indented_list_fences_together() -> None:
+    markdown = """# Guide
+
+## Rule
+
+- Example:
+
+    ```python
+    value = 1
+
+    # Still code.
+    ```
+
+Keep this sentence.
+"""
+
+    _title, _heading, blocks = builder._section_blocks(markdown, "Rule", "guide.md")
+
+    assert blocks == (
+        "- Example:",
+        "    ```python\n    value = 1\n\n    # Still code.\n    ```",
+        "Keep this sentence.",
+    )
+
+
+def test_sanitize_excerpt_preserves_fence_after_prose() -> None:
+    text = "Intro.\n~~~markdown\n[example](relative.md)\n~~~"
+
+    assert builder._sanitize_excerpt(text) == text
+
+
 def test_build_skill_writes_content_license_and_exact_provenance(
     built_project: tuple[Manifest, Path],
 ) -> None:
@@ -501,8 +693,11 @@ def test_build_skill_writes_content_license_and_exact_provenance(
     assert result.source_files == ("guide.md",)
     skill_text = (result.path / "SKILL.md").read_text(encoding="utf-8")
     assert "name: public-guide" in skill_text
-    assert "Apply this reviewed recipe." in skill_text
-    assert "Keep this text verbatim." not in skill_text
+    assert "Keep this text verbatim." in skill_text
+    assert "See reference, [shortcut](https://example.test), and `[Symbol.iterator]`." in skill_text
+    assert "\n    - child\n" in skill_text
+    assert "# example comment" in skill_text
+    assert "[example](relative.md)" in skill_text
     assert "references/" not in skill_text
     license_text = (result.path / "LICENSE.txt").read_text(encoding="utf-8")
     assert "Example license text" in license_text
@@ -511,42 +706,22 @@ def test_build_skill_writes_content_license_and_exact_provenance(
     assert provenance["repository"]["revision"] == _git(checkout, "rev-parse", "HEAD")
     assert provenance["inputs"] == [
         {
-            "conversion": "not-rendered",
+            "conversion": "identity",
             "path": "guide.md",
             "sha256": hashlib.sha256((checkout / "guide.md").read_bytes()).hexdigest(),
         }
     ]
-    assert provenance["rendering"] == "curated"
-    assert provenance["recipe"]["path"] == "recipes/public-guide.md"
+    assert provenance["rendering"] == "source-excerpts"
+    assert provenance["excerpts"] == [
+        {"input": "guide.md", "heading": "Upstream", "blocks": [0, 1, 2, 3]}
+    ]
+    assert "recipe" not in provenance
     assert provenance["generator_runtime"]["python"] == loaded.canonical_python
     assert provenance["wrapper_license"]["spdx"] == "Apache-2.0"
     wrapper = result.path / provenance["wrapper_license"]["path"]
     assert (
         hashlib.sha256(wrapper.read_bytes()).hexdigest() == provenance["wrapper_license"]["sha256"]
     )
-
-
-@pytest.mark.parametrize(
-    ("recipe_text", "message"),
-    [
-        (None, "missing skill recipe"),
-        ("", "skill recipe is empty"),
-        ("---\nname: nested\n---\n# Recipe\n", "must not contain frontmatter"),
-    ],
-)
-def test_build_rejects_invalid_recipe_files(
-    built_project: tuple[Manifest, Path], recipe_text: str | None, message: str
-) -> None:
-    loaded, _checkout = built_project
-    recipe = loaded.project_root / "recipes/public-guide.md"
-    if recipe_text is None:
-        recipe.unlink()
-    else:
-        recipe.write_text(recipe_text, encoding="utf-8")
-
-    collection = loaded.collections["public-guides"]
-    with pytest.raises(BuildError, match=message):
-        builder.build_skill(loaded, collection, collection.artifacts[0])
 
 
 def test_build_skill_keeps_restricted_material_in_local_root(
@@ -1156,25 +1331,15 @@ def test_validation_rejects_stale_skills_and_mismatched_artifact_provenance(
     assert "Provenance artifact does not match the skill directory" in messages
 
 
-def test_validation_rejects_stale_or_symlinked_recipe_provenance(
-    generated_project: Manifest,
-) -> None:
+def test_validation_rejects_legacy_recipe_provenance(generated_project: Manifest) -> None:
     root = generated_project.project_root
-    recipe = root / "recipes/public-guide.md"
-    original = recipe.read_text(encoding="utf-8")
-    recipe.write_text(original + "\nChanged.\n", encoding="utf-8")
+    source = root / "skills/public-guide/source.json"
+    provenance = json.loads(source.read_text(encoding="utf-8"))
+    provenance["recipe"] = {"path": "recipes/public-guide.md", "sha256": "0" * 64}
+    source.write_text(json.dumps(provenance), encoding="utf-8")
 
     messages = [issue.message for issue in validation.validate(generated_project)]
-    assert "Recipe provenance does not match corpus.yaml" in messages
-
-    recipe.write_text(original, encoding="utf-8")
-    recipes = root / "recipes"
-    real_recipes = root / "recipe-assets"
-    recipes.replace(real_recipes)
-    recipes.symlink_to(real_recipes, target_is_directory=True)
-
-    messages = [issue.message for issue in validation.validate(generated_project)]
-    assert "Skill recipe is missing or unsafe" in messages
+    assert "Legacy recipe provenance is not allowed" in messages
 
 
 def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
@@ -1186,7 +1351,10 @@ def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
     public_skill.write_text(
         "---\nname: wrong-name\ndescription: useful\nextra: unsupported\n---\n"
         "Body with [missing metadata](references/missing.json) and "
-        "[an escaping link](references/../../../../outside.md).\n",
+        "[an escaping link](references/../../../../outside.md).\n"
+        "![missing image](references/missing.png)\n"
+        "`[inline code](references/ignored-inline.md)`\n"
+        "````markdown\n```text\n[fenced](references/ignored-fence.md)\n```\n````\n",
         encoding="utf-8",
     )
     provenance = root / "skills" / "public-guide" / "source.json"
@@ -1197,6 +1365,8 @@ def test_validation_reports_frontmatter_links_provenance_and_missing_skills(
     assert "Frontmatter has unsupported fields: extra" in messages
     assert "Skill name 'wrong-name' does not match directory 'public-guide'" in messages
     assert "Broken local link: references/missing.json" in messages
+    assert "Broken local link: references/missing.png" in messages
+    assert not any("ignored-" in message for message in messages)
     assert any(message.startswith("Invalid source metadata:") for message in messages)
     assert "Link escapes project root: references/../../../../outside.md" in messages
 

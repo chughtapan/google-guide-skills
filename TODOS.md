@@ -9,10 +9,10 @@ results used the retired 23-skill committed corpus and do not validate the new d
 Start with one pass, inspect the trajectories, then repeat only the cases that show a concrete
 problem.
 
-The current-corpus [SlopCodeBench quality run](reports/slopcodebench-quality.md) is complete. Its
-guided arm tied the baseline on hidden correctness, lowered structural erosion, found additional
-contract defects, and later lost one accepted fix. Before rerunning it, keep a minimal regression
-test for each accepted Required finding and give both reviewers a runnable environment.
+The current source-excerpt [SlopCodeBench quality run](reports/slopcodebench-quality.md) is
+complete. At default effort, the guided arm tied the baseline on hidden correctness and improved
+the structure metrics. At `xhigh`, both arms improved, but the guided arm finished three tests
+behind its baseline. Run another problem, with repeats, only before making a broader quality claim.
 
 The complete 24-skill metadata list uses 7,664 of Codex's 8,000 fallback characters at the
 recorded path. Test per-user installation first; use selected project packs when a deep repository

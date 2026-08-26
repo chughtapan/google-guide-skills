@@ -50,7 +50,7 @@ catalog-only with `NOASSERTION` because no first-party open-content notice was f
 Each generated skill carries:
 
 - `LICENSE.txt` for the source guidance;
-- `LICENSE-Generator-Apache-2.0.txt` for project-authored metadata and workflow text;
+- `LICENSE-Generator-Apache-2.0.txt` for project-authored metadata and section framing;
 - `source.json` with the source revision, hashes, rendering choice, and license scopes.
 
 Apache-2.0 covers only the project-authored wrapper. It does not replace the source license.
@@ -61,7 +61,7 @@ Apache-2.0 covers only the project-authored wrapper. It does not replace the sou
 2. Record its SPDX identifier, attribution, license URL, and concrete evidence file.
 3. Check subdirectories for different terms.
 4. Choose `local-only` or `catalog-only` when redistribution is unclear.
-5. Add the artifact, selectors or recipe, provenance checks, and an evaluation case.
+5. Add the artifact, exact source selectors, provenance checks, and an evaluation case.
 6. Regenerate and review the skill and `source.json` before shipping.
 
 Google and Abseil names identify provenance only. This project is independent and unendorsed.

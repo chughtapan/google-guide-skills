@@ -2,8 +2,287 @@
   "artifact": "google-common-lisp-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Must, Should, May, or Not",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        5,
+        6
+      ],
+      "heading": "Priorities",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Using Libraries",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Spelling and Abbreviations",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Line length",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Indentation",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        4
+      ],
+      "heading": "Vertical white space",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        6,
+        7,
+        18
+      ],
+      "heading": "Horizontal white space",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        3,
+        4
+      ],
+      "heading": "Document everything",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "heading": "Comment semicolons",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3,
+        9,
+        10
+      ],
+      "heading": "Symbol guidelines",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Denote intent, not content",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Global variables and constants",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Predicate names",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Omit library prefixes",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3,
+        4,
+        8,
+        10,
+        11
+      ],
+      "heading": "Packages",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "heading": "Mostly Functional Style",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        3,
+        4
+      ],
+      "heading": "Recursion",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Special variables",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Assignment",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Assertions and Conditions",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Type Checking",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        10
+      ],
+      "heading": "CLOS",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0,
+        7,
+        16
+      ],
+      "heading": "Macros",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "EVAL-WHEN",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "EVAL",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "INTERN and UNINTERN",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "NIL: empty-list, false and I Don't Know",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Do not abuse lists",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Lists vs. structures vs. multiple values",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Lists vs. Arrays",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Lists vs. Sets",
+      "input": "lispguide.xml"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Defining Functions",
+      "input": "lispguide.xml"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +291,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "google-styleguide-xml-to-markdown",
       "path": "lispguide.xml",
       "sha256": "76a614ac7b6ee4b9e6108c7164cde7b6fcc1025d04c9132312fe9b12a78824d8"
     }
@@ -27,11 +306,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-common-lisp-style.md",
-    "sha256": "b5963da3e6d034f5570b58ab096af576b79fb6bab7d422a2ade6b0c73f500c02"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +318,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"

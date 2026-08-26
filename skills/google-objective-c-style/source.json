@@ -2,8 +2,344 @@
   "artifact": "google-objective-c-style",
   "collection": "google-style-guides",
   "distribution": "committed",
-  "excerpts": [],
-  "generated_by": "google-guide-skills/0.2.0.0",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Be consistent with Apple SDKs",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Inclusive Language",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "heading": "File Names",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Prefixes",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4
+      ],
+      "heading": "Category Naming",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3,
+        4,
+        6,
+        9,
+        10,
+        12,
+        13,
+        19
+      ],
+      "heading": "Objective-C Method Names",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Function Names",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Variable Names",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "heading": "Constants",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Method Declarations",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Local Variables",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Static Variables",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4
+      ],
+      "heading": "Unsigned Integers",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "Types with Inconsistent Sizes",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        5,
+        7,
+        8,
+        9
+      ],
+      "heading": "Declaration Comments",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3,
+        6
+      ],
+      "heading": "Macros",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Nonstandard Extensions",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        3
+      ],
+      "heading": "Identify Designated Initializers",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Initialization",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Instance Variables In Headers Should Be @protected or @private",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Do Not Use +new",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Keep the Public API Simple",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "#import and #include",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Order of Includes",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        10
+      ],
+      "heading": "Avoid Messaging the Current Object Within Initializers and `-dealloc`",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3
+      ],
+      "heading": "Mutables, Copies and Ownership",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        6,
+        8,
+        10
+      ],
+      "heading": "Copy Potentially Mutable Objects",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "heading": "Use Lightweight Generics to Document Contained Types",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Avoid Throwing Exceptions",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        3,
+        4
+      ],
+      "heading": "`nil` Checks",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "Nullability",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3,
+        5,
+        8,
+        11
+      ],
+      "heading": "BOOL Expressions and Conversions",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Delegate Pattern",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "heading": "Style Matches the Language",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        4
+      ],
+      "heading": "Method Declarations and Definitions",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0,
+        2,
+        5,
+        8
+      ],
+      "heading": "Conditionals",
+      "input": "objcguide.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Indicating style exceptions",
+      "input": "objcguide.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",
@@ -12,7 +348,7 @@
   },
   "inputs": [
     {
-      "conversion": "not-rendered",
+      "conversion": "identity",
       "path": "objcguide.md",
       "sha256": "d523daa8026f3b1636ec64017adcab3df3027db7655360eec012be22eb4be495"
     }
@@ -27,11 +363,7 @@
     "url": "https://creativecommons.org/licenses/by/3.0/"
   },
   "license_note": null,
-  "recipe": {
-    "path": "recipes/google-objective-c-style.md",
-    "sha256": "e9fedf588335d709ea2ab19e22039beb3e323e68307e33b40373e762b9a976f8"
-  },
-  "rendering": "curated",
+  "rendering": "source-excerpts",
   "repository": {
     "id": "styleguide",
     "revision": "1809c769de31ba388c755ad15dd057a9ba8531fd",
@@ -43,7 +375,7 @@
     "attribution": "Google Guide Skills contributors",
     "name": "Apache License 2.0",
     "path": "LICENSE-Generator-Apache-2.0.txt",
-    "scope": "Generator-authored frontmatter, workflow framing, and metadata.",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
     "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
     "spdx": "Apache-2.0",
     "url": "https://www.apache.org/licenses/LICENSE-2.0"
