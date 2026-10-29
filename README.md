@@ -10,6 +10,8 @@ The pack helps agents:
 - write and review code using Google's language guides;
 - prepare and review changes using Google's engineering practices;
 - write documentation that stays useful;
+- design APIs, record architectural decisions, and review security and reliability;
+- measure software delivery and plan database changes;
 - make better decisions about testing, engineering standards, code review, change management,
   builds, dependencies, CI, team practices, developer productivity, and compute platforms.
 
@@ -26,10 +28,36 @@ cd google-guide-skills
 uv run google-guides install
 ```
 
-The default installs the full pack for the current user in Codex and Claude Code. It shows the
+The default installs all 49 skills for Codex and Claude Code, including API design, ADRs,
+security, reliability, delivery, and documentation. It shows the
 *Software Engineering at Google* license before generating and linking the eight skills drawn
 from that book. The links point to this checkout, so keep it at the same path or reinstall after
 moving it.
+
+To install a smaller selection, choose packs explicitly:
+
+```bash
+uv run google-guides install --pack api --pack architecture --agent codex
+uv run google-guides install --pack documentation --skill google-python-style --agent codex
+```
+
+Repeated `--pack` and `--skill` options select their union. An explicit selection replaces the
+default selection for that invocation. Installation adds skills; it does not remove existing ones.
+Before installing, the command checks the resulting metadata in each target directory at its
+actual path. If it exceeds the 8,000-character budget, choose fewer skills or a separate project.
+The scan includes nested skills and directory links, skips hidden directories, and stops on
+symlink cycles. Existing skills with aliased folder names, such as `gstack-*`, are supported.
+
+| Pack | Skills | Scope |
+| --- | ---: | --- |
+| `default` | 49 | All public guides and local SWE-book skills |
+| `legacy` | 24 | Original 16 public guides and 8 local SWE-book skills |
+| `api` | 8 | Resources, methods, fields, lists, async/batch, errors, evolution, documentation |
+| `architecture` | 3 | Design documents, ADRs, independently deployable services |
+| `security` | 4 | Threat modeling, secure design, testing, delivery |
+| `reliability` | 4 | Resilience, incidents, observability, SLOs |
+| `delivery` | 2 | DORA metrics and database changes |
+| `documentation` | 4 | Developer style, technical writing, accessibility, error messages |
 
 To target one agent, pass `--agent codex` or `--agent claude-code`. For a noninteractive install,
 pass `--accept-swe-book-license` after reading the license.
@@ -58,7 +86,7 @@ repository needs to `AGENTS.md`:
 
 The [new-repository guide](docs/onboarding.md) shows how to choose a starting set. The
 [migration guide](docs/migration.md) shows how to add the skills to an existing repository one
-workflow at a time. The [catalog](catalog/catalog.md) lists all 16 public and 8 local skills.
+workflow at a time. The [catalog](catalog/catalog.md) lists all 41 public and 8 local skills.
 
 ## Sources and licenses
 
@@ -66,7 +94,12 @@ Every skill records its pinned source, input hashes, and license. Public skills 
 from the checkout. The installer requires license acceptance before generating the eight local
 SWE-book skills under CC BY-NC-ND 4.0. They must not be committed or redistributed.
 
+The added skills use approved general AIPs, *Building Secure and Reliable Systems*, DORA, and
+explicitly captured Google documentation pages. Git sources use exact commits; web sources use
+checked-in content hashes and page-level license evidence. SRE books remain catalog links.
+
 See the [licensing policy](docs/licensing.md), [architecture](docs/architecture.md), and
-[evaluation method](docs/evaluation.md) for project details.
+[evaluation method](docs/evaluation.md) for project details. The
+[distribution research](docs/agent-skills-research.md) records the format and installer choices.
 
 This independent project is not affiliated with or endorsed by Google.

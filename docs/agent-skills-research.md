@@ -15,8 +15,10 @@ The first generated pack treated large guides as navigation files over chapter r
 practice, a generic instruction to read “the relevant sections” did not tell agents which file to
 open, and selective reading skipped important rules. The current pack instead prunes obsolete,
 historical, and navigational material, groups guidance by task, and keeps each usable guide in one
-`SKILL.md`. The 16 public main files are 1,635–4,984 tokens; the 8 local SWE-book files are
-4,160–4,893 tokens.
+`SKILL.md`. At the initial audit, the original 16 public main files were 1,635–4,984 tokens and
+the 8 local SWE-book files were 4,160–4,893 tokens. The October 2026 expansion adds 25 public skills
+under the same per-file limits and shortens all descriptions for the combined default. See the
+generated [metrics](../catalog/tokens.json) for current measurements.
 
 The specification's
 [description optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions)
@@ -30,12 +32,12 @@ loads skill names and descriptions first, follows repository and user skill dire
 symlinks, and accepts explicit `$skill-name` or implicit selection. It budgets at most 2% of the
 context, or 8,000 characters when the context size is unknown, for the initial skill list.
 
-For the 16 public skills, the rendered list costs 5,140 characters at the recorded
-`/workspace/google-guide-skills/.agents/skills` root. The complete 24-skill pack costs 7,664
-characters there, leaving 336 characters. It fits the fallback only while the visible install root
-is at most 59 characters, so a deep repository or many unrelated host skills can trigger metadata
-shortening. Per-user installation uses a shorter path. Project installs should select only the
-skills that repository uses.
+The default now includes all 49 skills, with compact descriptions that fit the fallback budget
+at the recorded `/workspace/google-guide-skills/.agents/skills` root. Full guidance remains in
+each skill body. Named packs provide smaller installation scopes, and `legacy` retains the
+original membership. Validation measures every declared pack; installation checks the resulting
+directory at its actual path before changing files. Deep paths or unrelated installed skills can
+still exceed the budget. That check does not include other skill roots the client may also load.
 
 ## Creation and distribution choices
 

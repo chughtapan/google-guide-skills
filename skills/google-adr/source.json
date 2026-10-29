@@ -1,0 +1,101 @@
+{
+  "artifact": "google-adr",
+  "collection": "web-cloud-adr",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        2,
+        3
+      ],
+      "heading": "Architecture decision records overview",
+      "input": "adr.html"
+    },
+    {
+      "blocks": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "heading": "When to use ADRs",
+      "input": "adr.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Format of an ADR",
+      "input": "adr.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4,
+        5,
+        6
+      ],
+      "heading": "How ADRs work",
+      "input": "adr.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "adr.html",
+      "sha256": "7cf2efbac1f4d21c9116a95a7417b5fb8c9abfb45ec795dc95bfe0df61d7e352"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "source_adapter": "google-docs",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "web_source": {
+    "id": "cloud-adr",
+    "pages": [
+      {
+        "license_path": "licenses/adr.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "adr.html",
+        "resolved_url": "https://docs.cloud.google.com/architecture/architecture-decision-records",
+        "selector": "article.devsite-article",
+        "sha256": "7cf2efbac1f4d21c9116a95a7417b5fb8c9abfb45ec795dc95bfe0df61d7e352",
+        "url": "https://docs.cloud.google.com/architecture/architecture-decision-records"
+      }
+    ],
+    "snapshot": "d4faf81f8d0ce92686c55fad51bb2a769105f03d53831e948bf923bf30c65533",
+    "url": "https://docs.cloud.google.com/architecture/architecture-decision-records"
+  },
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

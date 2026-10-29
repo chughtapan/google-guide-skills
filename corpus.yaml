@@ -1,4 +1,4 @@
-schema_version: 2
+schema_version: 3
 generator:
   python: "3.13.7"
 generated_roots:
@@ -45,6 +45,49 @@ repositories:
       audited: "2026-08-22"
       allow_committed_output: true
 
+  aip:
+    url: https://github.com/aip-dev/google.aip.dev.git
+    revision: 2ccc61a4e09882bdd63aea1a42dceebc37bf3bd5
+    default_branch: master
+    adapter: aip
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.md
+      attribution: Google LLC and the API Improvement Proposals contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+  secure-reliable:
+    url: https://github.com/google/building-secure-and-reliable-systems.git
+    revision: 2a2ae3e0d4dbd288f9862ed47194f5b1b1ed7c3c
+    default_branch: main
+    adapter: html-book
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE
+      attribution: Google LLC and the Building Secure and Reliable Systems authors
+      audited: '2026-10-28'
+      allow_committed_output: true
+  dora:
+    url: https://github.com/dora-team/dora.dev.git
+    revision: b14ae080c350ca7ff449889621a970e959203bd5
+    default_branch: main
+    adapter: dora
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: CC-BY-4.0
+      attribution: Google LLC and the DORA contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      evidence_paths:
+      - README.md
+
 source_path_policies:
   - repository: abseil
     pattern: resources/swe-book/html/**
@@ -63,10 +106,7 @@ collections:
     artifacts:
       - name: google-cpp-style
         title: Google C++ Style Guide
-        description: >-
-          Use when writing or reviewing C++ under Google's C++ style conventions,
-          including headers, naming, classes, functions, ownership, exceptions, and formatting.
-          Do not use as a general C++ language tutorial.
+        description: Write and review C++ with Google style.
         tags: [language, cpp, style, review]
         inputs: [cppguide.html]
         excerpts:
@@ -117,10 +157,7 @@ collections:
 
       - name: google-csharp-style
         title: C# at Google Style Guide
-        description: >-
-          Use when writing or reviewing C# under Google's conventions for naming,
-          formatting, language features, and source organization. Do not use for unrelated
-          .NET architecture or framework selection.
+        description: Write and review C# with Google style.
         tags: [language, csharp, style, review]
         inputs: [csharp-style.md]
         excerpts:
@@ -152,10 +189,7 @@ collections:
 
       - name: google-documentation-guide
         title: Google Documentation Guide
-        description: >-
-          Use when planning, writing, or reviewing developer documentation, Markdown, READMEs,
-          and documentation maintenance using Google's documentation philosophy and practices.
-          Do not use for prose that is not technical documentation.
+        description: Plan, organize, and maintain developer docs.
         tags: [documentation, markdown, readme, review]
         inputs:
           - docguide/philosophy.md
@@ -201,10 +235,7 @@ collections:
 
       - name: google-go-style
         title: Google Go Style Guide
-        description: >-
-          Use when writing or reviewing Go code under Google's style decisions and best
-          practices, including naming, APIs, errors, documentation, tests, and maintainability.
-          Do not use as a replacement for the Go language specification.
+        description: Write and review Go with Google style.
         tags: [language, go, style, review, testing]
         inputs:
           - go/guide.md
@@ -252,10 +283,7 @@ collections:
 
       - name: google-html-css-style
         title: Google HTML/CSS Style Guide
-        description: >-
-          Use when writing or reviewing HTML and CSS under Google's conventions for validity,
-          semantics, accessibility, formatting, naming, and organization. Do not use for visual
-          design-system decisions.
+        description: Write and review HTML/CSS with Google style.
         tags: [language, html, css, style, accessibility]
         inputs: [htmlcssguide.html]
         excerpts:
@@ -303,10 +331,7 @@ collections:
 
       - name: google-java-style
         title: Google Java Style Guide
-        description: >-
-          Use when writing or reviewing Java source under Google's formatting, naming,
-          ordering, Javadoc, and programming-practice conventions. Do not use for Java API
-          design questions outside the guide's scope.
+        description: Write and review Java with Google style.
         tags: [language, java, style, review]
         inputs: [javaguide.html]
         excerpts:
@@ -363,10 +388,7 @@ collections:
 
       - name: google-javascript-style
         title: Google JavaScript Style Guide
-        description: >-
-          Use when maintaining existing JavaScript under Google's source formatting, naming,
-          module, language-feature, JSDoc, and policy conventions. The upstream guide is no
-          longer updated. For TypeScript, use google-typescript-style instead.
+        description: Write and review JavaScript with Google style.
         tags: [language, javascript, style, review]
         inputs: [jsguide.html]
         excerpts:
@@ -422,10 +444,7 @@ collections:
 
       - name: google-common-lisp-style
         title: Google Common Lisp Style Guide
-        description: >-
-          Use when writing or reviewing Common Lisp under Google's naming, formatting,
-          documentation, macro, error-handling, and language-usage conventions. Do not use for
-          other Lisp dialects without checking compatibility.
+        description: Write and review Common Lisp with Google style.
         tags: [language, common-lisp, style, review]
         inputs: [lispguide.xml]
         excerpts:
@@ -465,10 +484,7 @@ collections:
 
       - name: google-objective-c-style
         title: Google Objective-C Style Guide
-        description: >-
-          Use when writing or reviewing Objective-C and Objective-C++ under Google's naming,
-          formatting, Cocoa-pattern, memory-management, and documentation conventions. Do not
-          use as a Swift style guide.
+        description: Write and review Objective-C with Google style.
         tags: [language, objective-c, style, review]
         inputs: [objcguide.md]
         excerpts:
@@ -512,10 +528,7 @@ collections:
 
       - name: google-python-style
         title: Google Python Style Guide
-        description: >-
-          Use when writing or reviewing Python under Google's conventions for language rules,
-          imports, exceptions, typing, naming, comments, tests, and formatting. Do not use as a
-          Python beginner tutorial.
+        description: Write and review Python with Google style.
         tags: [language, python, style, review, testing]
         inputs: [pyguide.md]
         excerpts:
@@ -554,10 +567,7 @@ collections:
 
       - name: google-shell-style
         title: Google Shell Style Guide
-        description: >-
-          Use when writing or reviewing Bash and shell scripts under Google's conventions for
-          scope, features, naming, comments, quoting, command substitution, and error handling.
-          Do not use for non-Bourne-compatible shells without checking applicability.
+        description: Write and review Bash with Google style.
         tags: [language, shell, bash, style, review]
         inputs: [shellguide.md]
         excerpts:
@@ -601,10 +611,7 @@ collections:
 
       - name: google-typescript-style
         title: Google TypeScript Style Guide
-        description: >-
-          Use when writing or reviewing TypeScript under Google's source, type-system, naming,
-          module, documentation, and conformance conventions. Do not use for plain JavaScript;
-          use google-javascript-style instead.
+        description: Write and review TypeScript with Google style.
         tags: [language, typescript, style, review]
         inputs: [tsguide.html]
         excerpts:
@@ -656,9 +663,7 @@ collections:
 
       - name: google-vimscript-style
         title: Google Vimscript Style Guide
-        description: >-
-          Use when writing or reviewing Vimscript under Google's naming, formatting, command,
-          function, mapping, and plugin conventions. Do not use for Lua-based Neovim code.
+        description: Write and review Vimscript with Google style.
         tags: [language, vimscript, vim, style]
         inputs: [vimscriptguide.xml]
         excerpts:
@@ -690,10 +695,7 @@ collections:
 
       - name: google-xml-style
         title: Google XML Document Format Style Guide
-        description: >-
-          Use when designing or reviewing XML document formats under Google's naming,
-          structure, extensibility, namespace, validation, and schema conventions. Do not use
-          merely to pretty-print an existing XML file.
+        description: Design and review XML document formats.
         tags: [language, xml, schema, style]
         inputs: [xmlstyle.html]
         excerpts:
@@ -721,10 +723,7 @@ collections:
     artifacts:
       - name: google-code-review-author
         title: Google's Code Review Guide for Authors
-        description: >-
-          Use when preparing a change for review, splitting changes, writing a change-list
-          description, responding to comments, or resolving review disagreement using Google's
-          engineering practices. Do not use when acting only as the reviewer.
+        description: Prepare small, clear changes for code review.
         tags: [engineering, code-review, author, changelist]
         inputs:
           - review/developer/small-cls.md
@@ -763,10 +762,7 @@ collections:
 
       - name: google-code-review-reviewer
         title: Google's Code Review Guide for Reviewers
-        description: >-
-          Use when reviewing a code change, deciding what to inspect, applying Google's review
-          standard, writing comments, reviewing quickly, navigating a change, or handling
-          pushback. Do not use when only preparing your own change for review.
+        description: Review code correctness, design, and clarity.
         tags: [engineering, code-review, reviewer, readability]
         inputs:
           - review/reviewer/standard.md
@@ -829,10 +825,7 @@ collections:
     artifacts:
       - name: google-swe-teamwork-and-leadership
         title: "Software Engineering at Google: Teamwork and Leadership"
-        description: >-
-          Use when improving an engineering team's collaboration, psychological safety, knowledge
-          sharing, equity, leadership, feedback, or decision making. Do not use for ordinary code
-          changes or individual style questions.
+        description: Improve engineering teamwork and leadership.
         tags: [engineering, teamwork, culture, leadership]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -893,10 +886,7 @@ collections:
 
       - name: google-swe-developer-productivity
         title: "Software Engineering at Google: Developer Productivity"
-        description: >-
-          Use when defining developer-productivity goals and metrics or designing code-search and
-          code-navigation capabilities. Do not use lines of code or activity counts as default
-          productivity measures.
+        description: Measure developer productivity and friction.
         tags: [engineering, developer-productivity, metrics, code-search]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -954,10 +944,7 @@ collections:
 
       - name: google-swe-engineering-standards
         title: "Software Engineering at Google: Engineering Standards"
-        description: >-
-          Use when creating, changing, enforcing, or measuring organization-wide coding rules,
-          readability standards, formatters, linters, or static analysis. For one language's
-          syntax and formatting, use its language skill.
+        description: Set and enforce organization-wide standards.
         tags: [engineering, standards, readability, static-analysis]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -1021,10 +1008,7 @@ collections:
 
       - name: google-swe-code-review-systems
         title: "Software Engineering at Google: Code Review Systems"
-        description: >-
-          Use when designing or auditing a team's code-review policy, workflow, culture, or
-          tooling. To prepare or review one change, use google-code-review-author or
-          google-code-review-reviewer.
+        description: Design team code-review policies and tools.
         tags: [engineering, code-review, workflow, tooling]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -1085,9 +1069,7 @@ collections:
 
       - name: google-swe-testing
         title: "Software Engineering at Google: Testing"
-        description: >-
-          Use when designing or reviewing a risk-based test strategy, test size and scope, unit
-          tests, test doubles, integration tests, or end-to-end tests.
+        description: Choose test strategy, scope, and doubles.
         tags: [engineering, testing, unit-testing, test-doubles]
         inputs:
           - resources/swe-book/html/ch11.html
@@ -1170,10 +1152,7 @@ collections:
 
       - name: google-swe-change-management
         title: "Software Engineering at Google: Change Management"
-        description: >-
-          Use when planning or reviewing deprecation, migration, large-scale change, feature
-          flags, staged rollout, release cadence, or rollback. Do not use for ordinary small code
-          changes.
+        description: Plan deprecation, migrations, and rollouts.
         tags: [engineering, deprecation, migration, rollout, delivery]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -1253,10 +1232,7 @@ collections:
 
       - name: google-swe-builds-dependencies-and-ci
         title: "Software Engineering at Google: Builds, Dependencies, and CI"
-        description: >-
-          Use when designing or reviewing version-control policy, build systems, module
-          boundaries, dependency policy, hermetic builds, presubmit, post-submit, or CI failure
-          handling.
+        description: Design builds, dependencies, and CI.
         tags: [engineering, version-control, build, dependencies, ci]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -1328,10 +1304,7 @@ collections:
 
       - name: google-swe-compute-platforms
         title: "Software Engineering at Google: Compute Platforms"
-        description: >-
-          Use when choosing or reviewing a managed-compute model, hosted service, deployment
-          abstraction, state model, failure model, multitenancy boundary, autoscaling policy, or
-          cloud migration.
+        description: Choose compute platforms and deployment models.
         tags: [engineering, infrastructure, compute, cloud, deployment]
         inputs:
           - resources/swe-book/html/ch01.html
@@ -1377,64 +1350,2078 @@ collections:
             heading: "Public Versus Private"
             blocks: [2, 3, 4]
 
+  aip:
+    repository: aip
+    distribution: committed
+    description: Selected public aip engineering guidance.
+    artifacts:
+    - name: google-api-resource-design
+      title: Google API Resource Design
+      description: Model API resources, hierarchies, and names.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0121.md
+      - aip/general/0122.md
+      - aip/general/0124.md
+      - aip/general/0128.md
+      - aip/general/0156.md
+      excerpts:
+      - input: aip/general/0121.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0121.md
+        heading: Resources
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0121.md
+        heading: Methods
+        blocks:
+        - 0
+        - 1
+        - 4
+        - 5
+        - 6
+        - 7
+      - input: aip/general/0121.md
+        heading: Strong Consistency
+        blocks:
+        - 0
+        - 3
+      - input: aip/general/0122.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0122.md
+        heading: Collection identifiers
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0122.md
+        heading: Resource ID segments
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0124.md
+        heading: Guidance
+        blocks:
+        - 0
+      - input: aip/general/0128.md
+        heading: Resources
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0156.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-api-methods
+      title: Google API Methods
+      description: Design API methods, updates, etags, and masks.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0130.md
+      - aip/general/0131.md
+      - aip/general/0133.md
+      - aip/general/0134.md
+      - aip/general/0135.md
+      - aip/general/0136.md
+      - aip/general/0154.md
+      - aip/general/0161.md
+      - aip/general/0163.md
+      excerpts:
+      - input: aip/general/0130.md
+        heading: Choosing a method category
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0131.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 2
+      - input: aip/general/0133.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 2
+      - input: aip/general/0133.md
+        heading: User-specified IDs
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0134.md
+        heading: PATCH and PUT
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: aip/general/0134.md
+        heading: Side effects
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0135.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 2
+      - input: aip/general/0135.md
+        heading: Cascading delete
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0136.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0154.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0161.md
+        heading: Read-write consistency
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0163.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-api-data-modeling
+      title: Google API Data Modeling
+      description: Design API fields, enums, units, and defaults.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0126.md
+      - aip/general/0140.md
+      - aip/general/0141.md
+      - aip/general/0142.md
+      - aip/general/0144.md
+      - aip/general/0145.md
+      - aip/general/0146.md
+      - aip/general/0147.md
+      - aip/general/0149.md
+      - aip/general/0203.md
+      - aip/general/0216.md
+      excerpts:
+      - input: aip/general/0126.md
+        heading: When to use enums
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0140.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0140.md
+        heading: Booleans
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0141.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: aip/general/0142.md
+        heading: Timestamps
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0142.md
+        heading: Durations
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0144.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0145.md
+        heading: Inclusive or exclusive ranges
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0146.md
+        heading: Guidance
+        blocks:
+        - 0
+      - input: aip/general/0147.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: aip/general/0149.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0203.md
+        heading: Immutable
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0203.md
+        heading: Required
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0216.md
+        heading: State transition methods
+        blocks:
+        - 0
+        - 1
+    - name: google-api-list-design
+      title: Google API List Design
+      description: Design API pagination, filtering, and ordering.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0132.md
+      - aip/general/0157.md
+      - aip/general/0158.md
+      - aip/general/0159.md
+      - aip/general/0160.md
+      - aip/general/0217.md
+      excerpts:
+      - input: aip/general/0132.md
+        heading: Ordering
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0157.md
+        heading: Guidance
+        blocks:
+        - 0
+      - input: aip/general/0158.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 2
+      - input: aip/general/0158.md
+        heading: Opacity
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: aip/general/0158.md
+        heading: Backwards compatibility
+        blocks:
+        - 0
+        - 1
+        - 3
+        - 4
+      - input: aip/general/0159.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0160.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0160.md
+        heading: Validation
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0217.md
+        heading: Pagination
+        blocks:
+        - 0
+        - 1
+    - name: google-api-async-and-batch
+      title: Google Async and Batch APIs
+      description: Design asynchronous and batch API contracts.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0151.md
+      - aip/general/0152.md
+      - aip/general/0153.md
+      - aip/general/0231.md
+      - aip/general/0233.md
+      - aip/general/0234.md
+      - aip/general/0235.md
+      excerpts:
+      - input: aip/general/0151.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 2
+      - input: aip/general/0151.md
+        heading: Parallel operations
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0151.md
+        heading: Errors
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0151.md
+        heading: Expiration
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0152.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0153.md
+        heading: Guidance
+        blocks:
+        - 0
+      - input: aip/general/0153.md
+        heading: Partial failures
+        blocks:
+        - 0
+      - input: aip/general/0231.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 2
+      - input: aip/general/0233.md
+        heading: Atomic vs. Partial Success
+        blocks:
+        - 0
+      - input: aip/general/0234.md
+        heading: Adopting Partial Success
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0235.md
+        heading: Communicating partial failures
+        blocks:
+        - 0
+        - 1
+    - name: google-api-errors-and-retries
+      title: Google API Errors and Retries
+      description: Design API errors, request IDs, and retries.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0193.md
+      - aip/general/0194.md
+      - aip/general/0155.md
+      - aip/general/0211.md
+      excerpts:
+      - input: aip/general/0193.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0193.md
+        heading: Status.message
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0193.md
+        heading: Status.code
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0193.md
+        heading: Status.details
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0193.md
+        heading: ErrorInfo
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: aip/general/0193.md
+        heading: Changing error messages
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0193.md
+        heading: Partial errors
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0193.md
+        heading: Permission Denied
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0194.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0194.md
+        heading: Retryable codes
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0194.md
+        heading: Non-retryable codes
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0155.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0211.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-api-evolution
+      title: Google API Evolution
+      description: Evaluate API compatibility and versioning.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0180.md
+      - aip/general/0181.md
+      - aip/general/0185.md
+      excerpts:
+      - input: aip/general/0180.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: aip/general/0180.md
+        heading: Adding components
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0180.md
+        heading: Removing or renaming components
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0180.md
+        heading: Changing the type of fields
+        blocks:
+        - 0
+      - input: aip/general/0180.md
+        heading: Semantic changes
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0180.md
+        heading: Default values must not change
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0181.md
+        heading: Alpha
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0181.md
+        heading: Beta
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0181.md
+        heading: Stable
+        blocks:
+        - 0
+      - input: aip/general/0181.md
+        heading: Emergency changes
+        blocks:
+        - 0
+      - input: aip/general/0185.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0185.md
+        heading: API evolution
+        blocks:
+        - 0
+        - 1
+    - name: google-api-documentation
+      title: Google API Documentation
+      description: Document API contracts and field behavior.
+      tags:
+      - api
+      - design
+      inputs:
+      - aip/general/0192.md
+      excerpts:
+      - input: aip/general/0192.md
+        heading: Guidance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: aip/general/0192.md
+        heading: Style
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0192.md
+        heading: Descriptions
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0192.md
+        heading: Formatting
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: aip/general/0192.md
+        heading: Cross-references
+        blocks:
+        - 0
+        - 1
+      - input: aip/general/0192.md
+        heading: Deprecations
+        blocks:
+        - 0
+      - input: aip/general/0192.md
+        heading: Internal comments
+        blocks:
+        - 0
+        - 1
+  secure-reliable:
+    repository: secure-reliable
+    distribution: committed
+    description: Selected public secure-reliable engineering guidance.
+    artifacts:
+    - name: google-design-docs
+      title: Google Engineering Design Documents
+      description: Draft system design docs and assess tradeoffs.
+      tags:
+      - architecture
+      - engineering
+      inputs:
+      - raw/ch04.html
+      excerpts:
+      - input: raw/ch04.html
+        heading: Design Objectives and Requirements
+        blocks:
+        - 0
+      - input: raw/ch04.html
+        heading: Feature Requirements
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch04.html
+        heading: Nonfunctional Requirements
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch04.html
+        heading: Features Versus Emergent Properties
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch04.html
+        heading: 'Example: Google Design Document'
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch04.html
+        heading: Google’s Design Document Template
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+      - input: raw/ch04.html
+        heading: Cost of Adding Reliability and Security to Existing Systems
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch04.html
+        heading: Initial Velocity Versus Sustained Velocity
+        blocks:
+        - 0
+        - 1
+        - 7
+        - 9
+        - 10
+        - 12
+    - name: google-threat-modeling
+      title: Google Threat Modeling
+      description: Model adversaries, trust boundaries, and risks.
+      tags:
+      - security
+      - engineering
+      inputs:
+      - raw/ch02.html
+      - raw/ch06.html
+      excerpts:
+      - input: raw/ch02.html
+        heading: Attacker Motivations
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch02.html
+        heading: Insiders
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch02.html
+        heading: Threat modeling insider risk
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch02.html
+        heading: Threat Modeling Mistakes
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch02.html
+        heading: Designing for insider risk
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch02.html
+        heading: Risk Assessment Considerations
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      - input: raw/ch06.html
+        heading: Security boundaries and threat models
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+    - name: google-secure-design
+      title: Google Secure System Design
+      description: Design least privilege and security boundaries.
+      tags:
+      - security
+      - engineering
+      inputs:
+      - raw/ch05.html
+      - raw/ch06.html
+      excerpts:
+      - input: raw/ch05.html
+        heading: Least Privilege
+        blocks:
+        - 0
+      - input: raw/ch05.html
+        heading: Classifying Access Based on Risk
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch05.html
+        heading: Small Functional APIs
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch05.html
+        heading: Collecting good audit logs
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch05.html
+        heading: Graceful Failure and Breakglass Mechanisms
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch06.html
+        heading: System Invariants
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch06.html
+        heading: Prefer narrow interfaces that offer less room for interpretation
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch06.html
+        heading: Small TCBs and strong security boundaries
+        blocks:
+        - 0
+      - input: raw/ch06.html
+        heading: Considering API Usability
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-security-testing
+      title: Google Security Testing
+      description: Plan fuzzing, security analysis, and tests.
+      tags:
+      - security
+      - engineering
+      inputs:
+      - raw/ch05.html
+      - raw/ch13.html
+      excerpts:
+      - input: raw/ch05.html
+        heading: Testing of least privilege
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch05.html
+        heading: Testing with least privilege
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch13.html
+        heading: Dynamic Program Analysis
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      - input: raw/ch13.html
+        heading: Security and Reliability Benefits of Fuzzing
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch13.html
+        heading: Writing Effective Fuzz Drivers
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      - input: raw/ch13.html
+        heading: Continuous Fuzzing
+        blocks:
+        - 0
+      - input: raw/ch13.html
+        heading: Static Program Analysis
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch13.html
+        heading: Integration of Static Analysis in the Developer Workflow
+        blocks:
+        - 0
+        - 1
+    - name: google-secure-delivery
+      title: Google Secure Software Delivery
+      description: Secure build provenance and deployment policy.
+      tags:
+      - security
+      - engineering
+      inputs:
+      - raw/ch14.html
+      excerpts:
+      - input: raw/ch14.html
+        heading: Threat Model
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      - input: raw/ch14.html
+        heading: Require Code Reviews
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch14.html
+        heading: Rely on Automation
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch14.html
+        heading: Verify Artifacts, Not Just People
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch14.html
+        heading: Treat Configuration as Code
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch14.html
+        heading: Don’t Check In Secrets!
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch14.html
+        heading: Binary Provenance
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch14.html
+        heading: Code Signing
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch14.html
+        heading: Hermetic, Reproducible, or Verifiable?
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      - input: raw/ch14.html
+        heading: Post-Deployment Verification
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch14.html
+        heading: Include a Deployment Breakglass
+        blocks:
+        - 0
+        - 1
+    - name: google-reliability-design
+      title: Google Reliability Design
+      description: Design resilience, failure domains, and recovery.
+      tags:
+      - reliability
+      - engineering
+      inputs:
+      - raw/ch08.html
+      - raw/ch09.html
+      excerpts:
+      - input: raw/ch08.html
+        heading: Design Principles for Resilience
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch08.html
+        heading: Controlling Degradation
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch08.html
+        heading: Load shedding
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch08.html
+        heading: Throttling
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch08.html
+        heading: Failing safe versus failing secure
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch08.html
+        heading: Controlling the Blast Radius
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch08.html
+        heading: Failure Domains and Redundancies
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch08.html
+        heading: Failover strategies
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch08.html
+        heading: Common pitfalls
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch09.html
+        heading: Rollbacks Represent a Tradeoff Between Security and Reliability
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch09.html
+        heading: Design for Testing and Continuous Validation
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-incident-response
+      title: Google Incident Response
+      description: Coordinate incidents, recovery, and postmortems.
+      tags:
+      - reliability
+      - engineering
+      inputs:
+      - raw/ch16.html
+      - raw/ch17.html
+      - raw/ch18.html
+      excerpts:
+      - input: raw/ch16.html
+        heading: Disaster Risk Analysis
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch16.html
+        heading: Identify Team Members and Roles
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch16.html
+        heading: Develop Response Plans
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: raw/ch16.html
+        heading: Testing Systems and Response Plans
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch17.html
+        heading: Triaging the Incident
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: raw/ch17.html
+        heading: Beginning Your Response
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch17.html
+        heading: Handovers
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: raw/ch18.html
+        heading: Planning the Recovery
+        blocks:
+        - 0
+        - 1
+      - input: raw/ch18.html
+        heading: Recovery Checklists
+        blocks:
+        - 0
+      - input: raw/ch18.html
+        heading: Postmortems
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+  web-cloud-adr:
+    web_source: cloud-adr
+    distribution: committed
+    description: Selected public cloud-adr engineering guidance.
+    artifacts:
+    - name: google-adr
+      title: Google Architecture Decision Records
+      description: Record options and rationale in an ADR.
+      tags:
+      - architecture
+      - engineering
+      inputs:
+      - adr.html
+      excerpts:
+      - input: adr.html
+        heading: Architecture decision records overview
+        blocks:
+        - 2
+        - 3
+      - input: adr.html
+        heading: When to use ADRs
+        blocks:
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+      - input: adr.html
+        heading: Format of an ADR
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: adr.html
+        heading: How ADRs work
+        blocks:
+        - 0
+        - 1
+        - 4
+        - 5
+        - 6
+  dora:
+    repository: dora
+    distribution: committed
+    description: Selected public dora engineering guidance.
+    artifacts:
+    - name: google-service-architecture
+      title: Google Service Architecture
+      description: Design services for independent deployment.
+      tags:
+      - architecture
+      - engineering
+      inputs:
+      - hugo/content/capabilities/loosely-coupled-teams/index.md
+      excerpts:
+      - input: hugo/content/capabilities/loosely-coupled-teams/index.md
+        heading: Loosely coupled teams
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: hugo/content/capabilities/loosely-coupled-teams/index.md
+        heading: How to implement architectures for continuous delivery
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+      - input: hugo/content/capabilities/loosely-coupled-teams/index.md
+        heading: Common pitfalls in architectures
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: hugo/content/capabilities/loosely-coupled-teams/index.md
+        heading: Ways to improve your architecture
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+      - input: hugo/content/capabilities/loosely-coupled-teams/index.md
+        heading: Ways to measure architectural improvement
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+    - name: google-observability
+      title: Google Monitoring and Observability
+      description: Design monitoring, instrumentation, and alerts.
+      tags:
+      - reliability
+      - engineering
+      inputs:
+      - hugo/content/capabilities/monitoring-and-observability/index.md
+      - hugo/content/capabilities/proactive-failure-notification/index.md
+      excerpts:
+      - input: hugo/content/capabilities/monitoring-and-observability/index.md
+        heading: Monitoring and observability
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: hugo/content/capabilities/monitoring-and-observability/index.md
+        heading: How to implement monitoring and observability
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      - input: hugo/content/capabilities/monitoring-and-observability/index.md
+        heading: Blackbox monitoring
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: hugo/content/capabilities/monitoring-and-observability/index.md
+        heading: Whitebox monitoring
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: hugo/content/capabilities/monitoring-and-observability/index.md
+        heading: Correlation
+        blocks:
+        - 0
+        - 1
+      - input: hugo/content/capabilities/monitoring-and-observability/index.md
+        heading: Common pitfalls of implementing monitoring and observability
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: hugo/content/capabilities/proactive-failure-notification/index.md
+        heading: How to implement proactive failure notification
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      - input: hugo/content/capabilities/proactive-failure-notification/index.md
+        heading: Ways to measure failure notifications
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-delivery-performance
+      title: DORA Software Delivery Performance
+      description: Measure DORA delivery metrics, not individuals.
+      tags:
+      - delivery
+      - engineering
+      inputs:
+      - hugo/content/guides/dora-metrics/_index.md
+      excerpts:
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: DORA’s software delivery performance metrics
+        blocks:
+        - 0
+        - 3
+        - 4
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: Throughput and instability
+        blocks:
+        - 0
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: Throughput
+        blocks:
+        - 0
+        - 1
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: Instability
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: Key insights
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: Common pitfalls
+        blocks:
+        - 0
+        - 1
+      - input: hugo/content/guides/dora-metrics/_index.md
+        heading: Next steps
+        blocks:
+        - 0
+        - 1
+        - 2
+    - name: google-database-change-management
+      title: DORA Database Change Management
+      description: Plan versioned, compatible database migrations.
+      tags:
+      - delivery
+      - engineering
+      inputs:
+      - hugo/content/capabilities/database-change-management/index.md
+      excerpts:
+      - input: hugo/content/capabilities/database-change-management/index.md
+        heading: Database change management
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: hugo/content/capabilities/database-change-management/index.md
+        heading: Establish effective communication of database changes
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: hugo/content/capabilities/database-change-management/index.md
+        heading: Treat all database schema changes as migrations
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+      - input: hugo/content/capabilities/database-change-management/index.md
+        heading: Zero-downtime database changes
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      - input: hugo/content/capabilities/database-change-management/index.md
+        heading: Common pitfalls of implementing database change management
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: hugo/content/capabilities/database-change-management/index.md
+        heading: How to measure database change management
+        blocks:
+        - 0
+        - 1
+        - 2
+  web-cloud-slo:
+    web_source: cloud-slo
+    distribution: committed
+    description: Selected public cloud-slo engineering guidance.
+    artifacts:
+    - name: google-slos
+      title: Google Service-Level Objectives
+      description: Define SLIs, SLOs, and error budgets.
+      tags:
+      - reliability
+      - engineering
+      inputs:
+      - slo.html
+      excerpts:
+      - input: slo.html
+        heading: Terminology
+        blocks:
+        - 0
+        - 1
+      - input: slo.html
+        heading: Service-level indicators
+        blocks:
+        - 1
+        - 4
+        - 5
+        - 6
+      - input: slo.html
+        heading: Service-level objectives
+        blocks:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+      - input: slo.html
+        heading: Error budgets
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: slo.html
+        heading: Designing and using SLOs
+        blocks:
+        - 1
+        - 2
+      - input: slo.html
+        heading: Calendar-based compliance periods
+        blocks:
+        - 0
+        - 1
+      - input: slo.html
+        heading: Rolling window-based compliance periods
+        blocks:
+        - 0
+        - 1
+      - input: slo.html
+        heading: Request-based SLOs
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: slo.html
+        heading: Windows-based SLOs
+        blocks:
+        - 0
+        - 1
+        - 3
+        - 4
+  web-developer-style:
+    web_source: developer-style
+    distribution: committed
+    description: Selected public developer-style engineering guidance.
+    artifacts:
+    - name: google-developer-documentation-style
+      title: Google Developer Documentation Style
+      description: Edit prose, UI terms, links, and procedures.
+      tags:
+      - documentation
+      - engineering
+      inputs:
+      - highlights.html
+      - tone.html
+      - code-in-text.html
+      - ui-elements.html
+      - links.html
+      - procedures.html
+      excerpts:
+      - input: highlights.html
+        heading: Tone and content
+        blocks:
+        - 0
+      - input: highlights.html
+        heading: Language and grammar
+        blocks:
+        - 0
+      - input: highlights.html
+        heading: Formatting, punctuation, and organization
+        blocks:
+        - 0
+      - input: tone.html
+        heading: Some things to avoid where possible
+        blocks:
+        - 0
+      - input: tone.html
+        heading: Some techniques and approaches to consider
+        blocks:
+        - 0
+      - input: code-in-text.html
+        heading: Some specific items to put in code font
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: ui-elements.html
+        heading: Focus on the task
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: ui-elements.html
+        heading: Format names of UI elements
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: links.html
+        heading: Write descriptive link text
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: links.html
+        heading: Avoid vague link text
+        blocks:
+        - 0
+      - input: procedures.html
+        heading: Summary of guidelines for writing procedures
+        blocks:
+        - 0
+  web-writing:
+    web_source: writing
+    distribution: committed
+    description: Selected public writing engineering guidance.
+    artifacts:
+    - name: google-technical-writing
+      title: Google Technical Writing
+      description: Explain technical topics to a defined audience.
+      tags:
+      - documentation
+      - engineering
+      inputs:
+      - one-audience.html
+      - one-documents.html
+      - two-editing.html
+      - two-sample-code.html
+      excerpts:
+      - input: one-audience.html
+        heading: Define your audience
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: one-audience.html
+        heading: Determine what your audience needs to learn
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: one-audience.html
+        heading: Curse of knowledge
+        blocks:
+        - 0
+        - 1
+      - input: one-documents.html
+        heading: State your document's scope
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: one-documents.html
+        heading: Summarize key points at the start
+        blocks:
+        - 0
+        - 1
+      - input: one-documents.html
+        heading: Organize the document to meet your audience's needs
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: two-editing.html
+        heading: Think like your audience
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: two-editing.html
+        heading: Read it out loud
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: two-sample-code.html
+        heading: Correct
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: two-sample-code.html
+        heading: Concise
+        blocks:
+        - 0
+      - input: two-sample-code.html
+        heading: Understandable
+        blocks:
+        - 0
+        - 1
+      - input: two-sample-code.html
+        heading: Commented
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: two-sample-code.html
+        heading: Reusable
+        blocks:
+        - 0
+        - 1
+        - 2
+  web-accessible-writing:
+    web_source: accessible-writing
+    distribution: committed
+    description: Selected public accessible-writing engineering guidance.
+    artifacts:
+    - name: google-accessible-documentation
+      title: Google Accessible Documentation
+      description: Review documentation for accessibility.
+      tags:
+      - documentation
+      - engineering
+      inputs:
+      - write-alt-text.html
+      - visual-cues.html
+      - editing-accessibility.html
+      excerpts:
+      - input: write-alt-text.html
+        heading: Briefly summarize the image's purpose
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: write-alt-text.html
+        heading: Avoid duplicating the surrounding text
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: write-alt-text.html
+        heading: Describe complex images in your document
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: write-alt-text.html
+        heading: Include demographic information only when necessary
+        blocks:
+        - 0
+        - 1
+      - input: visual-cues.html
+        heading: Why visual indicators are insufficient
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: visual-cues.html
+        heading: Don't rely on color alone
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: visual-cues.html
+        heading: Use text, color, and symbols for better accessibility
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: editing-accessibility.html
+        heading: Create helpful headings
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+      - input: editing-accessibility.html
+        heading: Include informative link text
+        blocks:
+        - 0
+        - 1
+        - 2
+      - input: editing-accessibility.html
+        heading: Use straightforward language and short sentences
+        blocks:
+        - 0
+        - 1
+      - input: editing-accessibility.html
+        heading: Test your content for accessibility
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+  web-error-writing:
+    web_source: error-writing
+    distribution: committed
+    description: Selected public error-writing engineering guidance.
+    artifacts:
+    - name: google-error-messages
+      title: Google Helpful Error Messages
+      description: Write actionable user-facing error messages.
+      tags:
+      - documentation
+      - engineering
+      inputs:
+      - identify-the-cause.html
+      - specify-requirements.html
+      - show-fix.html
+      - format-for-readability.html
+      - summary.html
+      excerpts:
+      - input: identify-the-cause.html
+        heading: Identify the error's cause
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: specify-requirements.html
+        heading: Specify requirements and constraints
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 7
+        - 8
+        - 9
+      - input: show-fix.html
+        heading: Explain how to fix the problem
+        blocks:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      - input: format-for-readability.html
+        heading: Link to more detailed documentation
+        blocks:
+        - 0
+      - input: format-for-readability.html
+        heading: Use progressive disclosure
+        blocks:
+        - 0
+      - input: format-for-readability.html
+        heading: Place error messages close to the error
+        blocks:
+        - 0
+      - input: summary.html
+        heading: Course summary
+        blocks:
+        - 0
+        - 1
+
 catalog_only:
-  - id: google-angularjs-style
-    title: Google AngularJS Style Guide
-    url: https://google.github.io/styleguide/angularjs-google-style.html
-    license: CC-BY-3.0
-    status: historical-guide-not-packaged
-    reason: >-
-      Last updated in 2013 and written for AngularJS 1.x, Closure, IE8, and internal Google
-      tooling. Keep it discoverable without loading obsolete defaults into modern agents.
-    tags: [language, javascript, angularjs, style]
+- id: google-angularjs-style
+  title: Google AngularJS Style Guide
+  url: https://google.github.io/styleguide/angularjs-google-style.html
+  license: CC-BY-3.0
+  status: historical-guide-not-packaged
+  reason: Last updated in 2013 and written for AngularJS 1.x, Closure, IE8, and internal
+    Google tooling. Keep it discoverable without loading obsolete defaults into modern
+    agents.
+  tags:
+  - language
+  - javascript
+  - angularjs
+  - style
+- id: google-json-style
+  title: Google JSON Style Guide
+  url: https://google.github.io/styleguide/jsoncstyleguide.xml
+  license: CC-BY-3.0-with-Apache-2.0-code
+  status: historical-guide-not-packaged
+  reason: Revision 0.9 centers retired Google Data and YouTube API v2 response envelopes.
+    Modern API contracts should follow current product requirements rather than this
+    historical protocol.
+  tags:
+  - language
+  - json
+  - api
+  - style
+- id: google-r-style
+  title: Google's R Style Guide
+  url: https://google.github.io/styleguide/Rguide.html
+  license: NOASSERTION
+  status: license-review-pending
+  reason: The canonical file says it forks the Tidyverse Style Guide under CC BY-SA
+    2.0 while the repository uses CC BY 3.0. Keep cataloged without generated output
+    until composite attribution and ShareAlike obligations are modeled explicitly.
+  tags:
+  - language
+  - r
+  - style
+  - review
+- id: google-product-management-approach
+  title: Google's Product Management Approach
+  url: https://cloud.google.com/transform/how-to-apply-google-product-management-practices-to-your-business
+  license: NOASSERTION
+  status: license-review-pending
+  reason: Official Google Cloud article, but no first-party open-content notice was
+    found on the page. Keep cataloged as metadata only until both licensing and reproducible
+    snapshots are resolved.
+  tags:
+  - product-management
+  - user-research
+  - experimentation
+  - collaboration
+- id: google-sre-book
+  title: Site Reliability Engineering
+  url: https://sre.google/sre-book/table-of-contents/
+  license: CC-BY-NC-ND-4.0
+  status: catalog-only
+  reason: Restrictive source license; link only. Public reliability skills use separately
+    licensed sources.
+  tags:
+  - reliability
+  - book
+- id: google-sre-workbook
+  title: The Site Reliability Workbook
+  url: https://sre.google/workbook/table-of-contents/
+  license: CC-BY-NC-ND-4.0
+  status: catalog-only
+  reason: Restrictive source license; link only. Public reliability skills use separately
+    licensed sources.
+  tags:
+  - reliability
+  - book
 
-  - id: google-json-style
-    title: Google JSON Style Guide
-    url: https://google.github.io/styleguide/jsoncstyleguide.xml
-    license: CC-BY-3.0-with-Apache-2.0-code
-    status: historical-guide-not-packaged
-    reason: >-
-      Revision 0.9 centers retired Google Data and YouTube API v2 response envelopes. Modern API
-      contracts should follow current product requirements rather than this historical protocol.
-    tags: [language, json, api, style]
+packs:
+  default:
+  - google-cpp-style
+  - google-csharp-style
+  - google-documentation-guide
+  - google-go-style
+  - google-html-css-style
+  - google-java-style
+  - google-javascript-style
+  - google-common-lisp-style
+  - google-objective-c-style
+  - google-python-style
+  - google-shell-style
+  - google-typescript-style
+  - google-vimscript-style
+  - google-xml-style
+  - google-code-review-author
+  - google-code-review-reviewer
+  - google-swe-teamwork-and-leadership
+  - google-swe-developer-productivity
+  - google-swe-engineering-standards
+  - google-swe-code-review-systems
+  - google-swe-testing
+  - google-swe-change-management
+  - google-swe-builds-dependencies-and-ci
+  - google-swe-compute-platforms
+  - google-api-resource-design
+  - google-api-methods
+  - google-api-data-modeling
+  - google-api-list-design
+  - google-api-async-and-batch
+  - google-api-errors-and-retries
+  - google-api-evolution
+  - google-api-documentation
+  - google-design-docs
+  - google-threat-modeling
+  - google-secure-design
+  - google-security-testing
+  - google-secure-delivery
+  - google-reliability-design
+  - google-incident-response
+  - google-adr
+  - google-service-architecture
+  - google-observability
+  - google-delivery-performance
+  - google-database-change-management
+  - google-slos
+  - google-developer-documentation-style
+  - google-technical-writing
+  - google-accessible-documentation
+  - google-error-messages
+  legacy:
+  - google-cpp-style
+  - google-csharp-style
+  - google-documentation-guide
+  - google-go-style
+  - google-html-css-style
+  - google-java-style
+  - google-javascript-style
+  - google-common-lisp-style
+  - google-objective-c-style
+  - google-python-style
+  - google-shell-style
+  - google-typescript-style
+  - google-vimscript-style
+  - google-xml-style
+  - google-code-review-author
+  - google-code-review-reviewer
+  - google-swe-teamwork-and-leadership
+  - google-swe-developer-productivity
+  - google-swe-engineering-standards
+  - google-swe-code-review-systems
+  - google-swe-testing
+  - google-swe-change-management
+  - google-swe-builds-dependencies-and-ci
+  - google-swe-compute-platforms
 
-  - id: google-r-style
-    title: Google's R Style Guide
-    url: https://google.github.io/styleguide/Rguide.html
-    license: NOASSERTION
-    status: license-review-pending
-    reason: >-
-      The canonical file says it forks the Tidyverse Style Guide under CC BY-SA 2.0 while the
-      repository uses CC BY 3.0. Keep cataloged without generated output until composite
-      attribution and ShareAlike obligations are modeled explicitly.
-    tags: [language, r, style, review]
+  api:
+  - google-api-resource-design
+  - google-api-methods
+  - google-api-data-modeling
+  - google-api-list-design
+  - google-api-async-and-batch
+  - google-api-errors-and-retries
+  - google-api-evolution
+  - google-api-documentation
+  architecture:
+  - google-design-docs
+  - google-adr
+  - google-service-architecture
+  security:
+  - google-threat-modeling
+  - google-secure-design
+  - google-security-testing
+  - google-secure-delivery
+  reliability:
+  - google-reliability-design
+  - google-incident-response
+  - google-observability
+  - google-slos
+  delivery:
+  - google-delivery-performance
+  - google-database-change-management
+  documentation:
+  - google-developer-documentation-style
+  - google-technical-writing
+  - google-accessible-documentation
+  - google-error-messages
 
-  - id: google-developer-documentation-style
-    title: Google Developer Documentation Style Guide
-    url: https://developers.google.com/style
-    license: CC-BY-4.0
-    status: web-snapshot-pending
-    reason: >-
-      Canonical licensed web guide. Keep cataloged until the web snapshotter has stable page
-      enumeration and content-hash locking; do not silently crawl a moving site.
-    tags: [documentation, style, accessibility]
-
-  - id: google-technical-writing
-    title: Google Technical Writing Courses
-    url: https://developers.google.com/tech-writing
-    license: CC-BY-4.0
-    status: web-snapshot-pending
-    reason: >-
-      Canonical licensed web course. Keep cataloged until web snapshots are reproducibly locked.
-    tags: [documentation, technical-writing, education]
-
-  - id: google-product-management-approach
-    title: Google's Product Management Approach
-    url: https://cloud.google.com/transform/how-to-apply-google-product-management-practices-to-your-business
-    license: NOASSERTION
-    status: license-review-pending
-    reason: >-
-      Official Google Cloud article, but no first-party open-content notice was found on the
-      page. Keep cataloged as metadata only until both licensing and reproducible snapshots are
-      resolved.
-    tags: [product-management, user-research, experimentation, collaboration]
+web_sources:
+  cloud-adr:
+    url: https://docs.cloud.google.com/architecture/architecture-decision-records
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.txt
+      attribution: Google LLC and the documentation contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+    pages:
+    - path: adr.html
+      url: https://docs.cloud.google.com/architecture/architecture-decision-records
+      selector: article.devsite-article
+  cloud-slo:
+    url: https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.txt
+      attribution: Google LLC and the documentation contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+    pages:
+    - path: slo.html
+      url: https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring
+      selector: article.devsite-article
+  developer-style:
+    url: https://developers.google.com/style/highlights
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.txt
+      attribution: Google LLC and the documentation contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+    pages:
+    - path: highlights.html
+      url: https://developers.google.com/style/highlights
+      selector: article.devsite-article
+    - path: tone.html
+      url: https://developers.google.com/style/tone
+      selector: article.devsite-article
+    - path: code-in-text.html
+      url: https://developers.google.com/style/code-in-text
+      selector: article.devsite-article
+    - path: ui-elements.html
+      url: https://developers.google.com/style/ui-elements
+      selector: article.devsite-article
+    - path: links.html
+      url: https://developers.google.com/style/cross-references
+      selector: article.devsite-article
+    - path: procedures.html
+      url: https://developers.google.com/style/procedures
+      selector: article.devsite-article
+  writing:
+    url: https://developers.google.com/tech-writing/one/audience
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.txt
+      attribution: Google LLC and the documentation contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+    pages:
+    - path: one-audience.html
+      url: https://developers.google.com/tech-writing/one/audience
+      selector: article.devsite-article
+    - path: one-documents.html
+      url: https://developers.google.com/tech-writing/one/documents
+      selector: article.devsite-article
+    - path: two-editing.html
+      url: https://developers.google.com/tech-writing/two/editing
+      selector: article.devsite-article
+    - path: two-sample-code.html
+      url: https://developers.google.com/tech-writing/two/sample-code
+      selector: article.devsite-article
+  accessible-writing:
+    url: https://developers.google.com/tech-writing/accessibility/self-study/write-alt-text
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.txt
+      attribution: Google LLC and the documentation contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+    pages:
+    - path: write-alt-text.html
+      url: https://developers.google.com/tech-writing/accessibility/self-study/write-alt-text
+      selector: article.devsite-article
+    - path: visual-cues.html
+      url: https://developers.google.com/tech-writing/accessibility/self-study/visual-cues
+      selector: article.devsite-article
+    - path: editing-accessibility.html
+      url: https://developers.google.com/tech-writing/accessibility/self-study/editing-accessibility
+      selector: article.devsite-article
+  error-writing:
+    url: https://developers.google.com/tech-writing/error-messages/identify-the-cause
+    license:
+      spdx: CC-BY-4.0
+      name: Creative Commons Attribution 4.0 International
+      url: https://creativecommons.org/licenses/by/4.0/
+      evidence_path: LICENSE.txt
+      attribution: Google LLC and the documentation contributors
+      audited: '2026-10-28'
+      allow_committed_output: true
+      code_samples_spdx: Apache-2.0
+    pages:
+    - path: identify-the-cause.html
+      url: https://developers.google.com/tech-writing/error-messages/identify-the-cause
+      selector: article.devsite-article
+    - path: specify-requirements.html
+      url: https://developers.google.com/tech-writing/error-messages/specify-requirements
+      selector: article.devsite-article
+    - path: show-fix.html
+      url: https://developers.google.com/tech-writing/error-messages/show-fix
+      selector: article.devsite-article
+    - path: format-for-readability.html
+      url: https://developers.google.com/tech-writing/error-messages/format-for-readability
+      selector: article.devsite-article
+    - path: summary.html
+      url: https://developers.google.com/tech-writing/error-messages/summary
+      selector: article.devsite-article

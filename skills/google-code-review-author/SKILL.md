@@ -1,9 +1,7 @@
 ---
 name: google-code-review-author
 description: >-
-  Use when preparing a change for review, splitting changes, writing a change-list description,
-  responding to comments, or resolving review disagreement using Google's engineering practices.
-  Do not use when acting only as the reviewer.
+  Prepare small, clear changes for code review.
 ---
 
 # Google's Code Review Guide for Authors

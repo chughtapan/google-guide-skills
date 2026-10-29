@@ -23,7 +23,7 @@ from .git_safe import environment as git_environment
 from .metrics import (
     CODEX_FALLBACK_METADATA_CHARS,
     MIN_SUPPORTED_INSTALL_ROOT_CHARS,
-    metadata_budget,
+    pack_metadata_budgets,
 )
 from .models import Artifact, Collection, Manifest, ValidationIssue
 from .project_license import (
@@ -237,8 +237,9 @@ def _artifact_provenance_checks(
     expected_collection: Collection,
     artifact: Artifact,
 ) -> tuple[tuple[bool, str], ...]:
-    repository = manifest.repositories[expected_collection.repository]
+    source_checks = _source_provenance_checks(manifest, expected_collection, artifact, provenance)
     return (
+        *source_checks,
         (
             provenance.get("collection") == expected_collection.id,
             "Provenance collection does not own this artifact",
@@ -246,11 +247,6 @@ def _artifact_provenance_checks(
         (
             provenance.get("generated_by") == f"google-guide-skills/{__version__}",
             "Generated provenance version is stale",
-        ),
-        (
-            provenance.get("repository")
-            == {"id": repository.id, "url": repository.url, "revision": repository.revision},
-            "Repository provenance does not match corpus.yaml",
         ),
         (
             provenance.get("license") == manifest.license_for(expected_collection).to_dict(),
@@ -277,6 +273,60 @@ def _artifact_provenance_checks(
         (
             provenance.get("wrapper_license") == wrapper_license_metadata(),
             "Wrapper license provenance does not match the project policy",
+        ),
+    )
+
+
+def _source_provenance_checks(
+    manifest: Manifest, collection: Collection, artifact: Artifact, provenance: dict[str, object]
+) -> tuple[tuple[bool, str], ...]:
+    if collection.web_source:
+        from .errors import SourceError
+        from .snapshots import verify_snapshot
+
+        source = manifest.web_sources[collection.web_source]
+        try:
+            _, lock = verify_snapshot(manifest, source)
+        except SourceError as exc:
+            return ((False, str(exc)),)
+        expected = {
+            "id": source.id,
+            "url": source.url,
+            "snapshot": lock["snapshot"],
+            "pages": lock["pages"],
+        }
+        inputs = [
+            {
+                "path": page["path"],
+                "sha256": page["sha256"],
+                "conversion": "google-article-to-markdown",
+            }
+            for page in lock["pages"]
+            if page["path"] in artifact.inputs
+        ]
+        return (
+            (
+                provenance.get("inputs")
+                == sorted(inputs, key=lambda item: artifact.inputs.index(item["path"])),
+                "Web input provenance does not match the accepted snapshot",
+            ),
+            (
+                provenance.get("web_source") == expected,
+                "Web provenance does not match the accepted snapshot",
+            ),
+            (provenance.get("source_adapter") == "google-docs", "Web source adapter is stale"),
+            ("repository" not in provenance, "Web provenance cannot name a Git repository"),
+        )
+    repository = manifest.repositories[collection.repository]
+    return (
+        (
+            provenance.get("repository")
+            == {"id": repository.id, "url": repository.url, "revision": repository.revision},
+            "Repository provenance does not match corpus.yaml",
+        ),
+        (
+            provenance.get("source_adapter", "default") == repository.adapter,
+            "Source adapter does not match corpus.yaml",
         ),
     )
 
@@ -542,27 +592,27 @@ def _metadata_budget_issues(manifest: Manifest) -> list[ValidationIssue]:
     )
     if not skill_dirs:
         return []
-    budget = metadata_budget(skill_dirs)
     issues: list[ValidationIssue] = []
-    if int(budget["maximum_install_root_chars"]) < MIN_SUPPORTED_INSTALL_ROOT_CHARS:
-        issues.append(
-            _issue(
-                "error",
-                committed_root,
-                manifest.project_root,
-                "Committed skill metadata no longer fits the audited minimum install-root length",
+    for name, budget in pack_metadata_budgets(manifest).items():
+        if int(budget["maximum_install_root_chars"]) < MIN_SUPPORTED_INSTALL_ROOT_CHARS:
+            issues.append(
+                _issue(
+                    "error",
+                    committed_root,
+                    manifest.project_root,
+                    f"Pack {name} metadata no longer fits the audited minimum install-root length",
+                )
             )
-        )
-    if int(budget["codex_list_chars"]) > CODEX_FALLBACK_METADATA_CHARS:
-        issues.append(
-            _issue(
-                "error",
-                committed_root,
-                manifest.project_root,
-                "Committed skill metadata exceeds Codex's fallback startup budget at the "
-                "documented reference path",
+        if int(budget["codex_list_chars"]) > CODEX_FALLBACK_METADATA_CHARS:
+            issues.append(
+                _issue(
+                    "error",
+                    committed_root,
+                    manifest.project_root,
+                    f"Pack {name} metadata exceeds Codex's fallback startup budget "
+                    "at the documented reference path",
+                )
             )
-        )
     return issues
 
 

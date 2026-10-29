@@ -1,0 +1,189 @@
+{
+  "artifact": "google-accessible-documentation",
+  "collection": "web-accessible-writing",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Briefly summarize the image's purpose",
+      "input": "write-alt-text.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Avoid duplicating the surrounding text",
+      "input": "write-alt-text.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Describe complex images in your document",
+      "input": "write-alt-text.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Include demographic information only when necessary",
+      "input": "write-alt-text.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Why visual indicators are insufficient",
+      "input": "visual-cues.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Don't rely on color alone",
+      "input": "visual-cues.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Use text, color, and symbols for better accessibility",
+      "input": "visual-cues.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Create helpful headings",
+      "input": "editing-accessibility.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Include informative link text",
+      "input": "editing-accessibility.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Use straightforward language and short sentences",
+      "input": "editing-accessibility.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Test your content for accessibility",
+      "input": "editing-accessibility.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "write-alt-text.html",
+      "sha256": "89edef45d250f3956eb0f677c09d4765e28acf6eec7e4c1a547dd3f224e56777"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "visual-cues.html",
+      "sha256": "6481746dbc0ae6dd144e443f3f7099a76a0286fd3ce57393ca2ce61253815300"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "editing-accessibility.html",
+      "sha256": "009f26182678133533fb552bcb1db931e1b6ed56b634583a1eb91143fdc12233"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "source_adapter": "google-docs",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "web_source": {
+    "id": "accessible-writing",
+    "pages": [
+      {
+        "license_path": "licenses/write-alt-text.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "write-alt-text.html",
+        "resolved_url": "https://developers.google.com/tech-writing/accessibility/self-study/write-alt-text",
+        "selector": "article.devsite-article",
+        "sha256": "89edef45d250f3956eb0f677c09d4765e28acf6eec7e4c1a547dd3f224e56777",
+        "url": "https://developers.google.com/tech-writing/accessibility/self-study/write-alt-text"
+      },
+      {
+        "license_path": "licenses/visual-cues.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "visual-cues.html",
+        "resolved_url": "https://developers.google.com/tech-writing/accessibility/self-study/visual-cues",
+        "selector": "article.devsite-article",
+        "sha256": "6481746dbc0ae6dd144e443f3f7099a76a0286fd3ce57393ca2ce61253815300",
+        "url": "https://developers.google.com/tech-writing/accessibility/self-study/visual-cues"
+      },
+      {
+        "license_path": "licenses/editing-accessibility.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "editing-accessibility.html",
+        "resolved_url": "https://developers.google.com/tech-writing/accessibility/self-study/editing-accessibility",
+        "selector": "article.devsite-article",
+        "sha256": "009f26182678133533fb552bcb1db931e1b6ed56b634583a1eb91143fdc12233",
+        "url": "https://developers.google.com/tech-writing/accessibility/self-study/editing-accessibility"
+      }
+    ],
+    "snapshot": "de4ba5352eadc8ab073224e1e0f0323a30ca49d9324756981edae4cbf4388eed",
+    "url": "https://developers.google.com/tech-writing/accessibility/self-study/write-alt-text"
+  },
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

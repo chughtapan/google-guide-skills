@@ -1,0 +1,43 @@
+Source license: Creative Commons Attribution 4.0 International (CC-BY-4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: Google LLC and the documentation contributors
+License audit date: 2026-10-28
+Code samples: Apache-2.0 (separate from prose)
+
+The upstream license text below is copied from LICENSE.txt.
+
+Source: https://developers.google.com/style/highlights
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License , and code samples are licensed under the Apache 2.0 License . For details, see the Google Developers Site Policies . Java is a registered trademark of Oracle and/or its affiliates.
+
+Content license: https://creativecommons.org/licenses/by/4.0/
+Code samples: https://www.apache.org/licenses/LICENSE-2.0
+
+Source: https://developers.google.com/style/tone
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License , and code samples are licensed under the Apache 2.0 License . For details, see the Google Developers Site Policies . Java is a registered trademark of Oracle and/or its affiliates.
+
+Content license: https://creativecommons.org/licenses/by/4.0/
+Code samples: https://www.apache.org/licenses/LICENSE-2.0
+
+Source: https://developers.google.com/style/code-in-text
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License , and code samples are licensed under the Apache 2.0 License . For details, see the Google Developers Site Policies . Java is a registered trademark of Oracle and/or its affiliates.
+
+Content license: https://creativecommons.org/licenses/by/4.0/
+Code samples: https://www.apache.org/licenses/LICENSE-2.0
+
+Source: https://developers.google.com/style/ui-elements
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License , and code samples are licensed under the Apache 2.0 License . For details, see the Google Developers Site Policies . Java is a registered trademark of Oracle and/or its affiliates.
+
+Content license: https://creativecommons.org/licenses/by/4.0/
+Code samples: https://www.apache.org/licenses/LICENSE-2.0
+
+Source: https://developers.google.com/style/cross-references
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License , and code samples are licensed under the Apache 2.0 License . For details, see the Google Developers Site Policies . Java is a registered trademark of Oracle and/or its affiliates.
+
+Content license: https://creativecommons.org/licenses/by/4.0/
+Code samples: https://www.apache.org/licenses/LICENSE-2.0
+
+Source: https://developers.google.com/style/procedures
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License , and code samples are licensed under the Apache 2.0 License . For details, see the Google Developers Site Policies . Java is a registered trademark of Oracle and/or its affiliates.
+
+Content license: https://creativecommons.org/licenses/by/4.0/
+Code samples: https://www.apache.org/licenses/LICENSE-2.0

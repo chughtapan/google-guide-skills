@@ -1,8 +1,7 @@
 ---
 name: google-vimscript-style
 description: >-
-  Use when writing or reviewing Vimscript under Google's naming, formatting, command, function,
-  mapping, and plugin conventions. Do not use for Lua-based Neovim code.
+  Write and review Vimscript with Google style.
 ---
 
 # Google Vimscript Style Guide

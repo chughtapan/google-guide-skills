@@ -1,0 +1,142 @@
+{
+  "artifact": "google-slos",
+  "collection": "web-cloud-slo",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Terminology",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        1,
+        4,
+        5,
+        6
+      ],
+      "heading": "Service-level indicators",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "heading": "Service-level objectives",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Error budgets",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        1,
+        2
+      ],
+      "heading": "Designing and using SLOs",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Calendar-based compliance periods",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Rolling window-based compliance periods",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Request-based SLOs",
+      "input": "slo.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "heading": "Windows-based SLOs",
+      "input": "slo.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "slo.html",
+      "sha256": "738c89454c0abb1794a0e3d3a8aa4cb7a3afa2543cb2a5de68f4c7c2dde4a768"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "source_adapter": "google-docs",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "web_source": {
+    "id": "cloud-slo",
+    "pages": [
+      {
+        "license_path": "licenses/slo.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "slo.html",
+        "resolved_url": "https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+        "selector": "article.devsite-article",
+        "sha256": "738c89454c0abb1794a0e3d3a8aa4cb7a3afa2543cb2a5de68f4c7c2dde4a768",
+        "url": "https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+      }
+    ],
+    "snapshot": "8b9c3cef75c7f104a8a59ab81de10fc3f5bb40c70e982c925d4999bd2f5c07a8",
+    "url": "https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+  },
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

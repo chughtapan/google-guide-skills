@@ -8,7 +8,7 @@ from typing import Any
 
 import yaml
 
-from .errors import ManifestError
+from .errors import ManifestError, SourceError
 from .models import (
     Artifact,
     CatalogOnly,
@@ -19,8 +19,11 @@ from .models import (
     SourceExcerpt,
     SourcePathPolicy,
     SupplementalLicense,
+    WebPage,
+    WebSource,
     require_mapping,
 )
+from .snapshots import require_public_url
 from .strict_yaml import strict_safe_load
 
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -97,6 +100,14 @@ def _license(data: Any, context: str) -> LicenseInfo:
     allow_committed = item.get("allow_committed_output")
     if not isinstance(allow_committed, bool):
         raise ManifestError(f"{context}.allow_committed_output must be a boolean")
+    evidence_paths = item.get("evidence_paths", [])
+    if not isinstance(evidence_paths, list) or not all(
+        isinstance(value, str) and value for value in evidence_paths
+    ):
+        raise ManifestError(f"{context}.evidence_paths must be a list of paths")
+    code_license = item.get("code_samples_spdx")
+    if code_license is not None and code_license != "Apache-2.0":
+        raise ManifestError(f"{context}.code_samples_spdx must be Apache-2.0 when provided")
     return LicenseInfo(
         spdx=_text(item, "spdx", context),
         name=_text(item, "name", context),
@@ -112,6 +123,8 @@ def _license(data: Any, context: str) -> LicenseInfo:
         else None,
         evidence_contains=evidence_contains,
         warning=_optional_text(item.get("warning")),
+        evidence_paths=tuple(_safe_relative(value, context) for value in evidence_paths),
+        code_samples_spdx=code_license,
     )
 
 
@@ -190,18 +203,94 @@ def _repository(repo_id: object, raw: object) -> Repository:
         raise ManifestError(
             f"{context}.url must use the canonical protected source {canonical_url}"
         )
+    adapter = item.get("adapter", "default")
+    if not isinstance(adapter, str) or adapter not in {"default", "aip", "dora", "html-book"}:
+        raise ManifestError(f"{context}.adapter is unsupported: {adapter!r}")
     return Repository(
         id=str(repo_id),
         url=url,
         revision=revision,
         default_branch=_text(item, "default_branch", context),
         license=_license(item.get("license"), f"{context}.license"),
+        adapter=adapter,
     )
 
 
 def _repositories(data: dict[str, Any]) -> dict[str, Repository]:
     raw = require_mapping(data.get("repositories"), "repositories")
     return {str(repo_id): _repository(repo_id, item) for repo_id, item in raw.items()}
+
+
+def _web_sources(data: dict[str, Any]) -> dict[str, WebSource]:
+    raw = require_mapping(data.get("web_sources", {}), "web_sources")
+    sources: dict[str, WebSource] = {}
+    for source_id, value in raw.items():
+        context = f"web_sources.{source_id}"
+        if not isinstance(source_id, str) or not NAME_RE.fullmatch(source_id):
+            raise ManifestError(f"{context} has an invalid identifier")
+        item = require_mapping(value, context)
+        url = _text(item, "url", context)
+        license_info = _license(item.get("license"), f"{context}.license")
+        if (
+            license_info.spdx != "CC-BY-4.0"
+            or not license_info.allow_committed_output
+            or license_info.evidence_path != "LICENSE.txt"
+            or license_info.evidence_glob
+            or license_info.evidence_paths
+        ):
+            raise ManifestError(f"{context}: web sources require public CC-BY-4.0 page evidence")
+        pages_raw = item.get("pages")
+        if not isinstance(pages_raw, list) or not pages_raw:
+            raise ManifestError(f"{context}.pages must explicitly enumerate pages")
+        pages: list[WebPage] = []
+        seen_paths: set[str] = set()
+        seen_urls: set[str] = set()
+        try:
+            require_public_url(url)
+            for candidate in pages_raw:
+                page = require_mapping(candidate, f"{context}.pages")
+                path = _text(page, "path", context)
+                page_url = _text(page, "url", context)
+                if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.html", path):
+                    raise ManifestError(f"{context}: page paths must be simple .html filenames")
+                if path in seen_paths or page_url in seen_urls:
+                    raise ManifestError(f"{context}: duplicate page path or URL")
+                require_public_url(page_url)
+                seen_paths.add(path)
+                seen_urls.add(page_url)
+                pages.append(WebPage(path, page_url, _text(page, "selector", context)))
+        except SourceError as exc:
+            raise ManifestError(f"{context}: {exc}") from exc
+        sources[source_id] = WebSource(source_id, url, license_info, tuple(pages))
+    return sources
+
+
+def _packs(data: dict[str, Any], collections: dict[str, Collection]) -> dict[str, tuple[str, ...]]:
+    known = {
+        artifact.name for collection in collections.values() for artifact in collection.artifacts
+    }
+    if data["schema_version"] == 2:
+        return {"legacy": tuple(sorted(known))}
+    raw = require_mapping(data.get("packs"), "packs")
+    if "legacy" not in raw:
+        raise ManifestError("packs must retain the legacy installation selection")
+    packs: dict[str, tuple[str, ...]] = {}
+    for name, members in raw.items():
+        if not isinstance(name, str) or not NAME_RE.fullmatch(name):
+            raise ManifestError(f"Invalid pack name: {name!r}")
+        if (
+            not isinstance(members, list)
+            or not members
+            or not all(isinstance(value, str) and value in known for value in members)
+        ):
+            raise ManifestError(f"packs.{name} must contain known skill names")
+        if len(members) != len(set(members)):
+            raise ManifestError(f"packs.{name} repeats a skill")
+        packs[name] = tuple(members)
+    missing = known - {member for members in packs.values() for member in members}
+    if missing:
+        raise ManifestError(f"Skills missing from packs: {', '.join(sorted(missing))}")
+    return packs
 
 
 def _artifact(raw: object, context: str, seen_names: set[str]) -> Artifact:
@@ -286,13 +375,19 @@ def _collection(
     raw: object,
     repositories: dict[str, Repository],
     seen_names: set[str],
+    web_sources: dict[str, WebSource],
 ) -> Collection:
     context = f"collections.{collection_id}"
     if not NAME_RE.fullmatch(str(collection_id)):
         raise ManifestError(f"{context} has an invalid identifier")
     item = require_mapping(raw, context)
-    repo_id = _text(item, "repository", context)
-    if repo_id not in repositories:
+    if ("repository" in item) == ("web_source" in item):
+        raise ManifestError(f"{context} must name exactly one repository or web_source")
+    web_id = _text(item, "web_source", context) if "web_source" in item else None
+    repo_id = _text(item, "repository", context) if web_id is None else ""
+    if web_id is not None and web_id not in web_sources:
+        raise ManifestError(f"{context} references unknown web source {web_id!r}")
+    if web_id is None and repo_id not in repositories:
         raise ManifestError(f"{context} references unknown repository {repo_id!r}")
     distribution = _text(item, "distribution", context)
     if distribution not in ALLOWED_DISTRIBUTIONS:
@@ -325,7 +420,19 @@ def _collection(
     override_license = (
         _license(override, f"{context}.license_override") if override is not None else None
     )
-    effective_license = override_license or repositories[repo_id].license
+    if web_id is not None and (distribution != "committed" or override is not None):
+        raise ManifestError(
+            f"{context}: web collections require committed output without overrides"
+        )
+    if web_id is not None:
+        pages = {page.path for page in web_sources[web_id].pages}
+        if any(set(artifact.inputs) - pages for artifact in artifacts):
+            raise ManifestError(f"{context}: inputs must be explicitly enumerated web pages")
+    effective_license = (
+        web_sources[web_id].license
+        if web_id is not None
+        else override_license or repositories[repo_id].license
+    )
     if distribution == "committed" and not effective_license.allow_committed_output:
         raise ManifestError(
             f"{context} cannot use committed distribution under its recorded license policy"
@@ -337,15 +444,19 @@ def _collection(
         description=_text(item, "description", context),
         artifacts=artifacts,
         license_override=override_license,
+        web_source=web_id,
     )
 
 
 def _collections(
-    data: dict[str, Any], repositories: dict[str, Repository], seen_names: set[str]
+    data: dict[str, Any],
+    repositories: dict[str, Repository],
+    seen_names: set[str],
+    web_sources: dict[str, WebSource],
 ) -> dict[str, Collection]:
     raw = require_mapping(data.get("collections"), "collections")
     return {
-        str(collection_id): _collection(collection_id, item, repositories, seen_names)
+        str(collection_id): _collection(collection_id, item, repositories, seen_names, web_sources)
         for collection_id, item in raw.items()
     }
 
@@ -445,8 +556,14 @@ def load_manifest(path: Path | None = None) -> Manifest:
     manifest_path = (path or (find_project_root() / "corpus.yaml")).resolve()
     data = _read_manifest(manifest_path)
     schema_version = data.get("schema_version")
-    if schema_version != 2:
+    if (
+        not isinstance(schema_version, int)
+        or isinstance(schema_version, bool)
+        or schema_version not in {2, 3}
+    ):
         raise ManifestError(f"Unsupported schema_version: {schema_version!r}")
+    if schema_version == 2 and any(key in data for key in ("web_sources", "packs")):
+        raise ManifestError("web_sources and packs require schema_version 3")
     generator = require_mapping(data.get("generator"), "generator")
     canonical_python = _text(generator, "python", "generator")
     if not re.fullmatch(r"3\.\d+\.\d+", canonical_python):
@@ -454,8 +571,9 @@ def load_manifest(path: Path | None = None) -> Manifest:
 
     roots = _generated_roots(data)
     repositories = _repositories(data)
+    web_sources = _web_sources(data)
     seen_names: set[str] = set()
-    collections = _collections(data, repositories, seen_names)
+    collections = _collections(data, repositories, seen_names, web_sources)
     return Manifest(
         path=manifest_path,
         schema_version=schema_version,
@@ -465,4 +583,6 @@ def load_manifest(path: Path | None = None) -> Manifest:
         collections=collections,
         catalog_only=_catalog_items(data, seen_names),
         source_path_policies=_source_path_policies(data, repositories),
+        web_sources=web_sources,
+        packs=_packs(data, collections),
     )

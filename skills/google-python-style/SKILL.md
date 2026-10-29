@@ -1,9 +1,7 @@
 ---
 name: google-python-style
 description: >-
-  Use when writing or reviewing Python under Google's conventions for language rules, imports,
-  exceptions, typing, naming, comments, tests, and formatting. Do not use as a Python beginner
-  tutorial.
+  Write and review Python with Google style.
 ---
 
 # Google Python Style Guide

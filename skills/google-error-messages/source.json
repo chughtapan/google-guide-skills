@@ -1,0 +1,183 @@
+{
+  "artifact": "google-error-messages",
+  "collection": "web-error-writing",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Identify the error's cause",
+      "input": "identify-the-cause.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9
+      ],
+      "heading": "Specify requirements and constraints",
+      "input": "specify-requirements.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Explain how to fix the problem",
+      "input": "show-fix.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Link to more detailed documentation",
+      "input": "format-for-readability.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Use progressive disclosure",
+      "input": "format-for-readability.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Place error messages close to the error",
+      "input": "format-for-readability.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Course summary",
+      "input": "summary.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "identify-the-cause.html",
+      "sha256": "bfe7d96257e405212e870b3995663beaa4e67e50332e0994bb00c7a1f00df859"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "specify-requirements.html",
+      "sha256": "7056571b1d922e0dd5cb26ce1ee1b60c9d7284c255355883e8284331e06fba7e"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "show-fix.html",
+      "sha256": "351d9d66fe1298fa25661969e3bafa74e4197326c39a08a17f57f21241e04427"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "format-for-readability.html",
+      "sha256": "0a90e34fc92611cbaba81a505527527d401e611dca505f58e8d2ccf83a3534a0"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "summary.html",
+      "sha256": "f110720e01417f2169d1504ef399164edfaf2801b4eeabb38d0a2f5458e24d16"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "source_adapter": "google-docs",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "web_source": {
+    "id": "error-writing",
+    "pages": [
+      {
+        "license_path": "licenses/identify-the-cause.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "identify-the-cause.html",
+        "resolved_url": "https://developers.google.com/tech-writing/error-messages/identify-the-cause",
+        "selector": "article.devsite-article",
+        "sha256": "bfe7d96257e405212e870b3995663beaa4e67e50332e0994bb00c7a1f00df859",
+        "url": "https://developers.google.com/tech-writing/error-messages/identify-the-cause"
+      },
+      {
+        "license_path": "licenses/specify-requirements.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "specify-requirements.html",
+        "resolved_url": "https://developers.google.com/tech-writing/error-messages/specify-requirements",
+        "selector": "article.devsite-article",
+        "sha256": "7056571b1d922e0dd5cb26ce1ee1b60c9d7284c255355883e8284331e06fba7e",
+        "url": "https://developers.google.com/tech-writing/error-messages/specify-requirements"
+      },
+      {
+        "license_path": "licenses/show-fix.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "show-fix.html",
+        "resolved_url": "https://developers.google.com/tech-writing/error-messages/show-fix",
+        "selector": "article.devsite-article",
+        "sha256": "351d9d66fe1298fa25661969e3bafa74e4197326c39a08a17f57f21241e04427",
+        "url": "https://developers.google.com/tech-writing/error-messages/show-fix"
+      },
+      {
+        "license_path": "licenses/format-for-readability.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "format-for-readability.html",
+        "resolved_url": "https://developers.google.com/tech-writing/error-messages/format-for-readability",
+        "selector": "article.devsite-article",
+        "sha256": "0a90e34fc92611cbaba81a505527527d401e611dca505f58e8d2ccf83a3534a0",
+        "url": "https://developers.google.com/tech-writing/error-messages/format-for-readability"
+      },
+      {
+        "license_path": "licenses/summary.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "summary.html",
+        "resolved_url": "https://developers.google.com/tech-writing/error-messages/summary",
+        "selector": "article.devsite-article",
+        "sha256": "f110720e01417f2169d1504ef399164edfaf2801b4eeabb38d0a2f5458e24d16",
+        "url": "https://developers.google.com/tech-writing/error-messages/summary"
+      }
+    ],
+    "snapshot": "6303a03c1cd6975aa4ad039fd15c40345162fbc743f1802150462a42fe57092f",
+    "url": "https://developers.google.com/tech-writing/error-messages/identify-the-cause"
+  },
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

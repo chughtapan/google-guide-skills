@@ -9,13 +9,18 @@ from .errors import GoogleGuideSkillsError
 from .models import Manifest
 from .path_policy import require_safe_project_path
 from .project_license import wrapper_license_metadata
+from .snapshots import verify_snapshot
 
 
 def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
     """Build catalog records from every generated and catalog-only entry."""
     records: list[dict[str, object]] = []
     for collection, artifact in manifest.artifacts(include_local=True):
-        repository = manifest.repositories[collection.repository]
+        revision = (
+            verify_snapshot(manifest, manifest.web_sources[collection.web_source])[1]["snapshot"]
+            if collection.web_source
+            else manifest.repositories[collection.repository].revision
+        )
         license_info = manifest.license_for(collection)
         output = manifest.root_for(collection.distribution) / artifact.name
         records.append(
@@ -35,8 +40,12 @@ def catalog_records(manifest: Manifest) -> list[dict[str, object]]:
                 "supplemental_licenses": [
                     supplemental.to_dict() for supplemental in artifact.supplemental_licenses
                 ],
-                "source": repository.url,
-                "revision": repository.revision,
+                "source": manifest.source_url(collection),
+                "revision": revision,
+                "packs": [
+                    name for name, members in manifest.packs.items() if artifact.name in members
+                ],
+                "code_samples_license": license_info.code_samples_spdx,
             }
         )
     for item in manifest.catalog_only:
@@ -90,6 +99,8 @@ def render_catalog_markdown(records: list[dict[str, object]]) -> str:
         license_label = " + ".join([str(record["license"]), *additional_spdx])
         if record.get("wrapper_license") and record["license"] != "Apache-2.0":
             license_label += " + Apache-2.0 (wrapper)"
+        if record.get("code_samples_license"):
+            license_label += f" + {record['code_samples_license']} (code samples)"
         lines.append(
             f"| {label} | {description} | {record['distribution']} | {license_label} | "
             f"{tags} | "

@@ -41,8 +41,8 @@ def metadata_budget(
     skill_dirs: list[Path], *, install_root: str = REFERENCE_INSTALL_ROOT
 ) -> dict[str, object]:
     """Measure startup metadata using a stable documented Codex list rendering."""
-    encoding = tiktoken.get_encoding("o200k_base")
     records: list[tuple[str, str]] = []
+    display_names: dict[str, str] = {}
     for skill_dir in sorted(skill_dirs):
         text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
         metadata = yaml.safe_load(_metadata_text(text))
@@ -51,9 +51,23 @@ def metadata_budget(
         name = metadata.get("name")
         description = metadata.get("description")
         if isinstance(name, str) and isinstance(description, str):
-            records.append((name, " ".join(description.split())))
+            records.append((skill_dir.name, " ".join(description.split())))
+            display_names[skill_dir.name] = name
+    return metadata_budget_records(records, install_root=install_root, display_names=display_names)
+
+
+def metadata_budget_records(
+    records: list[tuple[str, str]],
+    *,
+    install_root: str = REFERENCE_INSTALL_ROOT,
+    display_names: dict[str, str] | None = None,
+) -> dict[str, object]:
+    """Measure directory-name records, with optional metadata names for aliases."""
+    encoding = tiktoken.get_encoding("o200k_base")
+    names = display_names or {}
+    records = sorted((name, " ".join(description.split())) for name, description in records)
     rendered = "".join(
-        f"- {name}: {description} (file: {install_root}/{name}/SKILL.md)\n"
+        f"- {names.get(name, name)}: {description} (file: {install_root}/{name}/SKILL.md)\n"
         for name, description in records
     )
     path_independent_chars = len(rendered) - len(records) * len(install_root)
@@ -73,6 +87,18 @@ def metadata_budget(
         "maximum_install_root_chars": maximum_root_chars,
         "codex_fallback_limit_chars": CODEX_FALLBACK_METADATA_CHARS,
         "headroom_chars": CODEX_FALLBACK_METADATA_CHARS - len(rendered),
+    }
+
+
+def pack_metadata_budgets(manifest: Manifest) -> dict[str, dict[str, object]]:
+    """Measure declared packs, including local members that have not been generated."""
+    artifacts = {artifact.name: artifact for _, artifact in manifest.artifacts(include_local=True)}
+    packs = manifest.packs or {"legacy": tuple(artifacts)}
+    return {
+        name: metadata_budget_records(
+            [(member, artifacts[member].description) for member in members]
+        )
+        for name, members in packs.items()
     }
 
 
@@ -150,6 +176,7 @@ def collect_metrics(manifest: Manifest, include_local: bool = False) -> dict[str
             "tokens_o200k_base": sum(int(record["tokens_o200k_base"]) for record in files),
         },
         "metadata_budget": metadata_budget(measured_skill_dirs),
+        "pack_metadata_budgets": pack_metadata_budgets(manifest),
         "skills": skills,
         "files": files,
     }

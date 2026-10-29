@@ -18,13 +18,23 @@ def fake_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleName
     local = SimpleNamespace(distribution="local-only")
 
     def artifacts(include_local: bool) -> list[tuple[SimpleNamespace, SimpleNamespace]]:
-        values = [(committed, SimpleNamespace(name="public-guide"))]
+        values = [
+            (committed, SimpleNamespace(name="public-guide", description="Use the public guide."))
+        ]
         if include_local:
-            values.append((local, SimpleNamespace(name="restricted-guide")))
+            values.append(
+                (
+                    local,
+                    SimpleNamespace(
+                        name="restricted-guide", description="Use the restricted guide."
+                    ),
+                )
+            )
         return values
 
     value = SimpleNamespace(
         project_root=tmp_path,
+        packs={"legacy": ("public-guide", "restricted-guide")},
         collections={cli.SWE_BOOK_COLLECTION_ID: local},
         artifacts=artifacts,
         license_for=lambda _collection: SimpleNamespace(
@@ -35,6 +45,7 @@ def fake_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleName
         ),
     )
     monkeypatch.setattr(cli, "_manifest", lambda _path: value)
+    monkeypatch.setattr(cli, "preflight_install_budget", lambda *_args, **_kwargs: None)
     return value
 
 
@@ -349,7 +360,9 @@ def test_selected_swe_book_install_builds_collection_and_links_selection(
     linked: list[str] = []
 
     def artifacts(include_local: bool) -> list[tuple[SimpleNamespace, SimpleNamespace]]:
-        values = [(committed, SimpleNamespace(name="public-guide"))]
+        values = [
+            (committed, SimpleNamespace(name="public-guide", description="Use the public guide."))
+        ]
         if include_local:
             values.extend((local, SimpleNamespace(name=name)) for name in sorted(local_names))
         return values

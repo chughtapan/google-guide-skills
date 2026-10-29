@@ -1,9 +1,7 @@
 ---
 name: google-common-lisp-style
 description: >-
-  Use when writing or reviewing Common Lisp under Google's naming, formatting, documentation,
-  macro, error-handling, and language-usage conventions. Do not use for other Lisp dialects
-  without checking compatibility.
+  Write and review Common Lisp with Google style.
 ---
 
 # Google Common Lisp Style Guide

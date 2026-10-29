@@ -1,0 +1,154 @@
+{
+  "artifact": "google-incident-response",
+  "collection": "secure-reliable",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Disaster Risk Analysis",
+      "input": "raw/ch16.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Identify Team Members and Roles",
+      "input": "raw/ch16.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Develop Response Plans",
+      "input": "raw/ch16.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Testing Systems and Response Plans",
+      "input": "raw/ch16.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Triaging the Incident",
+      "input": "raw/ch17.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Beginning Your Response",
+      "input": "raw/ch17.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Handovers",
+      "input": "raw/ch17.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Planning the Recovery",
+      "input": "raw/ch18.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Recovery Checklists",
+      "input": "raw/ch18.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Postmortems",
+      "input": "raw/ch18.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch16.html",
+      "sha256": "289a50179d841c326291259c6dbcc7aca3a71340d0969f6358b10e5da3d394c9"
+    },
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch17.html",
+      "sha256": "40084d0bb972f67ad8e0948543f38ecaea1887ea53578dcb76ffe675c6a8b832"
+    },
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch18.html",
+      "sha256": "e396dbe1dd551bb59eb5a23c7c764384540b405b55ce437d963c0cb0755c3de3"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Building Secure and Reliable Systems authors",
+    "audited": "2026-10-28",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "secure-reliable",
+    "revision": "2a2ae3e0d4dbd288f9862ed47194f5b1b1ed7c3c",
+    "url": "https://github.com/google/building-secure-and-reliable-systems.git"
+  },
+  "source_adapter": "html-book",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

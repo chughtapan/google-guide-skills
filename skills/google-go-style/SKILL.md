@@ -1,9 +1,7 @@
 ---
 name: google-go-style
 description: >-
-  Use when writing or reviewing Go code under Google's style decisions and best practices,
-  including naming, APIs, errors, documentation, tests, and maintainability. Do not use as a
-  replacement for the Go language specification.
+  Write and review Go with Google style.
 ---
 
 # Google Go Style Guide

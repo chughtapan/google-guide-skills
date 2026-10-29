@@ -1,9 +1,7 @@
 ---
 name: google-csharp-style
 description: >-
-  Use when writing or reviewing C# under Google's conventions for naming, formatting, language
-  features, and source organization. Do not use for unrelated .NET architecture or framework
-  selection.
+  Write and review C# with Google style.
 ---
 
 # C# at Google Style Guide

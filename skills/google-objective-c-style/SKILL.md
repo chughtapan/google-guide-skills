@@ -1,9 +1,7 @@
 ---
 name: google-objective-c-style
 description: >-
-  Use when writing or reviewing Objective-C and Objective-C++ under Google's naming, formatting,
-  Cocoa-pattern, memory-management, and documentation conventions. Do not use as a Swift style
-  guide.
+  Write and review Objective-C with Google style.
 ---
 
 # Google Objective-C Style Guide

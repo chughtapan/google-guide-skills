@@ -1,0 +1,55 @@
+{
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_sha256": "c0b5d0d36df0aa3302533cbc4f732256fd63304da6cbd1f19dfd53a796c615c6",
+  "pages": [
+    {
+      "license_path": "licenses/one-audience.txt",
+      "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+      "path": "one-audience.html",
+      "resolved_url": "https://developers.google.com/tech-writing/one/audience",
+      "selector": "article.devsite-article",
+      "sha256": "4ec9368b170c33d1d776e27c30c24d1371f88774974dedcbe088617d2600c37f",
+      "url": "https://developers.google.com/tech-writing/one/audience"
+    },
+    {
+      "license_path": "licenses/one-documents.txt",
+      "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+      "path": "one-documents.html",
+      "resolved_url": "https://developers.google.com/tech-writing/one/documents",
+      "selector": "article.devsite-article",
+      "sha256": "8c81a898e6ff68a62f141bf92d2fa35c1d193c2ff838588c27eb3d09b59cb894",
+      "url": "https://developers.google.com/tech-writing/one/documents"
+    },
+    {
+      "license_path": "licenses/two-editing.txt",
+      "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+      "path": "two-editing.html",
+      "resolved_url": "https://developers.google.com/tech-writing/two/editing",
+      "selector": "article.devsite-article",
+      "sha256": "92eaa51ff2a7cbd7bd4f4dbae35a4fe62705d91da7a2f64f025b4771b3bf768e",
+      "url": "https://developers.google.com/tech-writing/two/editing"
+    },
+    {
+      "license_path": "licenses/two-sample-code.txt",
+      "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+      "path": "two-sample-code.html",
+      "resolved_url": "https://developers.google.com/tech-writing/two/sample-code",
+      "selector": "article.devsite-article",
+      "sha256": "fe7c28836b136b81de3b1cf403132c392470c1b4ac744a8115bb7c1370c0f310",
+      "url": "https://developers.google.com/tech-writing/two/sample-code"
+    }
+  ],
+  "schema_version": 1,
+  "snapshot": "65bf1c695e30d4f7fa957a6c6cbba7dbd9b302a90b0a52509ad93863273d0fda",
+  "source": "writing",
+  "url": "https://developers.google.com/tech-writing/one/audience"
+}

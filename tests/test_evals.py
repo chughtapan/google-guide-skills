@@ -1848,6 +1848,7 @@ def test_live_evaluation_uses_canned_trace_and_removes_raw_workspace(
         agent: str,
         profile: str,
         _case_value: EvalCase,
+        packs: tuple[str, ...] = (),
     ) -> dict[str, object]:
         assert workspace.name == "w"
         assert agent == "codex"

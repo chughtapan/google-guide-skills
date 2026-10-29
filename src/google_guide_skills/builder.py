@@ -28,7 +28,7 @@ from .errors import BuildError
 from .git_safe import command as git_command
 from .git_safe import environment as git_environment
 from .git_safe import git_dir_is_safe, repository_config_problem
-from .models import Artifact, BuiltSkill, Collection, LicenseInfo, Manifest, Repository
+from .models import Artifact, BuiltSkill, Collection, LicenseInfo, Manifest, Repository, WebSource
 from .path_policy import require_safe_project_path
 from .project_license import (
     PROJECT_LICENSE_SHA256,
@@ -36,6 +36,7 @@ from .project_license import (
     verified_project_license,
     wrapper_license_metadata,
 )
+from .snapshots import verify_snapshot
 from .sources import checkout_path, sync
 
 GLOB_CHARS = frozenset("*?[")
@@ -55,11 +56,13 @@ MANDATORY_SOURCE_PATH_RULES = {
 @dataclass(frozen=True)
 class _PreparedSources:
     running_python: str
-    repository: Repository
+    repository: Repository | None
     checkout: Path
     inputs: tuple[Path, ...]
     license_info: LicenseInfo
     matched_path_policies: tuple[dict[str, str], ...]
+    web_source: WebSource | None = None
+    web_lock: dict[str, object] | None = None
 
 
 @dataclass(frozen=True)
@@ -239,6 +242,17 @@ def _license_notice(license_info: LicenseInfo, checkout: Path) -> str:
     ]
     if license_info.warning:
         header.extend(["", f"WARNING: {license_info.warning}"])
+    if license_info.code_samples_spdx:
+        header.append(f"Code samples: {license_info.code_samples_spdx} (separate from prose)")
+    for relative in license_info.evidence_paths:
+        evidence = _evidence_file(checkout / relative, checkout, "license notice")
+        header.extend(
+            [
+                "",
+                f"Additional license evidence: {relative}",
+                evidence.read_text(encoding="utf-8").rstrip(),
+            ]
+        )
     if license_info.evidence_path:
         evidence = _evidence_file(checkout / license_info.evidence_path, checkout, "license notice")
         header.extend(
@@ -300,6 +314,18 @@ def verify_license_evidence(
                     f"{collection.id}: {len(missing)} files lost the required license notice: "
                     f"{preview}"
                 )
+    evidence_text = ""
+    for relative in (
+        *license_info.evidence_paths,
+        *((license_info.evidence_path,) if license_info.evidence_path else ()),
+    ):
+        evidence = _evidence_file(checkout / relative, checkout, collection.id)
+        _assert_matches_revision(evidence, checkout, revision, collection.id)
+        evidence_text += evidence.read_text(encoding="utf-8") + "\n"
+    if license_info.code_samples_spdx and not re.search(
+        r"code samples are licensed\s+under.*Apache", evidence_text, re.IGNORECASE
+    ):
+        raise BuildError(f"{collection.id}: source code-sample license evidence disappeared")
     return license_info
 
 
@@ -609,7 +635,11 @@ def _display_heading(value: str) -> str:
 
 
 def _selected_excerpts(
-    artifact: Artifact, inputs: tuple[Path, ...], checkout: Path
+    artifact: Artifact,
+    inputs: tuple[Path, ...],
+    checkout: Path,
+    adapter: str = "default",
+    selectors: dict[str, str] | None = None,
 ) -> tuple[list[_SelectedExcerpt], dict[str, str]]:
     """Convert source files and resolve manifest-declared excerpt selectors."""
     input_paths = {path.relative_to(checkout).as_posix(): path for path in inputs}
@@ -622,7 +652,9 @@ def _selected_excerpts(
         if source_path is None:
             raise BuildError(f"{artifact.name}: excerpt input was not expanded: {selector.input}")
         if selector.input not in converted:
-            converted[selector.input], conversions[selector.input] = source_to_markdown(source_path)
+            converted[selector.input], conversions[selector.input] = source_to_markdown(
+                source_path, adapter=adapter, selector=(selectors or {}).get(selector.input)
+            )
             reference_links[selector.input] = _reference_links(converted[selector.input])
         source_title, section_heading, available = _section_blocks(
             converted[selector.input], selector.heading, selector.input
@@ -648,6 +680,13 @@ def _selected_excerpts(
             raise BuildError(
                 f"{selector.input}: heading {selector.heading!r} selected no usable content"
             )
+        if adapter != "default" and any(
+            re.search(r"\{\{[<%]", segment)
+            for block in blocks
+            for is_code, segment in markdown_fenced_segments(block)
+            if not is_code
+        ):
+            raise BuildError(f"{selector.input}: unsupported template in selected content")
         sections.append(
             _SelectedExcerpt(
                 source_title=_display_heading(source_title),
@@ -658,7 +697,9 @@ def _selected_excerpts(
     return sections, conversions
 
 
-def _render_excerpts(artifact: Artifact, sections: list[_SelectedExcerpt]) -> str:
+def _render_excerpts(
+    artifact: Artifact, sections: list[_SelectedExcerpt], *, separate_blocks: bool = False
+) -> str:
     """Render selected source blocks as one self-contained skill."""
     lines = [
         _frontmatter(artifact.name, artifact.description).rstrip(),
@@ -680,7 +721,10 @@ def _render_excerpts(artifact: Artifact, sections: list[_SelectedExcerpt]) -> st
             if lines[-1]:
                 lines.append("")
             lines.extend([f"{level} {section.heading}", ""])
-        lines.extend([*section.blocks, ""])
+        if separate_blocks:
+            lines.extend(["\n\n".join(section.blocks), ""])
+        else:
+            lines.extend([*section.blocks, ""])
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -782,6 +826,14 @@ def _prepare_sources(
     artifact: Artifact,
     running_python: str,
 ) -> _PreparedSources:
+    if collection.web_source:
+        source = manifest.web_sources[collection.web_source]
+        checkout, lock = verify_snapshot(manifest, source)
+        inputs = tuple(_expand_inputs(checkout, artifact))
+        policies = _enforce_source_path_policies(manifest, collection, list(inputs), checkout)
+        return _PreparedSources(
+            running_python, None, checkout, inputs, source.license, tuple(policies), source, lock
+        )
     repository, checkout = _verified_checkout(manifest, collection)
     license_info = verify_license_evidence(manifest, collection, checkout)
     inputs = _expand_inputs(checkout, artifact)
@@ -859,7 +911,7 @@ def _source_metadata(
     prepared: _PreparedSources,
     provenance_inputs: list[dict[str, str]],
 ) -> dict[str, object]:
-    return {
+    metadata = {
         "artifact": artifact.name,
         "collection": collection.id,
         "distribution": collection.distribution,
@@ -879,13 +931,25 @@ def _source_metadata(
         "supplemental_licenses": [
             supplemental.to_dict() for supplemental in artifact.supplemental_licenses
         ],
-        "repository": {
+        "source_path_policies": list(prepared.matched_path_policies),
+    }
+    if prepared.repository is not None:
+        metadata["repository"] = {
             "id": prepared.repository.id,
             "url": prepared.repository.url,
             "revision": prepared.repository.revision,
-        },
-        "source_path_policies": list(prepared.matched_path_policies),
-    }
+        }
+        if prepared.repository.adapter != "default":
+            metadata["source_adapter"] = prepared.repository.adapter
+    elif prepared.web_source is not None and prepared.web_lock is not None:
+        metadata["web_source"] = {
+            "id": prepared.web_source.id,
+            "url": prepared.web_source.url,
+            "snapshot": prepared.web_lock["snapshot"],
+            "pages": prepared.web_lock["pages"],
+        }
+        metadata["source_adapter"] = "google-docs"
+    return metadata
 
 
 def _stage_skill(
@@ -896,8 +960,16 @@ def _stage_skill(
     staged: Path,
 ) -> list[dict[str, str]]:
     staged.mkdir(parents=True)
-    sections, conversions = _selected_excerpts(artifact, prepared.inputs, prepared.checkout)
-    skill_text = _render_excerpts(artifact, sections)
+    adapter = prepared.repository.adapter if prepared.repository else "google-docs"
+    selectors = (
+        {page.path: page.selector for page in prepared.web_source.pages}
+        if prepared.web_source
+        else None
+    )
+    sections, conversions = _selected_excerpts(
+        artifact, prepared.inputs, prepared.checkout, adapter, selectors
+    )
+    skill_text = _render_excerpts(artifact, sections, separate_blocks=adapter != "default")
     provenance_inputs = _input_provenance(prepared.inputs, prepared.checkout, conversions)
     (staged / "SKILL.md").write_text(skill_text, encoding="utf-8")
     _write_licenses(
@@ -1033,8 +1105,11 @@ def build(
     selected_artifacts = _selected_artifacts(manifest, artifact_names)
     build_pairs = _build_pairs(manifest, selected_collections, selected_artifacts, include_local)
     if sync_first:
-        repository_ids = list(dict.fromkeys(pair[0].repository for pair in build_pairs))
-        sync(manifest, repository_ids)
+        repository_ids = list(
+            dict.fromkeys(pair[0].repository for pair in build_pairs if pair[0].repository)
+        )
+        if repository_ids:
+            sync(manifest, repository_ids)
 
     results = [build_skill(manifest, collection, artifact) for collection, artifact in build_pairs]
     if not artifact_names:

@@ -49,7 +49,7 @@ CHATGPT_MODEL = "gpt-5.6-luna"
 OPENCLAW_PROVIDER_INSTALL_TIMEOUT = 600
 # Bubblewrap is the filesystem boundary; a nested Codex sandbox cannot read the `/w` bind.
 CODEX_SANDBOX_MODE = "danger-full-access"
-SUPPORTED_PROFILES = ("single", "all")
+SUPPORTED_PROFILES = ("single", "all", "pack")
 SUPPORTED_STAGES = (
     "controls",
     "smoke",
@@ -433,6 +433,7 @@ class _EvaluationSettings:
     dry_run: bool
     keep_raw: bool
     results_root: Path | None
+    packs: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1487,7 +1488,15 @@ def _prepare_workspace(path: Path) -> None:
         raise EvaluationError(f"Could not initialize evaluation workspace: {completed.stderr}")
 
 
-def _profile_selection(manifest: Manifest, profile: str, case: EvalCase) -> list[str] | None:
+def _profile_selection(
+    manifest: Manifest, profile: str, case: EvalCase, packs: tuple[str, ...] = ()
+) -> list[str] | None:
+    if profile == "pack":
+        from .packs import select_skills
+
+        if not packs:
+            raise EvaluationError("The pack profile requires --pack")
+        return select_skills(manifest, packs=list(packs))
     if profile == "single":
         selected = list(case.candidate_skills)
         if not selected:
@@ -1571,6 +1580,7 @@ def _install_profile(
     agent: str,
     profile: str,
     case: EvalCase,
+    packs: tuple[str, ...] = (),
 ) -> dict[str, object]:
     if profile == "baseline":
         return {
@@ -1580,7 +1590,7 @@ def _install_profile(
             "installed_skill_sha256": {},
             "installed_pack_sha256": _canonical_digest({}),
         }
-    selected = _profile_selection(manifest, profile, case)
+    selected = _profile_selection(manifest, profile, case, packs)
     expected = _committed_skill_inventory(manifest) if selected is None else set(selected)
     install_root = project / AGENT_SKILL_ROOTS[agent]
     install_root.mkdir(mode=0o700, parents=True)
@@ -1618,7 +1628,7 @@ def _routing_groups(
         "direct": [
             record
             for record in completed
-            if record.get("stage") == "smoke" and record.get("profile") == "all"
+            if record.get("stage") == "smoke" and record.get("profile") in {"all", "pack"}
         ],
     }
 
@@ -1778,6 +1788,16 @@ def _validate_evaluation_request(
         raise EvaluationError(f"Agents must be selected from {SUPPORTED_AGENTS}")
     if settings.profile not in SUPPORTED_PROFILES:
         raise EvaluationError(f"Profile must be selected from {SUPPORTED_PROFILES}")
+    if bool(settings.packs) != (settings.profile == "pack"):
+        raise EvaluationError("Use --pack with --profile pack")
+    if settings.packs:
+        from .packs import select_skills
+
+        selected = set(select_skills(manifest, packs=list(settings.packs)))
+        if not selected <= _committed_skill_inventory(manifest) and not settings.dry_run:
+            raise EvaluationError("Live pack evaluation supports public skills only")
+        if any(not set(case.candidate_skills) <= selected for case in cases):
+            raise EvaluationError("Evaluation cases name skills outside the selected packs")
     if settings.repeat < 1:
         raise EvaluationError("Repeat must be positive")
     if settings.timeout < 1:
@@ -1877,7 +1897,7 @@ def _case_expectations(
     if profile == "baseline":
         return (), case.candidate_skills
     expected, forbidden = case.expected_skills, case.forbidden_skills
-    if profile == "all" and case.stage == "smoke":
+    if profile in {"all", "pack"} and case.stage == "smoke":
         # Direct smoke prompts are exact-routing probes. Any unrelated load is a miss.
         forbidden = tuple(sorted(known_skills - set(expected)))
     return expected, forbidden
@@ -1895,6 +1915,7 @@ def _base_record(
         "id": f"{agent}-{profile}-{case.id}-{run_number}",
         "agent": agent,
         "profile": profile,
+        "packs": list(context.settings.packs),
         "case_id": case.id,
         "stage": case.stage,
         "split": case.split,
@@ -2025,6 +2046,7 @@ def _execute_record(
                 agent,
                 profile,
                 case,
+                context.settings.packs,
             )
             invocation = _run_agent(
                 agent,
@@ -2070,6 +2092,7 @@ def _evaluation_report(
         "dry_run": settings.dry_run,
         "agents": list(settings.agents),
         "profile": settings.profile,
+        "packs": list(settings.packs),
         "repeat": settings.repeat,
         "execution_plan": {
             "processes": profile_runs * len(settings.agents),
@@ -2110,6 +2133,7 @@ def run_evaluation(
     dry_run: bool = False,
     keep_raw: bool = False,
     results_root: Path | None = None,
+    packs: list[str] | None = None,
 ) -> tuple[dict[str, object], Path]:
     """Run each case in a new project and each agent in a fresh process/home."""
     settings = _EvaluationSettings(
@@ -2123,6 +2147,7 @@ def run_evaluation(
         dry_run=dry_run,
         keep_raw=keep_raw,
         results_root=results_root,
+        packs=tuple(packs or []),
     )
     _validate_evaluation_request(manifest, cases, settings)
     corpus_identity = _corpus_identity(manifest, cases)

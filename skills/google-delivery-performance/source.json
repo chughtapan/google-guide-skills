@@ -1,0 +1,111 @@
+{
+  "artifact": "google-delivery-performance",
+  "collection": "dora",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        3,
+        4
+      ],
+      "heading": "DORA’s software delivery performance metrics",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Throughput and instability",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Throughput",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Instability",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Key insights",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Common pitfalls",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Next steps",
+      "input": "hugo/content/guides/dora-metrics/_index.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.3.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "dora-markdown",
+      "path": "hugo/content/guides/dora-metrics/_index.md",
+      "sha256": "ab1d8d1686d1b8ca7673e953bb1971e7e31f96a872e6c179aed0a4a264ea87ad"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the DORA contributors",
+    "audited": "2026-10-28",
+    "evidence_path": "CC-BY-4.0",
+    "evidence_paths": [
+      "README.md"
+    ],
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "dora",
+    "revision": "b14ae080c350ca7ff449889621a970e959203bd5",
+    "url": "https://github.com/dora-team/dora.dev.git"
+  },
+  "source_adapter": "dora",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}
