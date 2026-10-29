@@ -1,0 +1,157 @@
+{
+  "artifact": "google-api-resource-design",
+  "collection": "aip",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0121.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Resources",
+      "input": "aip/general/0121.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        4,
+        5,
+        6,
+        7
+      ],
+      "heading": "Methods",
+      "input": "aip/general/0121.md"
+    },
+    {
+      "blocks": [
+        0,
+        3
+      ],
+      "heading": "Strong Consistency",
+      "input": "aip/general/0121.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0122.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Collection identifiers",
+      "input": "aip/general/0122.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Resource ID segments",
+      "input": "aip/general/0122.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0124.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Resources",
+      "input": "aip/general/0128.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0156.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0121.md",
+      "sha256": "118217a474dabd41105a4d8d7d271f878c8a4e3a6e09013e196c781f155241fd"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0122.md",
+      "sha256": "6f744a0878e83fb5ba0561ecd8131d53e7df40f637ff3448df538f98922ac59e"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0124.md",
+      "sha256": "fce7498e5cf864289380ddfc928f111be664518568f80287ed1c220d32bf70f4"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0128.md",
+      "sha256": "c3318a3870d7f5f6b874293d40bb453716af06852f10c06a8147bd5d586118ea"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0156.md",
+      "sha256": "92e92510cff7dfdf705803d03fd18da9b6378724aedd6361dfd18552349ca199"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the API Improvement Proposals contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.md",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "aip",
+    "revision": "2ccc61a4e09882bdd63aea1a42dceebc37bf3bd5",
+    "url": "https://github.com/aip-dev/google.aip.dev.git"
+  },
+  "source_adapter": "aip",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

@@ -25,6 +25,7 @@ from .installer import (
     InstallLinkAction,
     install,
     install_links,
+    preflight_install_budget,
     require_swe_book_license_acceptance,
     selected_install_skills,
     swe_book_license_notice,
@@ -32,6 +33,8 @@ from .installer import (
 from .manifest import find_project_root, load_manifest
 from .metrics import write_metrics
 from .models import Manifest, ValidationIssue
+from .packs import select_skills
+from .snapshots import refresh_snapshot
 from .sources import sync
 from .validation import has_errors, validate
 
@@ -53,6 +56,9 @@ def _parser() -> argparse.ArgumentParser:
     sync_parser = subparsers.add_parser("sync", help="Clone and checkout pinned repositories")
     sync_parser.add_argument("--repository", action="append", dest="repositories")
 
+    snapshot_parser = subparsers.add_parser("snapshot", help="Capture and lock public HTML pages")
+    snapshot_parser.add_argument("--source", required=True)
+
     build_parser = subparsers.add_parser("build", help="Build generated skills")
     build_parser.add_argument("--collection", action="append", dest="collections")
     build_parser.add_argument("--skill", action="append", dest="skills")
@@ -73,6 +79,7 @@ def _parser() -> argparse.ArgumentParser:
     install_parser.add_argument("--project", type=Path)
     install_parser.add_argument("--agent", action="append", choices=DEFAULT_AGENTS)
     install_parser.add_argument("--skill", action="append", dest="skills")
+    install_parser.add_argument("--pack", action="append", dest="packs")
     install_parser.add_argument("--copy", action="store_true")
     install_parser.add_argument(
         "--accept-swe-book-license",
@@ -88,7 +95,8 @@ def _parser() -> argparse.ArgumentParser:
     for mode in ("triggers", "quality"):
         mode_parser = eval_subparsers.add_parser(mode)
         mode_parser.add_argument("--agent", action="append", choices=SUPPORTED_AGENTS)
-        mode_parser.add_argument("--profile", choices=SUPPORTED_PROFILES, default="all")
+        mode_parser.add_argument("--profile", choices=SUPPORTED_PROFILES)
+        mode_parser.add_argument("--pack", action="append", dest="packs")
         mode_parser.add_argument(
             "--stage", action="append", dest="stages", choices=SUPPORTED_STAGES
         )
@@ -142,6 +150,11 @@ def _print_validation(issues: list[ValidationIssue], as_json: bool = False) -> N
 def _run_sync(args: argparse.Namespace, manifest: Manifest) -> int:
     for path in sync(manifest, args.repositories):
         print(path.relative_to(manifest.project_root))
+    return 0
+
+
+def _run_snapshot(args: argparse.Namespace, manifest: Manifest) -> int:
+    print(refresh_snapshot(manifest, args.source).relative_to(manifest.project_root))
     return 0
 
 
@@ -224,12 +237,14 @@ def _run_install(args: argparse.Namespace, manifest: Manifest) -> int:
     committed_skills, local_skills = selected_install_skills(
         manifest,
         args.skills,
+        args.packs,
     )
     project = args.project
     if project is not None and not project.is_dir():
         raise GoogleGuideSkillsError(f"Install project does not exist: {project}")
     if project is None and args.copy:
         raise GoogleGuideSkillsError("User installation uses symlinks; --copy requires --project")
+    preflight_install_budget(manifest, agents, committed_skills + local_skills, project=project)
     _prepare_swe_book_install(args, manifest, local_skills)
     _validate_install(
         manifest,
@@ -291,8 +306,14 @@ def _print_evaluation_plan(
 def _run_eval(args: argparse.Namespace, manifest: Manifest) -> int:
     agents = args.agent or list(SUPPORTED_AGENTS)
     stages = args.stages or (["smoke"] if args.eval_mode == "triggers" else ["representative"])
+    available_cases = load_cases(manifest)
+    if args.packs:
+        members = set(select_skills(manifest, packs=args.packs))
+        available_cases = [
+            case for case in available_cases if set(case.candidate_skills) <= members
+        ]
     cases = select_cases(
-        load_cases(manifest),
+        available_cases,
         stages=stages,
         splits=args.splits,
         case_ids=args.case_ids,
@@ -305,7 +326,8 @@ def _run_eval(args: argparse.Namespace, manifest: Manifest) -> int:
         cases,
         mode=args.eval_mode,
         agents=agents,
-        profile=args.profile,
+        profile=args.profile or ("pack" if args.packs else "all"),
+        packs=args.packs,
         repeat=args.repeat,
         include_local=args.include_local,
         timeout=args.timeout,
@@ -339,6 +361,7 @@ def _run_all(args: argparse.Namespace, manifest: Manifest) -> int:
 
 
 COMMAND_HANDLERS = {
+    "snapshot": _run_snapshot,
     "sync": _run_sync,
     "build": _run_build,
     "catalog": _run_catalog,

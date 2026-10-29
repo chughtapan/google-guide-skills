@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "google-guide-skills"
-version = "0.3.0.0"
+version = "0.4.0.0"
 description = "Give coding agents Google's guidance for readable, maintainable software."
 readme = "README.md"
 license = "Apache-2.0"
@@ -25,6 +25,7 @@ dependencies = [
   "lxml>=6.0.0,<7",
   "markdownify>=1.2.0,<2",
   "PyYAML>=6.0.2,<7",
+  "soupsieve>=2.9.2,<3",
   "tiktoken>=0.11.0,<1",
 ]
 
@@ -53,6 +54,7 @@ exclude = [
   "/evals/results",
   "/reports/runs",
   "/skills",
+  "/sources",
 ]
 
 [tool.pytest.ini_options]

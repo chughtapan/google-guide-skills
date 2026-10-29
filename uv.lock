@@ -301,13 +301,14 @@ toml = [
 
 [[package]]
 name = "google-guide-skills"
-version = "0.3.0.0"
+version = "0.4.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "lxml" },
     { name = "markdownify" },
     { name = "pyyaml" },
+    { name = "soupsieve" },
     { name = "tiktoken" },
 ]
 
@@ -324,6 +325,7 @@ requires-dist = [
     { name = "lxml", specifier = ">=6.0.0,<7" },
     { name = "markdownify", specifier = ">=1.2.0,<2" },
     { name = "pyyaml", specifier = ">=6.0.2,<7" },
+    { name = "soupsieve", specifier = ">=2.9.2,<3" },
     { name = "tiktoken", specifier = ">=0.11.0,<1" },
 ]
 

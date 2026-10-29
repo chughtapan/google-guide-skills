@@ -11,13 +11,19 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+import yaml
+
 from .errors import GoogleGuideSkillsError
+from .metrics import CODEX_FALLBACK_METADATA_CHARS, metadata_budget_records
 from .models import Manifest
+from .packs import select_skills
 from .path_policy import checked_tree_hashes, require_safe_project_path
+from .strict_yaml import strict_safe_load
 
 DEFAULT_AGENTS = ("codex", "claude-code")
 SKILLS_CLI_PACKAGE = "skills@1.5.23"
 INSTALL_TIMEOUT_SECONDS = 300
+MAX_EXISTING_SKILL_ENTRIES = 10_000
 SWE_BOOK_COLLECTION_ID = "software-engineering-at-google"
 PROJECT_SKILL_ROOTS = {
     "codex": Path(".agents/skills"),
@@ -111,19 +117,93 @@ def _install_skill_root(
 def selected_install_skills(
     manifest: Manifest,
     skills: list[str] | None,
+    packs: list[str] | None = None,
 ) -> tuple[list[str], list[str]]:
     """Return selected committed and local-only skill names."""
     distributions = {
         artifact.name: collection.distribution
         for collection, artifact in manifest.artifacts(include_local=True)
     }
-    requested = set(skills) if skills is not None else set(distributions)
-    unknown = sorted(requested - set(distributions))
-    if unknown:
-        raise GoogleGuideSkillsError("Unknown skills: " + ", ".join(unknown))
+    requested = set(select_skills(manifest, skills, packs))
     committed = sorted(name for name in requested if distributions[name] == "committed")
     local = sorted(name for name in requested if distributions[name] == "local-only")
     return committed, local
+
+
+def _existing_skill_files(root: Path, replaced: set[str]) -> list[Path]:
+    """Find nested skills through directory links without following cycles."""
+    if not root.exists() and not root.is_symlink():
+        return []
+    pending: list[tuple[Path, frozenset[Path]]] = [(root, frozenset())]
+    files: list[Path] = []
+    entries = 0
+    try:
+        while pending:
+            directory, ancestors = pending.pop()
+            canonical = directory.resolve(strict=True)
+            if canonical in ancestors:
+                continue
+            ancestors = ancestors | {canonical}
+            for path in directory.iterdir():
+                entries += 1
+                if entries > MAX_EXISTING_SKILL_ENTRIES:
+                    raise GoogleGuideSkillsError(
+                        f"Cannot budget installed skills at {root}: "
+                        f"scan exceeds {MAX_EXISTING_SKILL_ENTRIES} entries"
+                    )
+                if path.name.startswith(".") or (directory == root and path.name in replaced):
+                    continue
+                if path.name == "SKILL.md" and path.is_file():
+                    files.append(path)
+                elif path.is_dir():
+                    pending.append((path, ancestors))
+    except (OSError, RuntimeError) as exc:
+        raise GoogleGuideSkillsError(f"Cannot scan installed skills at {root}: {exc}") from exc
+    return sorted(files)
+
+
+def preflight_install_budget(
+    manifest: Manifest,
+    agents: list[str],
+    skills: list[str],
+    *,
+    project: Path | None = None,
+    user_home: Path | None = None,
+) -> None:
+    """Reject an overflowing resulting directory before changing either agent's files."""
+    proposed = {
+        artifact.name: artifact.description
+        for _, artifact in manifest.artifacts(include_local=True)
+        if artifact.name in skills
+    }
+    for agent in agents:
+        root = _install_skill_root(agent, user_home, project)
+        records = dict(proposed)
+        display_names: dict[str, str] = {}
+        for path in _existing_skill_files(root, set(proposed)):
+            relative = path.parent.relative_to(root).as_posix()
+            try:
+                text = path.read_text(encoding="utf-8")
+                parts = text.split("\n---\n", 1) if text.startswith("---\n") else []
+                metadata = strict_safe_load(parts[0][4:]) if len(parts) == 2 else None
+                if not isinstance(metadata, dict) or not all(
+                    isinstance(metadata.get(key), str) and metadata[key].strip()
+                    for key in ("name", "description")
+                ):
+                    raise ValueError("Missing name or description")
+            except (OSError, ValueError, yaml.YAMLError) as exc:
+                raise GoogleGuideSkillsError(f"Cannot budget installed skill: {path}") from exc
+            records[relative] = metadata["description"]
+            display_names[relative] = metadata["name"]
+        budget = metadata_budget_records(
+            list(records.items()), install_root=str(root), display_names=display_names
+        )
+        if budget["codex_list_chars"] > CODEX_FALLBACK_METADATA_CHARS:
+            raise GoogleGuideSkillsError(
+                f"Install metadata at {root} would use {budget['codex_list_chars']} characters "
+                f"(limit {CODEX_FALLBACK_METADATA_CHARS}). Select fewer packs/skills or use a "
+                "separate project. No skills were installed or removed."
+            )
 
 
 def swe_book_license_notice(manifest: Manifest) -> str:
@@ -329,13 +409,16 @@ def install_links(
     if not agents:
         raise GoogleGuideSkillsError("Select at least one target agent")
     available = _available_link_skills(manifest, include_local)
-    requested = set(skills) if skills is not None else set(available)
+    requested = set(skills) if skills is not None else set(select_skills(manifest)) & set(available)
     unknown = sorted(requested - set(available))
     if unknown:
         raise GoogleGuideSkillsError(
             "Selected skills are unavailable under the current distribution policy: "
             + ", ".join(unknown)
         )
+    preflight_install_budget(
+        manifest, agents, sorted(requested), project=project, user_home=user_home
+    )
     available, source_hashes = _resolve_link_sources(
         manifest,
         available,
@@ -410,7 +493,10 @@ def install_commands(
                 "Selected skills are unavailable under the current distribution policy: "
                 + ", ".join(unknown)
             )
-    selected = sorted(requested if requested is not None else available)
+    selected = sorted(
+        requested if requested is not None else set(select_skills(manifest)) & available
+    )
+    preflight_install_budget(manifest, agents, selected, project=project)
     return [_install_command(source, agents, selected, copy)] if selected else []
 
 

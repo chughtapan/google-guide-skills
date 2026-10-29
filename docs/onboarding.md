@@ -20,6 +20,20 @@ project that maintains user documentation and reviews every change, start with:
 Use [`catalog/catalog.md`](../catalog/catalog.md) to find other guides. A project should install
 only the skills it plans to route because every installed description consumes startup context.
 
+The default installs all 49 skills. Smaller packs cover `api`, `architecture`, `security`,
+`reliability`, `delivery`, and `documentation`. For an API project, a focused selection is:
+
+```bash
+uv run google-guides install --project /path/to/new-repository --copy \
+  --agent codex --pack api --pack architecture --skill google-python-style
+```
+
+Pack and individual selections form a union. With no selection flags, the installer selects all
+49 skills; `--pack legacy` selects the original 24. It checks selected plus existing skills at the
+actual target path and stops
+before changing files if the metadata budget is exceeded. Choosing a new pack does not uninstall
+previously installed skills; use a dedicated project to keep unrelated guidance out of scope.
+
 ## 2. Install them
 
 Per-user installation is recommended for personal use because it works across repositories:
@@ -67,6 +81,9 @@ Own material changes through verification. Use your judgment.
 
 Repository rules still take precedence. Let the agent decide how to implement, test, and review a
 change. Add another skill only when a recurring task needs it.
+
+For the API project example, also route resource design to `$google-api-resource-design`, method
+semantics to `$google-api-methods`, and decision records to `$google-adr`.
 
 ## 4. Verify the setup
 

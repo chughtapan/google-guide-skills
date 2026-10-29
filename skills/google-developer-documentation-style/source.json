@@ -1,0 +1,216 @@
+{
+  "artifact": "google-developer-documentation-style",
+  "collection": "web-developer-style",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Tone and content",
+      "input": "highlights.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Language and grammar",
+      "input": "highlights.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Formatting, punctuation, and organization",
+      "input": "highlights.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Some things to avoid where possible",
+      "input": "tone.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Some techniques and approaches to consider",
+      "input": "tone.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Some specific items to put in code font",
+      "input": "code-in-text.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Focus on the task",
+      "input": "ui-elements.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Format names of UI elements",
+      "input": "ui-elements.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Write descriptive link text",
+      "input": "links.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Avoid vague link text",
+      "input": "links.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Summary of guidelines for writing procedures",
+      "input": "procedures.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "highlights.html",
+      "sha256": "2b2df2322c02671c9238c8a9935bb941c2604564a3e03be23f3afe22314d7338"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "tone.html",
+      "sha256": "890d08147df5aa9a17ea5e812f5d57e49c68934c0b0f91c78c0dedcb93ee6af4"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "code-in-text.html",
+      "sha256": "ff6344d6d84a9d50f71b433264b5058e798a8444b316f4573b9477621c944750"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "ui-elements.html",
+      "sha256": "8b7fc772a9a36261109d81559372b89db9cd397f37555887b3c4799f0e093561"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "links.html",
+      "sha256": "693165b43a2135009f466af3bdc909b6020dcd365482e1c60c78d271f5c3da2a"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "procedures.html",
+      "sha256": "ef1158200ab5bf94bd7a3c317e8f1923965b3a7a92668e90bbde3ea4363f1e8d"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "source_adapter": "google-docs",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "web_source": {
+    "id": "developer-style",
+    "pages": [
+      {
+        "license_path": "licenses/highlights.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "highlights.html",
+        "resolved_url": "https://developers.google.com/style/highlights",
+        "selector": "article.devsite-article",
+        "sha256": "2b2df2322c02671c9238c8a9935bb941c2604564a3e03be23f3afe22314d7338",
+        "url": "https://developers.google.com/style/highlights"
+      },
+      {
+        "license_path": "licenses/tone.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "tone.html",
+        "resolved_url": "https://developers.google.com/style/tone",
+        "selector": "article.devsite-article",
+        "sha256": "890d08147df5aa9a17ea5e812f5d57e49c68934c0b0f91c78c0dedcb93ee6af4",
+        "url": "https://developers.google.com/style/tone"
+      },
+      {
+        "license_path": "licenses/code-in-text.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "code-in-text.html",
+        "resolved_url": "https://developers.google.com/style/code-in-text",
+        "selector": "article.devsite-article",
+        "sha256": "ff6344d6d84a9d50f71b433264b5058e798a8444b316f4573b9477621c944750",
+        "url": "https://developers.google.com/style/code-in-text"
+      },
+      {
+        "license_path": "licenses/ui-elements.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "ui-elements.html",
+        "resolved_url": "https://developers.google.com/style/ui-elements",
+        "selector": "article.devsite-article",
+        "sha256": "8b7fc772a9a36261109d81559372b89db9cd397f37555887b3c4799f0e093561",
+        "url": "https://developers.google.com/style/ui-elements"
+      },
+      {
+        "license_path": "licenses/links.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "links.html",
+        "resolved_url": "https://developers.google.com/style/cross-references",
+        "selector": "article.devsite-article",
+        "sha256": "693165b43a2135009f466af3bdc909b6020dcd365482e1c60c78d271f5c3da2a",
+        "url": "https://developers.google.com/style/cross-references"
+      },
+      {
+        "license_path": "licenses/procedures.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "procedures.html",
+        "resolved_url": "https://developers.google.com/style/procedures",
+        "selector": "article.devsite-article",
+        "sha256": "ef1158200ab5bf94bd7a3c317e8f1923965b3a7a92668e90bbde3ea4363f1e8d",
+        "url": "https://developers.google.com/style/procedures"
+      }
+    ],
+    "snapshot": "50ec3585721cc4c8a436d61071ddf82fce919494930f2586f235345e093c7756",
+    "url": "https://developers.google.com/style/highlights"
+  },
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

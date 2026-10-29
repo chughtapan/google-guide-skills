@@ -1,0 +1,221 @@
+{
+  "artifact": "google-technical-writing",
+  "collection": "web-writing",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Define your audience",
+      "input": "one-audience.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Determine what your audience needs to learn",
+      "input": "one-audience.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Curse of knowledge",
+      "input": "one-audience.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "State your document's scope",
+      "input": "one-documents.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Summarize key points at the start",
+      "input": "one-documents.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Organize the document to meet your audience's needs",
+      "input": "one-documents.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Think like your audience",
+      "input": "two-editing.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Read it out loud",
+      "input": "two-editing.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Correct",
+      "input": "two-sample-code.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Concise",
+      "input": "two-sample-code.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Understandable",
+      "input": "two-sample-code.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Commented",
+      "input": "two-sample-code.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Reusable",
+      "input": "two-sample-code.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "one-audience.html",
+      "sha256": "4ec9368b170c33d1d776e27c30c24d1371f88774974dedcbe088617d2600c37f"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "one-documents.html",
+      "sha256": "8c81a898e6ff68a62f141bf92d2fa35c1d193c2ff838588c27eb3d09b59cb894"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "two-editing.html",
+      "sha256": "92eaa51ff2a7cbd7bd4f4dbae35a4fe62705d91da7a2f64f025b4771b3bf768e"
+    },
+    {
+      "conversion": "google-article-to-markdown",
+      "path": "two-sample-code.html",
+      "sha256": "fe7c28836b136b81de3b1cf403132c392470c1b4ac744a8115bb7c1370c0f310"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "source_adapter": "google-docs",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "web_source": {
+    "id": "writing",
+    "pages": [
+      {
+        "license_path": "licenses/one-audience.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "one-audience.html",
+        "resolved_url": "https://developers.google.com/tech-writing/one/audience",
+        "selector": "article.devsite-article",
+        "sha256": "4ec9368b170c33d1d776e27c30c24d1371f88774974dedcbe088617d2600c37f",
+        "url": "https://developers.google.com/tech-writing/one/audience"
+      },
+      {
+        "license_path": "licenses/one-documents.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "one-documents.html",
+        "resolved_url": "https://developers.google.com/tech-writing/one/documents",
+        "selector": "article.devsite-article",
+        "sha256": "8c81a898e6ff68a62f141bf92d2fa35c1d193c2ff838588c27eb3d09b59cb894",
+        "url": "https://developers.google.com/tech-writing/one/documents"
+      },
+      {
+        "license_path": "licenses/two-editing.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "two-editing.html",
+        "resolved_url": "https://developers.google.com/tech-writing/two/editing",
+        "selector": "article.devsite-article",
+        "sha256": "92eaa51ff2a7cbd7bd4f4dbae35a4fe62705d91da7a2f64f025b4771b3bf768e",
+        "url": "https://developers.google.com/tech-writing/two/editing"
+      },
+      {
+        "license_path": "licenses/two-sample-code.txt",
+        "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+        "path": "two-sample-code.html",
+        "resolved_url": "https://developers.google.com/tech-writing/two/sample-code",
+        "selector": "article.devsite-article",
+        "sha256": "fe7c28836b136b81de3b1cf403132c392470c1b4ac744a8115bb7c1370c0f310",
+        "url": "https://developers.google.com/tech-writing/two/sample-code"
+      }
+    ],
+    "snapshot": "65bf1c695e30d4f7fa957a6c6cbba7dbd9b302a90b0a52509ad93863273d0fda",
+    "url": "https://developers.google.com/tech-writing/one/audience"
+  },
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

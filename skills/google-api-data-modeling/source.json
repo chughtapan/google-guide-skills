@@ -1,0 +1,218 @@
+{
+  "artifact": "google-api-data-modeling",
+  "collection": "aip",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "When to use enums",
+      "input": "aip/general/0126.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0140.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Booleans",
+      "input": "aip/general/0140.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0141.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Timestamps",
+      "input": "aip/general/0142.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Durations",
+      "input": "aip/general/0142.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0144.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Inclusive or exclusive ranges",
+      "input": "aip/general/0145.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0146.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0147.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0149.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Immutable",
+      "input": "aip/general/0203.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Required",
+      "input": "aip/general/0203.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "State transition methods",
+      "input": "aip/general/0216.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0126.md",
+      "sha256": "35143fffdc8b3a6ba54a9ba51a47aab19e3b339e577d7472081c0fc8cfb55318"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0140.md",
+      "sha256": "4740f61060f1804d972a909d22d0a5e518501efbeb6821507e85541f87114900"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0141.md",
+      "sha256": "73bf59d795b282f66fe148a11a400057c76516f91dbe75e79380dd864dd11013"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0142.md",
+      "sha256": "c9b0c679934fab661b2a23bd093bf2a104de558a29af0a0cd514abb7fd2d9d55"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0144.md",
+      "sha256": "8739b4e5afd93caba0d90366c1f83f6687f7f873232b9e715553f1117257fbc0"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0145.md",
+      "sha256": "43283820a429978bf886aa131c7784a22ed32dbaaa983958e608e203dc0a2518"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0146.md",
+      "sha256": "4312a01c6edf6c3bab6a05ad628a8ff2d4f9f6d3b03a0e7b355462a2102cf337"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0147.md",
+      "sha256": "bef975b0b6eb5ec5f8f342b34515a25874f666e4571e61735b7532019589061e"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0149.md",
+      "sha256": "6a98c437da7a9ca368102bd6e35bfb2ccb6dc8e7ddf1166a12a0c0f231e3c358"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0203.md",
+      "sha256": "03f599357279469c13cb9cf589666f07bc79bc7929f8ec61025640fbea3176f3"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0216.md",
+      "sha256": "b400200bec009163f2222756942e33df7d49ed86eebe4c6bb3822996f4e7599b"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the API Improvement Proposals contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.md",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "aip",
+    "revision": "2ccc61a4e09882bdd63aea1a42dceebc37bf3bd5",
+    "url": "https://github.com/aip-dev/google.aip.dev.git"
+  },
+  "source_adapter": "aip",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

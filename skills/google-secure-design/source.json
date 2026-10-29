@@ -1,0 +1,138 @@
+{
+  "artifact": "google-secure-design",
+  "collection": "secure-reliable",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Least Privilege",
+      "input": "raw/ch05.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Classifying Access Based on Risk",
+      "input": "raw/ch05.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Small Functional APIs",
+      "input": "raw/ch05.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Collecting good audit logs",
+      "input": "raw/ch05.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Graceful Failure and Breakglass Mechanisms",
+      "input": "raw/ch05.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "System Invariants",
+      "input": "raw/ch06.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Prefer narrow interfaces that offer less room for interpretation",
+      "input": "raw/ch06.html"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Small TCBs and strong security boundaries",
+      "input": "raw/ch06.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Considering API Usability",
+      "input": "raw/ch06.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch05.html",
+      "sha256": "36c699874a3510f1d9382ca06b3dc663016cb2c144fd0ad56a50571d820afd0f"
+    },
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch06.html",
+      "sha256": "df55378025b757bc785c28dad9113143431b8485f9bfc99fe16d3769c4f70c15"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Building Secure and Reliable Systems authors",
+    "audited": "2026-10-28",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "secure-reliable",
+    "revision": "2a2ae3e0d4dbd288f9862ed47194f5b1b1ed7c3c",
+    "url": "https://github.com/google/building-secure-and-reliable-systems.git"
+  },
+  "source_adapter": "html-book",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

@@ -1,9 +1,7 @@
 ---
 name: google-java-style
 description: >-
-  Use when writing or reviewing Java source under Google's formatting, naming, ordering,
-  Javadoc, and programming-practice conventions. Do not use for Java API design questions
-  outside the guide's scope.
+  Write and review Java with Google style.
 ---
 
 # Google Java Style Guide

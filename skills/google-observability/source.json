@@ -1,0 +1,139 @@
+{
+  "artifact": "google-observability",
+  "collection": "dora",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Monitoring and observability",
+      "input": "hugo/content/capabilities/monitoring-and-observability/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "heading": "How to implement monitoring and observability",
+      "input": "hugo/content/capabilities/monitoring-and-observability/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Blackbox monitoring",
+      "input": "hugo/content/capabilities/monitoring-and-observability/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Whitebox monitoring",
+      "input": "hugo/content/capabilities/monitoring-and-observability/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Correlation",
+      "input": "hugo/content/capabilities/monitoring-and-observability/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Common pitfalls of implementing monitoring and observability",
+      "input": "hugo/content/capabilities/monitoring-and-observability/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "heading": "How to implement proactive failure notification",
+      "input": "hugo/content/capabilities/proactive-failure-notification/index.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Ways to measure failure notifications",
+      "input": "hugo/content/capabilities/proactive-failure-notification/index.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "dora-markdown",
+      "path": "hugo/content/capabilities/monitoring-and-observability/index.md",
+      "sha256": "d643d35867b8131f67d9e885df941e874c5f573cf52be8a459d202005b4ee38e"
+    },
+    {
+      "conversion": "dora-markdown",
+      "path": "hugo/content/capabilities/proactive-failure-notification/index.md",
+      "sha256": "d2d13246b835fd025fa2ba09485b7b8162bd5a959a51099c454bb3cea9a0d474"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the DORA contributors",
+    "audited": "2026-10-28",
+    "evidence_path": "CC-BY-4.0",
+    "evidence_paths": [
+      "README.md"
+    ],
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "dora",
+    "revision": "b14ae080c350ca7ff449889621a970e959203bd5",
+    "url": "https://github.com/dora-team/dora.dev.git"
+  },
+  "source_adapter": "dora",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

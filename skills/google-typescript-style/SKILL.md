@@ -1,9 +1,7 @@
 ---
 name: google-typescript-style
 description: >-
-  Use when writing or reviewing TypeScript under Google's source, type-system, naming, module,
-  documentation, and conformance conventions. Do not use for plain JavaScript; use
-  google-javascript-style instead.
+  Write and review TypeScript with Google style.
 ---
 
 # Google TypeScript Style Guide

@@ -1,9 +1,7 @@
 ---
 name: google-html-css-style
 description: >-
-  Use when writing or reviewing HTML and CSS under Google's conventions for validity, semantics,
-  accessibility, formatting, naming, and organization. Do not use for visual design-system
-  decisions.
+  Write and review HTML/CSS with Google style.
 ---
 
 # Google HTML/CSS Style Guide

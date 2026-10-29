@@ -1,0 +1,178 @@
+{
+  "artifact": "google-api-errors-and-retries",
+  "collection": "aip",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Status.message",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Status.code",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Status.details",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "ErrorInfo",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Changing error messages",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Partial errors",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Permission Denied",
+      "input": "aip/general/0193.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0194.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Retryable codes",
+      "input": "aip/general/0194.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Non-retryable codes",
+      "input": "aip/general/0194.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0155.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0211.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0193.md",
+      "sha256": "d76399f08a3a01256f75f567596e95f57eec9deb6f6f3b28333d80e8f012018a"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0194.md",
+      "sha256": "8c3b8c2cf07a694dd28ee28e7eacd583cd7fe57ed74de870ae6ca0ea59da8050"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0155.md",
+      "sha256": "031a0e49e3827eb671ec972a2f03a2b1b2a9a0d1daf0bfd33584f27208827d1c"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0211.md",
+      "sha256": "7a03970b4a0de40592413da7c4b013f08224fab52136d9814a1ec35573c895a9"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the API Improvement Proposals contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.md",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "aip",
+    "revision": "2ccc61a4e09882bdd63aea1a42dceebc37bf3bd5",
+    "url": "https://github.com/aip-dev/google.aip.dev.git"
+  },
+  "source_adapter": "aip",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

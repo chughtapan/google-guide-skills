@@ -5,8 +5,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import yaml
 from bs4 import BeautifulSoup
 from markdownify import markdownify
+
+from .errors import BuildError
+from .strict_yaml import strict_safe_load
 
 HTML_SUFFIXES = {".html", ".htm", ".xml", ".xhtml"}
 INLINE_CODE_RE = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)", re.DOTALL)
@@ -137,9 +141,60 @@ def guide_xml_to_markdown(value: str) -> str:
     return markup_to_markdown(str(guide), parser="xml")
 
 
-def source_to_markdown(path: Path) -> tuple[str, str]:
+def _frontmatter_source(text: str, adapter: str) -> str:
+    match = re.match(r"\A---\r?\n(.*?)\r?\n---\r?\n(.*)\Z", text, re.DOTALL)
+    if match is None:
+        raise BuildError(f"{adapter}: missing source frontmatter")
+    try:
+        metadata = strict_safe_load(match.group(1))
+    except (ValueError, yaml.YAMLError) as exc:
+        raise BuildError(f"{adapter}: invalid source frontmatter") from exc
+    if not isinstance(metadata, dict):
+        raise BuildError(f"{adapter}: source frontmatter must be a mapping")
+    if adapter == "aip" and metadata.get("state") != "approved":
+        raise BuildError("Only approved AIPs can be generated")
+    if adapter == "dora" and metadata.get("draft") is not False:
+        raise BuildError("Only explicitly published DORA pages can be generated")
+    body = match.group(2)
+    if adapter == "dora":
+        title = metadata.get("title")
+        if not isinstance(title, str) or not title.strip() or "\n" in title:
+            raise BuildError("DORA source must have a plain-text title")
+        body = f"# {title}\n\n{body}"
+        # A bounded presentation adapter; never execute Hugo templates.
+        body = re.sub(
+            r'\{\{< dora_callout title="([^"\n]+)" >\}\}',
+            lambda callout: f"**{callout.group(1)}**\n",
+            body,
+        )
+        body = body.replace("{{< /dora_callout >}}", "")
+    return body
+
+
+def source_to_markdown(
+    path: Path, *, adapter: str = "default", selector: str | None = None
+) -> tuple[str, str]:
     """Return Markdown plus the conversion mode recorded in provenance."""
     text = path.read_text(encoding="utf-8")
+    if adapter in {"aip", "dora"}:
+        return _frontmatter_source(text, adapter).rstrip() + "\n", f"{adapter}-markdown"
+    if adapter == "html-book":
+        soup = BeautifulSoup(text, "html.parser")
+        chapters = soup.select('section[data-type="chapter"]')
+        if len(chapters) != 1 or len(chapters[0].find_all("h1", recursive=False)) != 1:
+            raise BuildError("Expected one book chapter with one title")
+        for heading in chapters[0].find_all(re.compile(r"^h[1-6]$")):
+            depth = len(heading.find_parents("section"))
+            heading.name = f"h{min(6, max(depth, int(heading.name[1])))}"
+        return markup_to_markdown(str(chapters[0])), "book-chapter-to-markdown"
+    if adapter == "google-docs":
+        from .snapshots import article_html
+
+        if not selector:
+            raise BuildError("Web sources require an explicit article selector")
+        return markup_to_markdown(article_html(text, selector)), "google-article-to-markdown"
+    if adapter != "default":
+        raise BuildError(f"Unsupported source adapter: {adapter}")
     if path.suffix.lower() in HTML_SUFFIXES:
         if path.suffix.lower() == ".xml" and BeautifulSoup(text, "xml").find("GUIDE"):
             return guide_xml_to_markdown(text), "google-styleguide-xml-to-markdown"

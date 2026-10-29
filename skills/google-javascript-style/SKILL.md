@@ -1,9 +1,7 @@
 ---
 name: google-javascript-style
 description: >-
-  Use when maintaining existing JavaScript under Google's source formatting, naming, module,
-  language-feature, JSDoc, and policy conventions. The upstream guide is no longer updated. For
-  TypeScript, use google-typescript-style instead.
+  Write and review JavaScript with Google style.
 ---
 
 # Google JavaScript Style Guide

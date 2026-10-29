@@ -1,9 +1,7 @@
 ---
 name: google-code-review-reviewer
 description: >-
-  Use when reviewing a code change, deciding what to inspect, applying Google's review standard,
-  writing comments, reviewing quickly, navigating a change, or handling pushback. Do not use
-  when only preparing your own change for review.
+  Review code correctness, design, and clarity.
 ---
 
 # Google's Code Review Guide for Reviewers

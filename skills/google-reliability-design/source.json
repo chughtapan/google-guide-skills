@@ -1,0 +1,155 @@
+{
+  "artifact": "google-reliability-design",
+  "collection": "secure-reliable",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Design Principles for Resilience",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Controlling Degradation",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Load shedding",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Throttling",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Failing safe versus failing secure",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Controlling the Blast Radius",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Failure Domains and Redundancies",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Failover strategies",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "heading": "Common pitfalls",
+      "input": "raw/ch08.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Rollbacks Represent a Tradeoff Between Security and Reliability",
+      "input": "raw/ch09.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Design for Testing and Continuous Validation",
+      "input": "raw/ch09.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch08.html",
+      "sha256": "33cd5c6448e91e9dd1f6d47f79d8e988bf133bf8ea7efa43a173f06786938f01"
+    },
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch09.html",
+      "sha256": "7834c3616a9e792f1749540b094346d8f0e06b9bdee0ffafc7285d43a3f6a295"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Building Secure and Reliable Systems authors",
+    "audited": "2026-10-28",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "secure-reliable",
+    "revision": "2a2ae3e0d4dbd288f9862ed47194f5b1b1ed7c3c",
+    "url": "https://github.com/google/building-secure-and-reliable-systems.git"
+  },
+  "source_adapter": "html-book",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

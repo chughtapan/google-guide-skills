@@ -1,9 +1,7 @@
 ---
 name: google-shell-style
 description: >-
-  Use when writing or reviewing Bash and shell scripts under Google's conventions for scope,
-  features, naming, comments, quoting, command substitution, and error handling. Do not use for
-  non-Bourne-compatible shells without checking applicability.
+  Write and review Bash with Google style.
 ---
 
 # Google Shell Style Guide

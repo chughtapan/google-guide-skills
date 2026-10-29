@@ -33,9 +33,9 @@ OpenClaw needs the official `@openclaw/codex` package. The harness registers it 
 Evaluation is plan-only by default. Add `--live` to run the selected clients:
 
 ```bash
-uv run google-guides eval triggers --stage smoke --profile all
-uv run google-guides eval triggers --stage controls --profile all
-uv run google-guides eval triggers --stage smoke --profile all --limit 2 \
+uv run google-guides eval triggers --stage smoke --pack api
+uv run google-guides eval triggers --stage controls --pack architecture
+uv run google-guides eval triggers --stage smoke --pack api --limit 2 \
   --agent codex --live
 uv run google-guides eval quality --profile single \
   --agent claude-code --model claude-code=haiku --live
@@ -53,13 +53,18 @@ client runs exclude SWE-book output; `local-smoke` supports planning and offline
 
 [`evals/cases.yaml`](../evals/cases.yaml) contains:
 
-- 16 explicit invocation controls, rendered for each client adapter;
-- 16 implicit smoke prompts, one for every committed guide;
+- 41 explicit invocation controls, rendered for each client adapter;
+- 41 implicit smoke prompts, one for every committed guide;
 - 8 local-only smoke plans, one for every restricted SWE-book skill;
 - 60 representative cases across Python style, reviewer workflow, and documentation;
 - for each representative skill, 10 positives and 10 near-miss negatives with a fixed 60/40
   train/validation split;
 - concept-check rubrics for a quality A/B subset.
+
+The 25 new skills each add a positive representative case with a quality rubric and a near-miss
+negative, both in the validation split (50 cases total). These cases establish coverage; they do
+not establish measured routing accuracy or replace the larger original tuning suites. Live
+results must be collected before claiming routing or quality improvements.
 
 Smoke prompts must be answerable in the empty evaluation repository. Include the relevant code or
 ask a guidance question; do not ask a client to inspect files that are not present.
@@ -74,6 +79,17 @@ run in CI.
 | --- | --- |
 | `single` | Isolate the expected or forbidden skill and validate its metadata. |
 | `all` | Measure exact routing with every committed guide installed. |
+| `pack` | Install the union of named `--pack` selections and evaluate cases within it. |
+
+Passing `--pack` implies `--profile pack`; it can be repeated. Cases are filtered to the selected
+pack union before applying `--limit`. Reports record the pack names and actual installed content
+hashes. Compact descriptions allow the `all` profile's 41 public skills to fit Codex's audited
+8,000-character metadata budget at the agent-visible path. Use `all`, individual public packs,
+or `single` for live runs. Both `default` and `legacy` include local SWE-book skills and remain
+unavailable for live pack evaluation. Local-only plans still require `--include-swe-book`.
+
+Description changes affect implicit routing. The compact descriptions have offline coverage;
+live routing and quality results must be collected before claiming equivalent discovery behavior.
 
 Quality mode runs each rubric case twice: with no skills and with the selected profile. It reports
 the change in rubric score. Keyword checks do not fully judge answer quality.
@@ -107,10 +123,10 @@ models, and bounded redacted diagnostics for failed processes.
 
 The saved five-client routing runs belong to an earlier 23-skill committed corpus. They helped
 expose an oversized Go skill, vague reference routing, and a routing index that added no measured
-value. Do not use their routing rates for the current 16-public/8-local pack.
+value. Do not use their routing rates for the current 41-public/8-local pack.
 
-The [SlopCodeBench quality experiment](../reports/slopcodebench-quality.md) used the current
-source-excerpt pack with a one-sentence task prompt and a minimal project lifecycle. At default
+The [SlopCodeBench quality experiment](../reports/slopcodebench-quality.md) used four guides from
+the earlier source-excerpt corpus with a one-sentence task prompt and a minimal project lifecycle. At default
 effort, baseline and guided arms both scored 95/104; the guided code had better structure metrics.
 At `xhigh`, the baseline scored 100/104 and the guided arm scored 97/104, again with better
 structure metrics. This is one task and one run per cell, so it is evidence about the workflow,

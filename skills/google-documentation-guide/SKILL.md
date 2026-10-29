@@ -1,9 +1,7 @@
 ---
 name: google-documentation-guide
 description: >-
-  Use when planning, writing, or reviewing developer documentation, Markdown, READMEs, and
-  documentation maintenance using Google's documentation philosophy and practices. Do not use
-  for prose that is not technical documentation.
+  Plan, organize, and maintain developer docs.
 ---
 
 # Google Documentation Guide

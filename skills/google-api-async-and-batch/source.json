@@ -1,0 +1,166 @@
+{
+  "artifact": "google-api-async-and-batch",
+  "collection": "aip",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0151.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Parallel operations",
+      "input": "aip/general/0151.md"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Errors",
+      "input": "aip/general/0151.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Expiration",
+      "input": "aip/general/0151.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0152.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0153.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Partial failures",
+      "input": "aip/general/0153.md"
+    },
+    {
+      "blocks": [
+        0,
+        2
+      ],
+      "heading": "Guidance",
+      "input": "aip/general/0231.md"
+    },
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Atomic vs. Partial Success",
+      "input": "aip/general/0233.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Adopting Partial Success",
+      "input": "aip/general/0234.md"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Communicating partial failures",
+      "input": "aip/general/0235.md"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0151.md",
+      "sha256": "eb4293bad26eefebecf225e5c669ec9d8caa8268a472db08bbe1eaa767e05347"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0152.md",
+      "sha256": "52a53f1d11f51e485445c25fc5be46d5515e0ddfbe1dfe621a1fa34da2d172a0"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0153.md",
+      "sha256": "35763d39afcb24757bd5c913a86256746965a7620f68f619970a06ff28f20875"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0231.md",
+      "sha256": "49206d60feb3ed98084090bf53e8e7b20d1275236c501437f7250f760a8798b4"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0233.md",
+      "sha256": "57bef7d99a5c5b171caaf7471116f9e07b3f7fd2406a9bee72a3db75a5094983"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0234.md",
+      "sha256": "7410fcc88f810dd925b20872f25c181dade0bd7b0e8d12d074f5ce62656d6d65"
+    },
+    {
+      "conversion": "aip-markdown",
+      "path": "aip/general/0235.md",
+      "sha256": "93167b5b6bc483942f2939926d09ab1801113902c6f1fe5cdba835ef9ff8278e"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the API Improvement Proposals contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.md",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "aip",
+    "revision": "2ccc61a4e09882bdd63aea1a42dceebc37bf3bd5",
+    "url": "https://github.com/aip-dev/google.aip.dev.git"
+  },
+  "source_adapter": "aip",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

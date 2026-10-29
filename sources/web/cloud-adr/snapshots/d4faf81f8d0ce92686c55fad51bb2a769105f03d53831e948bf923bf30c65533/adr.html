@@ -1,0 +1,1606 @@
+
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en">
+<head>
+<meta content="721724668570-nbkv1cfusk7kk4eni4pjvepaus73b13t.apps.googleusercontent.com" name="google-signin-client-id"/><meta content="profile email https://www.googleapis.com/auth/developerprofiles https://www.googleapis.com/auth/developerprofiles.award https://www.googleapis.com/auth/devprofiles.full_control.firstparty" name="google-signin-scope"/><meta content="Google Cloud Documentation" property="og:site_name"/>
+<meta content="website" property="og:type"/><meta content="#1a73e8" name="theme-color"/><meta charset="utf-8"/>
+<meta content="IE=Edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link crossorigin="use-credentials" href="/_pwa/clouddocs/manifest.json" rel="manifest"/>
+<link crossorigin="" href="//www.gstatic.com" rel="preconnect"/>
+<link crossorigin="" href="//fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="//www.google-analytics.com" rel="preconnect"/><link href="//fonts.googleapis.com/css?family=Google+Sans:400,500|Roboto:400,400italic,500,500italic,700,700italic|Roboto+Mono:400,500,700&amp;display=swap" rel="stylesheet"/>
+<link href="//fonts.googleapis.com/css2?family=Material+Icons&amp;family=Material+Symbols+Outlined&amp;display=block" rel="stylesheet"/><link href="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/css/app.css" rel="stylesheet"/>
+<link disabled="" href="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/css/dark-theme.css" rel="stylesheet"/>
+<link href="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/favicons/onecloud/favicon.ico" rel="shortcut icon"/>
+<link href="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/favicons/onecloud/super_cloud.png" rel="apple-touch-icon"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records" rel="canonical"/><link href="https://docs.cloud.google.com/s/opensearch.xml" rel="search" title="Google Cloud Documentation" type="application/opensearchdescription+xml"/>
+<link href="https://docs.cloud.google.com/architecture/architecture-decision-records" hreflang="en" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records" hreflang="x-default" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=zh-cn" hreflang="zh-Hans" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=zh-tw" hreflang="zh-Hant" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=fr" hreflang="fr" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=de" hreflang="de" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=he" hreflang="he" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=id" hreflang="id" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=it" hreflang="it" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=ja" hreflang="ja" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=ko" hreflang="ko" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=pt-br" hreflang="pt-BR" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=pt" hreflang="pt" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=es" hreflang="es" rel="alternate"/><link href="https://docs.cloud.google.com/architecture/architecture-decision-records?hl=es-419" hreflang="es-419" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records" hreflang="en-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records" hreflang="x-default" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=zh-cn" hreflang="zh-Hans-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=zh-tw" hreflang="zh-Hant-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=fr" hreflang="fr-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=de" hreflang="de-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=he" hreflang="he-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=id" hreflang="id-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=it" hreflang="it-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=ja" hreflang="ja-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=ko" hreflang="ko-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=pt-br" hreflang="pt-BR-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=pt" hreflang="pt-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=es" hreflang="es-cn" rel="alternate"/><link href="https://docs.cloud.google.cn/architecture/architecture-decision-records?hl=es-419" hreflang="es-419-cn" rel="alternate"/><title>Architecture decision records overview  |  Cloud Architecture Center  |  Google Cloud Documentation</title>
+<meta content="Architecture decision records overview  |  Cloud Architecture Center  |  Google Cloud Documentation" property="og:title"/><meta content="Explains when and how to use architecture decision records (ADRs) to document and explain design choices for applications on Google Cloud." name="description"/>
+<meta content="Explains when and how to use architecture decision records (ADRs) to document and explain design choices for applications on Google Cloud." property="og:description"/><meta content="https://docs.cloud.google.com/architecture/architecture-decision-records" property="og:url"/><meta content="https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/><meta content="en" property="og:locale"/><meta content="summary_large_image" name="twitter:card"/>
+</head>
+<body appearance="" class="color-scheme--light" display-toc="" free-trial="" layout="docs" pending="" template="page" theme="clouddocs-theme" type="article">
+<devsite-progress id="app-progress" type="indeterminate"></devsite-progress>
+<a class="skip-link button" href="#main-content">
+      
+      Skip to main content
+    </a>
+<section class="devsite-wrapper">
+<devsite-cookie-notification-bar></devsite-cookie-notification-bar>
+<cloudx-track usercountry="US"></cloudx-track>
+<devsite-header keep-tabs-visible="" role="banner">
+<div class="devsite-header--inner" data-nosnippet="">
+<div class="devsite-top-logo-row-wrapper-wrapper">
+<div class="devsite-top-logo-row-wrapper">
+<div class="devsite-top-logo-row">
+<button aria-label="Open menu" class="devsite-header-icon-button button-flat material-icons gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Navigation menu button" id="devsite-hamburger-menu" type="button" visually-hidden="">
+</button>
+<div class="devsite-product-name-wrapper">
+<a class="devsite-site-logo-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Site logo" href="/" track-metadata-eventdetail="nav" track-metadata-position="nav" track-name="googleCloudDocumentation" track-type="globalNav">
+<picture>
+<source class="devsite-dark-theme" media="(prefers-color-scheme: dark)" srcset="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/lockup_dark_theme.svg"/>
+<img alt="Google Cloud Documentation" class="devsite-site-logo" src="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/lockup_full_color.svg"/>
+</picture>
+</a>
+</div>
+<div class="devsite-top-logo-row-middle">
+<div class="devsite-header-upper-tabs">
+<devsite-tabs class="upper-tabs">
+<nav aria-label="Upper tabs" class="devsite-tabs-wrapper">
+<tab class="devsite-dropdown devsite-dropdown-full devsite-active devsite-clickable">
+<a aria-label="Documentation, selected" class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Documentation" href="https://docs.cloud.google.com/docs" track-link-column-type="single-column" track-metadata-eventdetail="https://docs.cloud.google.com/docs" track-metadata-module="primary nav" track-metadata-position="nav - docs-home" track-name="docs-home" track-type="nav">
+    Documentation
+  
+    </a>
+<button aria-expanded="false" aria-haspopup="menu" aria-label="Dropdown menu for Documentation" class="devsite-tabs-dropdown-toggle devsite-icon devsite-icon-arrow-drop-down" data-category="Site-Wide Custom Events" data-label="Tab: Documentation" track-link-column-type="single-column" track-metadata-eventdetail="https://docs.cloud.google.com/docs" track-metadata-module="primary nav" track-metadata-position="nav - docs-home" track-name="docs-home" track-type="nav"></button>
+<div aria-label="submenu" class="devsite-tabs-dropdown" hidden="" role="menu">
+<div class="devsite-tabs-dropdown-content">
+<button aria-label="Close dropdown menu" class="devsite-tabs-close-button material-icons button-flat gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Close dropdown menu" track-metadata-eventdetail="#" track-metadata-module="tertiary nav" track-metadata-position="nav - docs-home" track-name="close" track-type="nav">close</button>
+<div class="devsite-tabs-dropdown-column">
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-title" role="heading" tooltip="">Get Started</li>
+</ul>
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/get-started" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/get-started" track-metadata-module="tertiary nav" track-metadata-module_headline="get started" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Get Started with Google Cloud
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/product-list" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/product-list" track-metadata-module="tertiary nav" track-metadata-module_headline="get started" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Product List
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/support/docs" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/support/docs" track-metadata-module="tertiary nav" track-metadata-module_headline="get started" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Cloud Customer Care
+                    </div>
+</a>
+</li>
+</ul>
+</div>
+<div class="devsite-tabs-dropdown-column">
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-title" role="heading" tooltip="">Featured Products</li>
+</ul>
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/products/gemini-enterprise-agent-platform" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/products/gemini-enterprise-agent-platform" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Agent Platform
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/apigee" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/apigee" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Apigee API Management
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/bigquery" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/bigquery" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      BigQuery
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/products/compute" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/products/compute" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Compute Engine
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/cdn" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/cdn" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Cloud CDN
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/run" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/run" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Cloud Run
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/storage" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/storage" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Cloud Storage
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/sql" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/sql" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Cloud SQL
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/gemini/enterprise/docs" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/gemini/enterprise/docs" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Gemini Enterprise
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/kubernetes-engine" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/kubernetes-engine" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Google Kubernetes Engine
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/looker" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/looker" track-metadata-module="tertiary nav" track-metadata-module_headline="featured products" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Looker
+                    </div>
+</a>
+</li>
+</ul>
+</div>
+<div class="devsite-tabs-dropdown-column">
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-title" role="heading" tooltip="">Cross-product Tools</li>
+</ul>
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/access-resources" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/access-resources" track-metadata-module="tertiary nav" track-metadata-module_headline="cross-product tools" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Access and resources management
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/costs-usage" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/costs-usage" track-metadata-module="tertiary nav" track-metadata-module_headline="cross-product tools" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Costs and usage management
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/iac" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/iac" track-metadata-module="tertiary nav" track-metadata-module_headline="cross-product tools" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Infrastructure as code
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/devtools" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/devtools" track-metadata-module="tertiary nav" track-metadata-module_headline="cross-product tools" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      SDK, languages, frameworks, and tools
+                    </div>
+</a>
+</li>
+</ul>
+</div>
+<div class="devsite-tabs-dropdown-column">
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-title" role="heading" tooltip="">Technology Areas</li>
+</ul>
+<ul class="devsite-tabs-dropdown-section">
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/ai-ml" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/ai-ml" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      AI and ML
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/application-development" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/application-development" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Application development
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/application-hosting" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/application-hosting" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Application hosting
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/compute-area" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/compute-area" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Compute
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/data" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/data" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Data analytics and pipelines
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/databases" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/databases" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Databases
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/dhm-cloud" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/dhm-cloud" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Distributed, hybrid, and multicloud
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/industry" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/industry" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Industry solutions
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/migration" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/migration" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Migration
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/networking" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/networking" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Networking
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/observability" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/observability" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Observability and monitoring
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/security" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/security" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Security
+                    </div>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a href="https://docs.cloud.google.com/docs/storage" tooltip="" track-metadata-eventdetail="https://docs.cloud.google.com/docs/storage" track-metadata-module="tertiary nav" track-metadata-module_headline="technology areas" track-metadata-position="nav - docs-home" track-type="nav">
+<div class="devsite-nav-item-title">
+                      Storage
+                    </div>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</tab>
+</nav>
+</devsite-tabs>
+</div>
+<devsite-search enable-search="" enable-search-summaries="" enable-signin="" enable-suggestions="" project-name="Cloud Architecture Center" project-scope="/architecture" tenant-name="Google Cloud Documentation" url-scoped="https://docs.cloud.google.com/s/results/architecture">
+<form action="https://docs.cloud.google.com/s/results" class="devsite-search-form" method="GET">
+<div class="devsite-search-container">
+<button aria-label="Open search" class="devsite-search-button devsite-header-icon-button button-flat material-icons" search-open="" type="button"></button>
+<div class="devsite-searchbox">
+<input aria-activedescendant="" aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" aria-label="Search" autocomplete="off" class="devsite-search-field devsite-search-query" name="q" placeholder="Search" role="combobox" type="text" value=""/>
+<div aria-hidden="true" class="devsite-search-image material-icons">
+<svg class="devsite-search-ai-image" fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6641_386)">
+<path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14167 15.375 4.875 14.125C3.625 12.8583 3 11.3167 3 9.5C3 7.68333 3.625 6.15 4.875 4.9C6.14167 3.63333 7.68333 3 9.5 3C10.0167 3 10.5167 3.05833 11 3.175C11.4833 3.275 11.9417 3.43333 12.375 3.65L10.825 5.2C10.6083 5.13333 10.3917 5.08333 10.175 5.05C9.95833 5.01667 9.73333 5 9.5 5C8.25 5 7.18333 5.44167 6.3 6.325C5.43333 7.19167 5 8.25 5 9.5C5 10.75 5.43333 11.8167 6.3 12.7C7.18333 13.5667 8.25 14 9.5 14C10.6667 14 11.6667 13.625 12.5 12.875C13.35 12.1083 13.8417 11.15 13.975 10H15.975C15.925 10.6333 15.7833 11.2333 15.55 11.8C15.3333 12.3667 15.05 12.8667 14.7 13.3L21 19.6L19.6 21ZM17.5 12C17.5 10.4667 16.9667 9.16667 15.9 8.1C14.8333 7.03333 13.5333 6.5 12 6.5C13.5333 6.5 14.8333 5.96667 15.9 4.9C16.9667 3.83333 17.5 2.53333 17.5 0.999999C17.5 2.53333 18.0333 3.83333 19.1 4.9C20.1667 5.96667 21.4667 6.5 23 6.5C21.4667 6.5 20.1667 7.03333 19.1 8.1C18.0333 9.16667 17.5 10.4667 17.5 12Z" fill="#5F6368"></path>
+</g>
+<defs>
+<clippath id="clip0_6641_386">
+<rect fill="white" height="24" width="24"></rect>
+</clippath>
+</defs>
+</svg>
+</div>
+<div aria-hidden="true" class="devsite-search-shortcut-icon-container">
+<kbd class="devsite-search-shortcut-icon">/</kbd>
+</div>
+</div>
+</div>
+</form>
+<button aria-label="Close search" class="devsite-search-button devsite-header-icon-button button-flat material-icons" search-close="" type="button"></button>
+</devsite-search>
+</div>
+<a class="devsite-header-link devsite-top-button button gc-analytics-event button-with-icon" data-category="Site-Wide Custom Events" data-label="Site header link: Console" href="//console.cloud.google.com/" referrerpolicy="no-referrer-when-downgrade" track-metadata-eventdetail="nav" track-metadata-position="nav" track-name="console" track-type="globalNav">
+  Console
+</a>
+<devsite-appearance-selector></devsite-appearance-selector>
+<devsite-language-selector>
+<ul role="presentation">
+<li role="presentation">
+<a lang="en" role="menuitem">English</a>
+</li>
+<li role="presentation">
+<a lang="de" role="menuitem">Deutsch</a>
+</li>
+<li role="presentation">
+<a lang="es" role="menuitem">Español</a>
+</li>
+<li role="presentation">
+<a lang="es_419" role="menuitem">Español – América Latina</a>
+</li>
+<li role="presentation">
+<a lang="fr" role="menuitem">Français</a>
+</li>
+<li role="presentation">
+<a lang="id" role="menuitem">Indonesia</a>
+</li>
+<li role="presentation">
+<a lang="it" role="menuitem">Italiano</a>
+</li>
+<li role="presentation">
+<a lang="pt" role="menuitem">Português</a>
+</li>
+<li role="presentation">
+<a lang="pt_br" role="menuitem">Português – Brasil</a>
+</li>
+<li role="presentation">
+<a lang="he" role="menuitem">עברית</a>
+</li>
+<li role="presentation">
+<a lang="zh_cn" role="menuitem">中文 – 简体</a>
+</li>
+<li role="presentation">
+<a lang="zh_tw" role="menuitem">中文 – 繁體</a>
+</li>
+<li role="presentation">
+<a lang="ja" role="menuitem">日本語</a>
+</li>
+<li role="presentation">
+<a lang="ko" role="menuitem">한국어</a>
+</li>
+</ul>
+</devsite-language-selector>
+<devsite-user enable-profiles="" fp-auth="" id="devsite-user">
+<span aria-hidden="true" class="button devsite-top-button" visually-hidden="">Sign in</span>
+</devsite-user>
+</div>
+</div>
+</div>
+<div class="devsite-collapsible-section devsite-header-no-lower-tabs">
+<div class="devsite-header-background">
+<div class="devsite-product-id-row">
+<div class="devsite-product-description-row">
+<div class="devsite-product-id">
+<a href="https://docs.cloud.google.com/architecture">
+<div class="devsite-product-logo-container" size="medium">
+<picture>
+<source class="devsite-dark-theme" media="(prefers-color-scheme: dark)" sizes="64px" srcset=" /static/site-assets/images/cloud-white.svg"/>
+<img alt="" class="devsite-product-logo" loading="lazy" sizes="64px" src="https://docs.cloud.google.com/static/site-assets/images/cloud.svg" srcset=" /static/site-assets/images/cloud.svg"/>
+</picture>
+</div>
+</a>
+<ul aria-label="Lower header breadcrumb" class="devsite-breadcrumb-list">
+<li class="devsite-breadcrumb-item">
+<a class="devsite-breadcrumb-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Lower Header" data-value="1" href="https://docs.cloud.google.com/docs" track-metadata-eventdetail="Documentation" track-metadata-position="1" track-name="breadcrumb" track-type="globalNav">
+    
+          Documentation
+        
+  </a>
+</li>
+<li class="devsite-breadcrumb-item">
+<div aria-hidden="true" class="devsite-breadcrumb-guillemet material-icons"></div>
+<a class="devsite-breadcrumb-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Lower Header" data-value="2" href="https://docs.cloud.google.com/architecture" track-metadata-eventdetail="Cloud Architecture Center" track-metadata-position="2" track-name="breadcrumb" track-type="globalNav">
+    
+          Cloud Architecture Center
+        
+  </a>
+</li>
+</ul>
+</div>
+</div>
+<div class="devsite-product-button-row">
+<a class="cloud-free-trial-button button button-primary" href="//console.cloud.google.com/freetrial" referrerpolicy="no-referrer-when-downgrade" track-metadata-eventdetail="nav" track-metadata-position="nav" track-name="gcpCta" track-type="freeTrial">Start free</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</devsite-header>
+<devsite-book-nav scrollbars="">
+<div class="devsite-book-nav-filter">
+<span aria-hidden="true" class="filter-list-icon material-icons"></span>
+<input aria-label="Type to filter" placeholder="Filter" role="searchbox" type="text"/>
+<span aria-label="Clear filter" class="filter-clear-button hidden" data-title="Clear filter" role="button" tabindex="0"></span>
+</div>
+<nav aria-label="Side menu" class="devsite-book-nav devsite-nav nocontent" data-nosnippet="">
+<div class="devsite-mobile-header">
+<button aria-label="Close navigation" class="devsite-header-icon-button button-flat material-icons gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Close navigation" id="devsite-close-nav" type="button">
+</button>
+<div class="devsite-product-name-wrapper">
+<a class="devsite-site-logo-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Site logo" href="/" track-metadata-eventdetail="nav" track-metadata-position="nav" track-name="googleCloudDocumentation" track-type="globalNav">
+<picture>
+<source class="devsite-dark-theme" media="(prefers-color-scheme: dark)" srcset="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/lockup_dark_theme.svg"/>
+<img alt="Google Cloud Documentation" class="devsite-site-logo" src="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/lockup_full_color.svg"/>
+</picture>
+</a>
+</div>
+</div>
+<div class="devsite-book-nav-wrapper">
+<div class="devsite-mobile-nav-top">
+<ul class="devsite-nav-list">
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event devsite-nav-has-children devsite-nav-active" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Documentation" href="/docs" track-link-column-type="single-column" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-name="docs-home" track-type="globalNav">
+<span class="devsite-nav-text" tooltip="">
+      Documentation
+   </span>
+<span class="devsite-nav-icon material-icons" data-icon="forward">
+</span>
+</a>
+<ul class="devsite-nav-responsive-tabs devsite-nav-has-menu">
+<li class="devsite-nav-item">
+<span class="devsite-nav-title" data-category="Site-Wide Custom Events" data-label="Tab: Documentation" tooltip="" track-link-column-type="single-column" track-name="docs-home">
+<span class="devsite-nav-text" menu="Documentation" tooltip="">
+      More
+   </span>
+<span class="devsite-nav-icon material-icons" data-icon="forward" menu="Documentation">
+</span>
+</span>
+</li>
+</ul>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event button-with-icon" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Console" href="//console.cloud.google.com/" referrerpolicy="no-referrer-when-downgrade" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-name="console" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Console
+   </span>
+</a>
+</li>
+</ul>
+</div>
+<div class="devsite-mobile-nav-bottom">
+<ul class="devsite-nav-list" menu="_book">
+<li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture"><span class="devsite-nav-text" tooltip="">&lt; Architecture Center home</span></a></li>
+<li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/release-notes"><span class="devsite-nav-text" tooltip="">What's new</span></a></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Fundamentals</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/fundamentals"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Well-Architected Framework</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/whats-new"><span class="devsite-nav-text" tooltip="">What's new</span></a></li><li class="devsite-nav-item devsite-nav-heading"><div class="devsite-nav-title devsite-nav-title-no-path">
+<span class="devsite-nav-text" tooltip="">Pillars</span>
+</div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Operational excellence</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence/operational-readiness-and-performance-using-cloudops"><span class="devsite-nav-text" tooltip="">Ensure operational readiness and performance using CloudOps</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence/manage-incidents-and-problems"><span class="devsite-nav-text" tooltip="">Manage incidents and problems</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence/manage-and-optimize-cloud-resources"><span class="devsite-nav-text" tooltip="">Manage and optimize cloud resources</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence/automate-and-manage-change"><span class="devsite-nav-text" tooltip="">Automate and manage change</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence/continuously-improve-and-innovate"><span class="devsite-nav-text" tooltip="">Continuously improve and innovate</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/operational-excellence/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Security, privacy, and compliance</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/implement-security-by-design"><span class="devsite-nav-text" tooltip="">Implement security by design</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/implement-zero-trust"><span class="devsite-nav-text" tooltip="">Implement zero trust</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/implement-shift-left-security"><span class="devsite-nav-text" tooltip="">Implement shift-left security</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/implement-preemptive-cyber-defense"><span class="devsite-nav-text" tooltip="">Implement preemptive cyber defense</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/use-ai-securely-and-responsibly"><span class="devsite-nav-text" tooltip="">Use AI securely and responsibly</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/use-ai-for-security"><span class="devsite-nav-text" tooltip="">Use AI for security</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/meet-regulatory-compliance-and-privacy-needs"><span class="devsite-nav-text" tooltip="">Meet regulatory, compliance, and privacy needs</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/shared-responsibility-shared-fate"><span class="devsite-nav-text" tooltip="">Shared responsibility and shared fate</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/security/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Reliability</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/define-reliability-based-on-user-experience-goals"><span class="devsite-nav-text" tooltip="">Define reliability based on user-experience goals</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/set-targets"><span class="devsite-nav-text" tooltip="">Set realistic targets for reliability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/build-highly-available-systems"><span class="devsite-nav-text" tooltip="">Build high availability through redundancy</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/horizontal-scalability"><span class="devsite-nav-text" tooltip="">Take advantage of horizontal scalability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/observability"><span class="devsite-nav-text" tooltip="">Detect potential failures by using observability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/graceful-degradation"><span class="devsite-nav-text" tooltip="">Design for graceful degradation</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/perform-testing-for-recovery-from-failures"><span class="devsite-nav-text" tooltip="">Perform testing for recovery from failures</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/perform-testing-for-recovery-from-data-loss"><span class="devsite-nav-text" tooltip="">Perform testing for recovery from data loss</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/conduct-postmortems"><span class="devsite-nav-text" tooltip="">Conduct thorough postmortems</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/reliability/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Cost optimization</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/cost-optimization"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/cost-optimization/align-cloud-spending-business-value"><span class="devsite-nav-text" tooltip="">Align spending with business value</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/cost-optimization/foster-culture-cost-awareness"><span class="devsite-nav-text" tooltip="">Foster a culture of cost awareness</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/cost-optimization/optimize-resource-usage"><span class="devsite-nav-text" tooltip="">Optimize resource usage</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/cost-optimization/optimize-continuously"><span class="devsite-nav-text" tooltip="">Optimize continuously</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/cost-optimization/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Performance optimization</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/performance-optimization"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/performance-optimization/plan-resource-allocation"><span class="devsite-nav-text" tooltip="">Plan resource allocation</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/performance-optimization/elasticity"><span class="devsite-nav-text" tooltip="">Take advantage of elasticity</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/performance-optimization/promote-modular-design"><span class="devsite-nav-text" tooltip="">Promote modular design</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/performance-optimization/continuously-monitor-and-improve-performance"><span class="devsite-nav-text" tooltip="">Continuously monitor and improve performance</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/performance-optimization/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Sustainability</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/low-carbon-regions"><span class="devsite-nav-text" tooltip="">Use low-carbon regions</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/ai-ml-energy-efficiency"><span class="devsite-nav-text" tooltip="">Optimize AI and ML workloads</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/optimize-resource-usage"><span class="devsite-nav-text" tooltip="">Optimize resource usage</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/energy-efficient-software"><span class="devsite-nav-text" tooltip="">Develop energy-efficient software</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/optimize-storage"><span class="devsite-nav-text" tooltip="">Optimize data and storage</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/continuously-measure-improve"><span class="devsite-nav-text" tooltip="">Continuously measure and improve</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/culture"><span class="devsite-nav-text" tooltip="">Promote a culture of sustainability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/industry-guidelines"><span class="devsite-nav-text" tooltip="">Align with industry guidelines</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/sustainability/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/printable"><span class="devsite-nav-text" tooltip="">View all the pillars on one page</span></a></li><li class="devsite-nav-item devsite-nav-heading"><div class="devsite-nav-title devsite-nav-title-no-path">
+<span class="devsite-nav-text" tooltip="">Cross-pillar perspectives</span>
+</div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">AI and ML</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml/operational-excellence"><span class="devsite-nav-text" tooltip="">Operational excellence</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml/security"><span class="devsite-nav-text" tooltip="">Security</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml/reliability"><span class="devsite-nav-text" tooltip="">Reliability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml/cost-optimization"><span class="devsite-nav-text" tooltip="">Cost optimization</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml/performance-optimization"><span class="devsite-nav-text" tooltip="">Performance optimization</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/ai-ml/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Financial services (FS)</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi/operational-excellence"><span class="devsite-nav-text" tooltip="">Operational excellence</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi/security"><span class="devsite-nav-text" tooltip="">Security</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi/reliability"><span class="devsite-nav-text" tooltip="">Reliability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi/cost-optimization"><span class="devsite-nav-text" tooltip="">Cost optimization</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi/performance-optimization"><span class="devsite-nav-text" tooltip="">Performance optimization</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/framework/perspectives/fsi/printable"><span class="devsite-nav-text" tooltip="">View on one page</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Deployment archetypes</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/zonal"><span class="devsite-nav-text" tooltip="">Zonal</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/regional"><span class="devsite-nav-text" tooltip="">Regional</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/multiregional"><span class="devsite-nav-text" tooltip="">Multi-regional</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/global"><span class="devsite-nav-text" tooltip="">Global</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/hybrid"><span class="devsite-nav-text" tooltip="">Hybrid</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/multicloud"><span class="devsite-nav-text" tooltip="">Multicloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/comparison"><span class="devsite-nav-text" tooltip="">Comparative analysis</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deployment-archetypes/whats-next"><span class="devsite-nav-text" tooltip="">What's next</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Reference architectures</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/single-zone-deployment-compute-engine"><span class="devsite-nav-text" tooltip="">Single-zone deployment on Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/regional-deployment-compute-engine"><span class="devsite-nav-text" tooltip="">Regional deployment on Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/multiregional-vms"><span class="devsite-nav-text" tooltip="">Multi-regional deployment on Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/global-deployment-compute-engine-spanner"><span class="devsite-nav-text" tooltip="">Global deployment on Compute Engine and Spanner</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Landing zone design</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/landing-zones"><span class="devsite-nav-text" tooltip="">Landing zones overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/landing-zones/decide-how-to-onboard-identities"><span class="devsite-nav-text" tooltip="">Decide identity onboarding</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/landing-zones/decide-resource-hierarchy"><span class="devsite-nav-text" tooltip="">Decide resource hierarchy</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Network design</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/landing-zones/decide-network-design"><span class="devsite-nav-text" tooltip="">Decide network design</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/landing-zones/implement-network-design"><span class="devsite-nav-text" tooltip="">Implement network design</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/landing-zones/decide-security"><span class="devsite-nav-text" tooltip="">Decide security</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Enterprise foundations blueprint</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Architecture</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/authentication-authorization"><span class="devsite-nav-text" tooltip="">Authentication and authorization</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/organization-structure"><span class="devsite-nav-text" tooltip="">Organization structure</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/networking"><span class="devsite-nav-text" tooltip="">Networking</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/detective-controls"><span class="devsite-nav-text" tooltip="">Detective controls</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/preventative-controls"><span class="devsite-nav-text" tooltip="">Preventative controls</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/deployment-methodology"><span class="devsite-nav-text" tooltip="">Deployment methodology</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/operation-best-practices"><span class="devsite-nav-text" tooltip="">Operations best practices</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/security-foundations/summary"><span class="devsite-nav-text" tooltip="">Deploy the blueprint</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">AI and machine learning</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ai-ml"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Agentic AI</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-overview"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/choose-agentic-ai-architecture-components"><span class="devsite-nav-text" tooltip="">Choose agentic architecture components</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/choose-design-pattern-agentic-ai-system"><span class="devsite-nav-text" tooltip="">Choose an agent design pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/multiagent-ai-system"><span class="devsite-nav-text" tooltip="">Multi-agent AI system</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/multi-agent-private-networking-patterns"><span class="devsite-nav-text" tooltip="">Multi-agent private networking patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/multi-tenant-agentic-ai-system"><span class="devsite-nav-text" tooltip="">Multi-tenant agentic AI system</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/single-agent-ai-system-adk-cloud-run"><span class="devsite-nav-text" tooltip="">Single-agent AI system using ADK and Cloud Run</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Use cases</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-interactive-learning"><span class="devsite-nav-text" tooltip="">Administer interactive learning</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-data-science"><span class="devsite-nav-text" tooltip="">Automate data science workflows</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-build-multicloud-open-data-lakehouse"><span class="devsite-nav-text" tooltip="">Build a cross-cloud open data lakehouse</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-system-with-grounding-using-maps"><span class="devsite-nav-text" tooltip="">Build a trusted agentic system with Google Maps Platform</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-classify-multimodal-data"><span class="devsite-nav-text" tooltip="">Classify multimodal data</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-cross-cloud-analytics"><span class="devsite-nav-text" tooltip="">Implement agentic analytics for distributed data</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-bidirectional-multimodal-streaming"><span class="devsite-nav-text" tooltip="">Enable live bidirectional multimodal streaming</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-multimodal-graph-rag-resource-orchestration"><span class="devsite-nav-text" tooltip="">Multimodal GraphRAG resource orchestration</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agenticai-orchestrate-access-disparate-systems"><span class="devsite-nav-text" tooltip="">Orchestrate access to disparate systems</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/agentic-ai-orchestrate-security-ops-workflows"><span class="devsite-nav-text" tooltip="">Orchestrate security operations workflows</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Generative AI</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/genai-overview"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Generative AI with RAG</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/rag-reference-architectures"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/private-connectivity-rag-capable-gen-ai"><span class="devsite-nav-text" tooltip="">Private connectivity for RAG-capable generative AI applications</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/rag-genai-gemini-enterprise-vertexai"><span class="devsite-nav-text" tooltip="">RAG infrastructure using Gemini Enterprise and Agent Platform</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/gen-ai-rag-vertex-ai-vector-search"><span class="devsite-nav-text" tooltip="">RAG infrastructure using Agent Platform and Vector Search</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/rag-capable-gen-ai-app-using-vertex-ai"><span class="devsite-nav-text" tooltip="">RAG infrastructure using Agent Platform and AlloyDB</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/rag-capable-gen-ai-app-using-gke"><span class="devsite-nav-text" tooltip="">RAG infrastructure using GKE and Cloud SQL</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/gen-ai-graphrag-spanner"><span class="devsite-nav-text" tooltip="">GraphRAG infrastructure using Agent Platform and Spanner Graph</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/harness-cicd-pipeline-for-rag-app"><span class="devsite-nav-text" tooltip="">Harness CI/CD pipeline for RAG applications</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/genai-mlops-blueprint"><span class="devsite-nav-text" tooltip="">Deploy an enterprise generative AI and ML model</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deploy-operate-generative-ai-applications"><span class="devsite-nav-text" tooltip="">Deploy and operate generative AI applications</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/networking-for-ai-inference"><span class="devsite-nav-text" tooltip="">Networking for AI inference model serving on all backends</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/networking-for-ai-inference-gke"><span class="devsite-nav-text" tooltip="">Networking for AI inference model serving on GKE</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Use cases</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/use-generative-ai-utilization-management"><span class="devsite-nav-text" tooltip="">Automate utilization-review of health insurance claims</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/genai-marketing-campaigns"><span class="devsite-nav-text" tooltip="">Generate personalized marketing campaigns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/genai-product-recommendations"><span class="devsite-nav-text" tooltip="">Generate personalized product recommendations</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/genai-podcasts-from-commentary"><span class="devsite-nav-text" tooltip="">Generate podcasts from audio</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/genai-customer-support"><span class="devsite-nav-text" tooltip="">Generate solutions for customer support questions</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">ML applications and operations</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ai-ml/ml-application-operations-architecture-guides"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ml-on-gcp-best-practices"><span class="devsite-nav-text" tooltip="">Best practices for implementing ML on Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/guidelines-for-developing-high-quality-ml-solutions"><span class="devsite-nav-text" tooltip="">Guidelines for high-quality, predictive ML solutions</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/architecture-for-mlops-using-tfx-kubeflow-pipelines-and-cloud-build"><span class="devsite-nav-text" tooltip="">MLOps using TensorFlow Extended, Agent Platform Pipelines, and Cloud Build</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning"><span class="devsite-nav-text" tooltip="">MLOps: Continuous delivery and automation pipelines in machine learning</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Build an ML vision analytics solution with Dataflow and Cloud Vision API</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/building-a-vision-analytics-solution"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/building-a-vision-analytics-solution/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/security/confidential-computing-analytics-ai"><span class="devsite-nav-text" tooltip="">Confidential computing for data analytics and AI</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/cross-silo-cross-device-federated-learning-google-cloud"><span class="devsite-nav-text" tooltip="">Cross-silo and cross-device federated learning</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/implement-two-tower-retrieval-large-scale-candidate-generation"><span class="devsite-nav-text" tooltip="">Implement two-tower retrieval with large-scale candidate generation</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/model-development-data-labeling-labelbox-google-cloud"><span class="devsite-nav-text" tooltip="">Model development and data labeling with Labelbox</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/c3-ai-architecture"><span class="devsite-nav-text" tooltip="">C3 AI architecture</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">AI and ML infrastructure</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/optimize-ai-ml-workloads-cloud-storage-fuse"><span class="devsite-nav-text" tooltip="">Optimize AI and ML workloads with Cloud Storage FUSE</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/optimize-ai-ml-workloads-managed-lustre"><span class="devsite-nav-text" tooltip="">Optimize AI and ML workloads with Managed Lustre</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Application development</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/application-development"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Development approaches and styles</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/scalable-and-resilient-apps"><span class="devsite-nav-text" tooltip="">Patterns for scalable and resilient apps</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Development platform management</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Deploy an enterprise developer platform</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/architecture"><span class="devsite-nav-text" tooltip="">Architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/developer-platform-controls"><span class="devsite-nav-text" tooltip="">Developer platform controls</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/service-architecture"><span class="devsite-nav-text" tooltip="">Service architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/logging-monitoring"><span class="devsite-nav-text" tooltip="">Logging and monitoring</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/ops-developer-platform-applications"><span class="devsite-nav-text" tooltip="">Operations</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/manage-costs-attributions"><span class="devsite-nav-text" tooltip="">Costs and attributions</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/deployment-methodology"><span class="devsite-nav-text" tooltip="">Deployment methodology</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/cymbal-bank"><span class="devsite-nav-text" tooltip="">Cymbal Bank example</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/mapping-beyondprod-security-principles"><span class="devsite-nav-text" tooltip="">Mapping BeyondProd principles</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/enterprise-application-blueprint/deploy-blueprint"><span class="devsite-nav-text" tooltip="">Deploy the blueprint</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke"><span class="devsite-nav-text" tooltip="">Best practices for cost-optimized Kubernetes applications on GKE</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Expose service mesh applications through GKE Gateway</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/exposing-service-mesh-apps-through-gke-ingress"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/exposing-service-mesh-apps-through-gke-ingress/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Build globally distributed applications using GKE Gateway and Cloud Service Mesh</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/build-apps-using-gateway-and-cloud-service"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/build-apps-using-gateway-and-cloud-service/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/patterns-practices-identity-access-governance-google-cloud"><span class="devsite-nav-text" tooltip="">Patterns and practices for identity and access governance on Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/resource-management-with-servicenow"><span class="devsite-nav-text" tooltip="">Resource management with ServiceNow</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/select-managed-container-runtime-environment"><span class="devsite-nav-text" tooltip="">Select a managed container runtime environment</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">DevOps and development lifecycle</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/architecture-decision-records"><span class="devsite-nav-text" tooltip="">Architecture decision records overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Develop and deliver apps with a deployment pipeline</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/app-development-and-delivery-with-cloud-code-gcb-cd-and-gke"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/app-development-and-delivery-with-cloud-code-gcb-cd-and-gke/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/devops"><span class="devsite-nav-text" tooltip="">DevOps Research and Assessment (DORA) capabilities</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Application architectures</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Apache Guacamole on GKE and Cloud SQL</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deploy-guacamole-gke"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deploy-guacamole-gke/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Chrome Remote Desktop on Compute Engine</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/chrome-desktop-remote-on-compute-engine"><span class="devsite-nav-text" tooltip="">Set up for Linux</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/chrome-desktop-remote-windows-compute-engine"><span class="devsite-nav-text" tooltip="">Set up for Windows</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Connected device architectures on Google Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/connected-devices"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/connected-devices/mqtt-broker-architecture"><span class="devsite-nav-text" tooltip="">Standalone MQTT broker</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/connected-devices/iot-platform-product-architecture"><span class="devsite-nav-text" tooltip="">IoT platform product</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/connected-devices/device-pubsub-architecture"><span class="devsite-nav-text" tooltip="">Device to Pub/Sub connection to Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/connected-devices/bps-running-iot-backend-securely"><span class="devsite-nav-text" tooltip="">Best practices for running an IoT backend</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/connected-devices/best-practices-provisioning-configuring-bare-metal"><span class="devsite-nav-text" tooltip="">Best practices for automatically provisioning and configuring edge and bare metal systems and servers</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Manage and scale networking for Windows applications that run on managed Kubernetes</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/manage-and-scale-windows-networking"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/manage-and-scale-windows-networking/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/web-serving-overview"><span class="devsite-nav-text" tooltip="">Website hosting</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Big data and analytics</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/big-data-analytics"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">End-to-end architectures</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/confidential-data-warehouse-blueprint"><span class="devsite-nav-text" tooltip="">Import data into a secured BigQuery data warehouse</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Data mesh on Google Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/data-mesh"><span class="devsite-nav-text" tooltip="">Architecture and functions in a data mesh</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/design-self-service-data-platform-data-mesh"><span class="devsite-nav-text" tooltip="">Design a self-service data platform for a data mesh</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/build-data-products-data-mesh"><span class="devsite-nav-text" tooltip="">Build data products in a data mesh</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/discover-consume-data-products-data-mesh"><span class="devsite-nav-text" tooltip="">Discover and consume data products in a data mesh</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/deploy_enterprise_data_mesh"><span class="devsite-nav-text" tooltip="">Enterprise data management and analytics platform</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">BigQuery backup automation</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/scalable-bigquery-backup-automation"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/scalable-bigquery-backup-automation/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Load and process data</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/continuous-data-replication-bigquery-striim"><span class="devsite-nav-text" tooltip="">Continuous data replication to BigQuery using Striim</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Databases</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/databases"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Oracle workloads</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/oracle-workloads"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/enterprise-app-oracle-database-compute-engine"><span class="devsite-nav-text" tooltip="">Enterprise application with Oracle Database on Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/enterprise-app-oracle-exadata-database-compute-engine"><span class="devsite-nav-text" tooltip="">Enterprise application on Compute Engine with Oracle Exadata</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/oracle-ebs-on-compute-engine-vm"><span class="devsite-nav-text" tooltip="">Oracle E-Business Suite with Oracle Database on Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/oracle-ebs-with-oci-exadata"><span class="devsite-nav-text" tooltip="">Oracle E-Business Suite on Compute Engine with Oracle Exadata</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/oracle-peoplesoft-with-oci-exadata"><span class="devsite-nav-text" tooltip="">Oracle PeopleSoft on Compute Engine with Oracle Exadata</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/multi-cloud-database-management"><span class="devsite-nav-text" tooltip="">Multi-cloud database management</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/sql-server-alwayson-availability-group-compute-engine"><span class="devsite-nav-text" tooltip="">Microsoft SQL Server Always On availability group</span></a></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Hybrid and multicloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Build hybrid and multicloud architectures</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns/drivers"><span class="devsite-nav-text" tooltip="">Drivers, considerations, strategy, and patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns/strategy"><span class="devsite-nav-text" tooltip="">Plan a hybrid and multicloud strategy</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns/adopt"><span class="devsite-nav-text" tooltip="">Architectural approaches to adopt a hybrid or multicloud architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns/other-considerations"><span class="devsite-nav-text" tooltip="">Other considerations</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns/whats-next"><span class="devsite-nav-text" tooltip="">What's next</span></a></li><li class="devsite-nav-item devsite-nav-break"></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns/one-page-view"><span class="devsite-nav-text" tooltip="">View the guide as a single page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Hybrid and multicloud architecture patterns</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/distributed-patterns"><span class="devsite-nav-text" tooltip="">Distributed architecture patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/tiered-hybrid-pattern"><span class="devsite-nav-text" tooltip="">Tiered hybrid pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/partitioned-multicloud-pattern"><span class="devsite-nav-text" tooltip="">Partitioned multicloud pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/analytics-hybrid-multicloud-pattern"><span class="devsite-nav-text" tooltip="">Analytics hybrid and multicloud patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/edge-hybrid-pattern"><span class="devsite-nav-text" tooltip="">Edge hybrid pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/environment-hybrid-pattern"><span class="devsite-nav-text" tooltip="">Environment hybrid pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/business-continuity-patterns"><span class="devsite-nav-text" tooltip="">Business continuity hybrid and multicloud patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/cloud-bursting-pattern"><span class="devsite-nav-text" tooltip="">Cloud bursting pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/whats-next"><span class="devsite-nav-text" tooltip="">What's next</span></a></li><li class="devsite-nav-item devsite-nav-break"></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-patterns-and-practices/one-page-view"><span class="devsite-nav-text" tooltip="">View the guide as a single page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Hybrid and multicloud secure networking architecture patterns</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/design-considerations"><span class="devsite-nav-text" tooltip="">Design considerations</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/architecture-patterns"><span class="devsite-nav-text" tooltip="">Architecture patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/mirrored-pattern"><span class="devsite-nav-text" tooltip="">Mirrored pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/meshed-pattern"><span class="devsite-nav-text" tooltip="">Meshed pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/gated-patterns"><span class="devsite-nav-text" tooltip="">Gated patterns</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/gated-egress"><span class="devsite-nav-text" tooltip="">Gated egress</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/gated-ingress"><span class="devsite-nav-text" tooltip="">Gated ingress</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/gated-egress-ingress"><span class="devsite-nav-text" tooltip="">Gated egress and gated ingress</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/handover-pattern"><span class="devsite-nav-text" tooltip="">Handover pattern</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/general-best-practices"><span class="devsite-nav-text" tooltip="">General best practices</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/whats-next"><span class="devsite-nav-text" tooltip="">What's next</span></a></li><li class="devsite-nav-item devsite-nav-break"></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-multicloud-secure-networking-patterns/one-page-view"><span class="devsite-nav-text" tooltip="">View the guide as a single page</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Cross-Cloud Network for distributed applications</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/connectivity"><span class="devsite-nav-text" tooltip="">Connectivity</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/service-networking"><span class="devsite-nav-text" tooltip="">Service networking</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/security"><span class="devsite-nav-text" tooltip="">Network security</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/ccn-ncc-vpn-ra"><span class="devsite-nav-text" tooltip="">Cross-Cloud Network inter-VPC connectivity using Network Connectivity Center</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/ccn-vnp-vpn-ra"><span class="devsite-nav-text" tooltip="">Cross-Cloud Network inter-VPC connectivity with VPC Network Peering</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/ccn-nva-ra"><span class="devsite-nav-text" tooltip="">VPC Network Peering Cross-Cloud Network with NVAs and regional affinity</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/ccn-distributed-apps-design/ccn-ncc-nva"><span class="devsite-nav-text" tooltip="">Network Connectivity Center Cross-Cloud Network with NVAs and regional failover</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Hybrid and multicloud applications</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Hybrid render farm</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/building-a-hybrid-render-farm"><span class="devsite-nav-text" tooltip="">Build a hybrid render farm</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/patterns-for-connecting-other-csps-with-gcp"><span class="devsite-nav-text" tooltip="">Patterns for connecting other cloud service providers with Google Cloud</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Identity and access management</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Authenticate workforce users in a hybrid environment</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/authenticating-corporate-users-in-a-hybrid-environment"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/patterns-for-authenticating-corporate-users-in-a-hybrid-environment"><span class="devsite-nav-text" tooltip="">Implementation patterns</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/configuring-active-directory-for-vms-to-automatically-join-the-domain"><span class="devsite-nav-text" tooltip="">Configure Active Directory for VMs to automatically join a domain</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deploy-an-active-directory-forest-on-compute-engine"><span class="devsite-nav-text" tooltip="">Deploy an Active Directory forest on Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/patterns-for-using-active-directory-in-a-hybrid-environment"><span class="devsite-nav-text" tooltip="">Patterns for using Active Directory in a hybrid environment</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Third-party product integrations</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/using-cohesity-with-cloud-storage-for-enterprise-hybrid-data-protection"><span class="devsite-nav-text" tooltip="">Data management with Cohesity Helios and Google Cloud</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Migration</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrations"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Migrate to Google Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-gcp-getting-started"><span class="devsite-nav-text" tooltip="">Get started</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-gcp-assessing-and-discovering-your-workloads"><span class="devsite-nav-text" tooltip="">Assess and discover your workloads</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-google-cloud-building-your-foundation"><span class="devsite-nav-text" tooltip="">Plan and build your foundation</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-google-cloud-transferring-your-large-datasets"><span class="devsite-nav-text" tooltip="">Transfer your large datasets</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-gcp-deploying-your-workloads"><span class="devsite-nav-text" tooltip="">Deploy your workloads</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-google-cloud-automated-containerized-deployments"><span class="devsite-nav-text" tooltip="">Migrate from manual deployments to automated, containerized deployments</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-google-cloud-optimizing-your-environment"><span class="devsite-nav-text" tooltip="">Optimize your environment</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-google-cloud-best-practices"><span class="devsite-nav-text" tooltip="">Best practices for validating a migration plan</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-to-google-cloud-minimize-costs"><span class="devsite-nav-text" tooltip="">Minimize costs</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Migrate from AWS to Google Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-from-aws-get-started"><span class="devsite-nav-text" tooltip="">Get started</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-amazon-ec2-to-compute-engine"><span class="devsite-nav-text" tooltip="">Migrate Amazon EC2 to Compute Engine</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-amazon-s3-to-cloud-storage"><span class="devsite-nav-text" tooltip="">Migrate Amazon S3 to Cloud Storage</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-amazon-eks-to-gke"><span class="devsite-nav-text" tooltip="">Migrate Amazon EKS to GKE</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-aws-rds-to-sql-mysql"><span class="devsite-nav-text" tooltip="">Migrate from Amazon RDS and Amazon Aurora for MySQL to Cloud SQL for MySQL</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-aws-rds-aurora-to-postgresql"><span class="devsite-nav-text" tooltip="">Migrate from Amazon RDS and Amazon Aurora for PostgreSQL to Cloud SQL and AlloyDB for PostgreSQL</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-aws-rds-to-cloudsql-for-sqlserver"><span class="devsite-nav-text" tooltip="">Migrate from Amazon RDS for SQL Server to Cloud SQL for SQL Server</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-aws-lambda-to-cloudrun"><span class="devsite-nav-text" tooltip="">Migrate from AWS Lambda to Cloud Run</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Migrate from Azure to Google Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migration-from-azure-get-started"><span class="devsite-nav-text" tooltip="">Get started</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-on-premises-vms"><span class="devsite-nav-text" tooltip="">Migrate on-premises VMs</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/vmware-engine-blueprint"><span class="devsite-nav-text" tooltip="">Migrate to a Google Cloud VMware Engine platform</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Application migration</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Migrate containers to Google Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrating-containers-kubernetes-gke"><span class="devsite-nav-text" tooltip="">Migrate from Kubernetes to GKE</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Migrate across Google Cloud regions</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-across-regions"><span class="devsite-nav-text" tooltip="">Get started</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-across-regions/design-resilient-single-region-environments"><span class="devsite-nav-text" tooltip="">Design resilient single-region environments on Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-across-regions/architect-workloads"><span class="devsite-nav-text" tooltip="">Architect your workloads</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/migrate-across-regions/prepare-data-and-batch-workloads"><span class="devsite-nav-text" tooltip="">Prepare data and batch workloads for migration across regions</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Data and Database migration</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Database migration guide</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/database-migration-concepts-principles-part-1"><span class="devsite-nav-text" tooltip="">Concepts, principles, and terminology</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/database-migration-concepts-principles-part-2"><span class="devsite-nav-text" tooltip="">Set up and run a database migration process</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Networks for migrating enterprise workloads</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/network-architecture"><span class="devsite-nav-text" tooltip="">Architectural approaches</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/network-secure-intra-cloud-access"><span class="devsite-nav-text" tooltip="">Networking for secure intra-cloud access</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/network-application-delivery"><span class="devsite-nav-text" tooltip="">Networking for internet-facing application delivery</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/network-hybrid-multicloud"><span class="devsite-nav-text" tooltip="">Networking for hybrid and multicloud workloads</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Use RIOT Live Migration to migrate to Redis Enterprise Cloud</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/riot-live-migration-redis-enterprise-cloud"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/riot-live-migration-redis-enterprise-cloud/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/riot-live-migration-redis-enterprise-cloud/assessment"><span class="devsite-nav-text" tooltip="">Define migration scope</span></a></li></ul></div></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Monitoring and logging</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/monitoring"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Export logs and metrics</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/monitoring-metric-export"><span class="devsite-nav-text" tooltip="">Cloud Monitoring metric export</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Import logs from Cloud Storage to Cloud Logging</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/import-logs-from-storage-to-logging"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/import-logs-from-storage-to-logging/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/stream-logs-from-google-cloud-to-splunk"><span class="devsite-nav-text" tooltip="">Stream logs from Google Cloud to Splunk</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Hybrid and multicloud monitoring</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/hybrid-and-multi-cloud-monitoring-and-logging-patterns"><span class="devsite-nav-text" tooltip="">Hybrid and multicloud monitoring and logging patterns</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Log and monitor on-premises resources with BindPlane</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/logging-and-monitoring-on-premises-resources-with-bindplane"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/logging-on-premises-resources-with-bindplane"><span class="devsite-nav-text" tooltip="">Log on-premises resources</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/monitoring-on-premises-resources-with-bindplane"><span class="devsite-nav-text" tooltip="">Monitor on-premises resources</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Stream logs from Google Cloud to Datadog</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/stream-cloud-logs-to-datadog"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/stream-cloud-logs-to-datadog/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Networking</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/networking"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/best-practices-vpc-design"><span class="devsite-nav-text" tooltip="">Best practices and reference architectures for VPC design</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Connect</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deploy-hub-spoke-vpc-network-topology"><span class="devsite-nav-text" tooltip="">Hub-and-spoke network architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/patterns-for-connecting-other-csps-with-gcp"><span class="devsite-nav-text" tooltip="">Patterns for connecting other cloud service providers with Google Cloud</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Secure</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/fortigate-architecture-in-cloud"><span class="devsite-nav-text" tooltip="">Fortigate architecture in Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/palo-alto-networks-ngfw"><span class="devsite-nav-text" tooltip="">Secure virtual private cloud networks with the Palo Alto VM-Series NGFW</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/gcve-advanced-network-security"><span class="devsite-nav-text" tooltip="">VMware Engine network security using centralized appliances</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Reliability and disaster recovery</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/reliability"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Infrastructure reliability guide</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide"><span class="devsite-nav-text" tooltip="">Overview of reliability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide/building-blocks"><span class="devsite-nav-text" tooltip="">Building blocks of reliability</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide/requirements"><span class="devsite-nav-text" tooltip="">Assess reliability requirements</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide/design"><span class="devsite-nav-text" tooltip="">Design reliable infrastructure</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide/traffic-load"><span class="devsite-nav-text" tooltip="">Manage traffic and load</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide/manage-and-monitor"><span class="devsite-nav-text" tooltip="">Manage and monitor infrastructure</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/infra-reliability-guide/whats-next"><span class="devsite-nav-text" tooltip="">What's next</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Disaster recovery planning guide</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/dr-scenarios-planning-guide"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/dr-scenarios-building-blocks"><span class="devsite-nav-text" tooltip="">Building blocks</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/dr-scenarios-for-data"><span class="devsite-nav-text" tooltip="">Scenarios for data</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/dr-scenarios-for-applications"><span class="devsite-nav-text" tooltip="">Scenarios for applications</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/architecting-disaster-recovery-for-locality-restricted-workloads"><span class="devsite-nav-text" tooltip="">Architecting for locality-restricted workloads</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/dr-scenarios-locality-restricted-data-analytics"><span class="devsite-nav-text" tooltip="">Use cases: locality-restricted data analytics applications</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/disaster-recovery"><span class="devsite-nav-text" tooltip="">Architecting for cloud infrastructure outages</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Application availability</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/patterns-for-floating-ip-addresses-in-compute-engine"><span class="devsite-nav-text" tooltip="">Patterns for using floating IP addresses in Compute Engine</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Data availability</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/continuous-data-replication-cloud-spanner-striim"><span class="devsite-nav-text" tooltip="">Continuous data replication to Cloud Spanner using Striim</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/google-workspace-backup-with-afi-ai"><span class="devsite-nav-text" tooltip="">Google Workspace Backup with Afi.ai</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/architectures-high-availability-postgresql-clusters-compute-engine"><span class="devsite-nav-text" tooltip="">High availability of PostgreSQL clusters on Compute Engine</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/business-continuity-with-cicd-on-google-cloud"><span class="devsite-nav-text" tooltip="">Business continuity with CI/CD on Google Cloud</span></a></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Security and IAM</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/security-iam"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Identity and access management overview</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Concepts</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/overview-google-authentication"><span class="devsite-nav-text" tooltip="">Overview of Google identity management</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/reference-architectures"><span class="devsite-nav-text" tooltip="">Reference architectures</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/single-sign-on"><span class="devsite-nav-text" tooltip="">Single sign-on</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Best practices</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/best-practices-for-planning"><span class="devsite-nav-text" tooltip="">Best practices for planning accounts and organizations</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/best-practices-for-federating"><span class="devsite-nav-text" tooltip="">Best practices for federating Google Cloud with an external identity provider</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Assess and plan</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/overview-assess-and-plan"><span class="devsite-nav-text" tooltip="">Plan the onboarding process</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/federating-gcp-with-active-directory-introduction"><span class="devsite-nav-text" tooltip="">Federate with Active Directory</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/federating-gcp-with-azure-active-directory"><span class="devsite-nav-text" tooltip="">Federate with Microsoft Entra ID</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/assessing-existing-user-accounts"><span class="devsite-nav-text" tooltip="">Assess existing user accounts</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/assessing-onboarding-plans"><span class="devsite-nav-text" tooltip="">Assess onboarding plans</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/assessing-consolidation-impact-on-federation"><span class="devsite-nav-text" tooltip="">Assess the impact of user account consolidation on federation</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Deploy</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/preparing-your-g-suite-or-cloud-identity-account"><span class="devsite-nav-text" tooltip="">Prepare your Google Workspace or Cloud Identity account</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Set up federation</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/federating-gcp-with-azure-ad-configuring-provisioning-and-single-sign-on"><span class="devsite-nav-text" tooltip="">Microsoft Entra ID user provisioning and single sign-on</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/azure-ad-b2b-user-provisioning-and-sso"><span class="devsite-nav-text" tooltip="">Microsoft Entra ID B2B user provisioning and single sign-on</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/integrating-google-services-and-apps-with-azure-ad-portal"><span class="devsite-nav-text" tooltip="">Microsoft Entra ID My Apps portal integration</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/federating-gcp-with-active-directory-synchronizing-user-accounts"><span class="devsite-nav-text" tooltip="">Active Directory user account provisioning</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/federating-gcp-with-active-directory-configuring-single-sign-on"><span class="devsite-nav-text" tooltip="">Active Directory single sign-on</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/keycloak-single-sign-on"><span class="devsite-nav-text" tooltip="">Keycloak single sign-on</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/okta-provisioning-and-single-sign-on"><span class="devsite-nav-text" tooltip="">Okta user provisioning and single sign-on</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Consolidate accounts</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/overview-consolidating-accounts"><span class="devsite-nav-text" tooltip="">Overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/migrating-consumer-accounts"><span class="devsite-nav-text" tooltip="">Migrate consumer accounts</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/evicting-consumer-accounts"><span class="devsite-nav-text" tooltip="">Evict unwanted consumer accounts</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/sanitizing-gmail-accounts"><span class="devsite-nav-text" tooltip="">Sanitize Gmail accounts</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/removing-gmail-from-consumer-accounts"><span class="devsite-nav-text" tooltip="">Remove Gmail from consumer accounts</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/reconciling-orphaned-managed-user-accounts"><span class="devsite-nav-text" tooltip="">Reconcile orphaned managed user accounts</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Resources</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/identity/example-announcement"><span class="devsite-nav-text" tooltip="">Example announcement</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Application security</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/best-practices-securing-applications-and-apis-using-apigee"><span class="devsite-nav-text" tooltip="">Best practices for securing your applications and APIs using Apigee</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Use context-aware access to secure apps and resources</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/secure-apps-resources-using-context-aware-access"><span class="devsite-nav-text" tooltip="">Secure apps and resources</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/secure-apps-resources-using-context-aware-access/best-practices"><span class="devsite-nav-text" tooltip="">Best practices</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/design-secure-deployment-pipelines-bp"><span class="devsite-nav-text" tooltip="">Design secure deployment pipelines</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/deploy-programmable-gfe-cloud-armor-lb-cdn"><span class="devsite-nav-text" tooltip="">Use Google Cloud Armor, load balancing, and Cloud CDN to deploy programmable global front ends</span></a></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Secured serverless architecture</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/serverless-functions-blueprint"><span class="devsite-nav-text" tooltip="">Architecture using Cloud Functions</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/blueprints/serverless-blueprint"><span class="devsite-nav-text" tooltip="">Architecture using Cloud Run</span></a></li></ul></div></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Compliance</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/limiting-compliance-scope-pci-environments-google-cloud"><span class="devsite-nav-text" tooltip="">Limit scope of compliance for PCI environments in Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/pci-dss-compliance-in-gcp"><span class="devsite-nav-text" tooltip="">PCI Data Security Standard compliance</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/pci-dss-and-gke-guide"><span class="devsite-nav-text" tooltip="">PCI DSS compliance on GKE</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/gke-pci-dss-blueprint"><span class="devsite-nav-text" tooltip="">Security blueprint: PCI on GKE</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/tokenizing-sensitive-cardholder-data-for-pci-dss"><span class="devsite-nav-text" tooltip="">Tokenize sensitive cardholder data for PCI DSS</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Data and identity protection</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/backing-up-workspace-data-with-spinone"><span class="devsite-nav-text" tooltip="">Configure SaaS data protection for Google Workspace data with SpinOne</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/de-identification-re-identification-pii-using-cloud-dlp"><span class="devsite-nav-text" tooltip="">De-identification and re-identification of PII in large-scale datasets using Cloud DLP</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/secure-data-environments"><span class="devsite-nav-text" tooltip="">Secure data environments in Google Cloud</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/security-log-analytics"><span class="devsite-nav-text" tooltip="">Security log analytics in Google Cloud</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Mitigation and avoidance</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Automate malware scanning for files uploaded to Cloud Storage</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/automate-malware-scanning-for-documents-uploaded-to-cloud-storage"><span class="devsite-nav-text" tooltip="">Reference architecture</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/automate-malware-scanning-for-documents-uploaded-to-cloud-storage/deployment"><span class="devsite-nav-text" tooltip="">Deploy the architecture</span></a></li></ul></div></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/id-prioritize-security-risks-with-wiz"><span class="devsite-nav-text" tooltip="">Identify and prioritize security risks with Wiz Security Graph and Google Cloud</span></a></li></ul></div></li><li class="devsite-nav-item devsite-nav-expandable"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Network security</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/partners/palo-alto-networks-ngfw"><span class="devsite-nav-text" tooltip="">Secure virtual private cloud networks with the Palo Alto VM-Series NGFW</span></a></li></ul></div></li></ul></div></li>
+<li class="devsite-nav-item devsite-nav-expandable devsite-nav-accordion"><div class="devsite-expandable-nav">
+<a aria-hidden="true" class="devsite-nav-toggle"></a><div class="devsite-nav-title devsite-nav-title-no-path" role="button" tabindex="0">
+<span class="devsite-nav-text" tooltip="">Storage</span>
+</div><ul class="devsite-nav-section"><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/storage"><span class="devsite-nav-text" tooltip="">Content overview</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/storage-advisor"><span class="devsite-nav-text" tooltip="">Design an optimal storage strategy for your cloud workload</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/parallel-file-systems-for-hpc"><span class="devsite-nav-text" tooltip="">Parallel file systems for HPC workloads</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/optimize-ai-ml-workloads-cloud-storage-fuse"><span class="devsite-nav-text" tooltip="">Optimize AI and ML workloads with Cloud Storage FUSE</span></a></li><li class="devsite-nav-item"><a class="devsite-nav-title" href="/architecture/optimize-ai-ml-workloads-managed-lustre"><span class="devsite-nav-text" tooltip="">Optimize AI and ML workloads with Managed Lustre</span></a></li></ul></div></li>
+</ul>
+<ul aria-label="Side menu" class="devsite-nav-list" hidden="" menu="Documentation">
+<li class="devsite-nav-item devsite-nav-heading">
+<span class="devsite-nav-title" tooltip="">
+<span class="devsite-nav-text" tooltip="">
+      Get Started
+   </span>
+</span>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Get Started with Google Cloud" href="/docs/get-started" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Get Started with Google Cloud
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Product List" href="/docs/product-list" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Product List
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Cloud Customer Care" href="/support/docs" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Cloud Customer Care
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item devsite-nav-heading">
+<span class="devsite-nav-title" tooltip="">
+<span class="devsite-nav-text" tooltip="">
+      Featured Products
+   </span>
+</span>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Agent Platform" href="/products/gemini-enterprise-agent-platform" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Agent Platform
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Apigee API Management" href="/apigee" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Apigee API Management
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: BigQuery" href="/bigquery" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      BigQuery
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Compute Engine" href="/products/compute" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Compute Engine
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Cloud CDN" href="/cdn" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Cloud CDN
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Cloud Run" href="/run" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Cloud Run
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Cloud Storage" href="/storage" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Cloud Storage
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Cloud SQL" href="/sql" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Cloud SQL
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Gemini Enterprise" href="/gemini/enterprise/docs" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Gemini Enterprise
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Google Kubernetes Engine" href="/kubernetes-engine" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Google Kubernetes Engine
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Looker" href="/looker" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Looker
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item devsite-nav-heading">
+<span class="devsite-nav-title" tooltip="">
+<span class="devsite-nav-text" tooltip="">
+      Cross-product Tools
+   </span>
+</span>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Access and resources management" href="/docs/access-resources" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Access and resources management
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Costs and usage management" href="/docs/costs-usage" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Costs and usage management
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Infrastructure as code" href="/docs/iac" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Infrastructure as code
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: SDK, languages, frameworks, and tools" href="/docs/devtools" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      SDK, languages, frameworks, and tools
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item devsite-nav-heading">
+<span class="devsite-nav-title" tooltip="">
+<span class="devsite-nav-text" tooltip="">
+      Technology Areas
+   </span>
+</span>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: AI and ML" href="/docs/ai-ml" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      AI and ML
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Application development" href="/docs/application-development" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Application development
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Application hosting" href="/docs/application-hosting" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Application hosting
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Compute" href="/docs/compute-area" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Compute
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Data analytics and pipelines" href="/docs/data" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Data analytics and pipelines
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Databases" href="/docs/databases" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Databases
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Distributed, hybrid, and multicloud" href="/docs/dhm-cloud" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Distributed, hybrid, and multicloud
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Industry solutions" href="/docs/industry" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Industry solutions
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Migration" href="/docs/migration" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Migration
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Networking" href="/docs/networking" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Networking
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Observability and monitoring" href="/docs/observability" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Observability and monitoring
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Security" href="/docs/security" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Security
+   </span>
+</a>
+</li>
+<li class="devsite-nav-item">
+<a class="devsite-nav-title gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Responsive Tab: Storage" href="/docs/storage" track-metadata-eventdetail="globalMenu" track-metadata-position="nav" track-type="navMenu">
+<span class="devsite-nav-text" tooltip="">
+      Storage
+   </span>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</nav>
+</devsite-book-nav>
+<section id="gc-wrapper">
+<main class="devsite-main-content" has-book-nav="" has-sidebar="" id="main-content" role="main">
+<div class="devsite-sidebar">
+<div class="devsite-sidebar-content">
+<devsite-toc aria-label="On this page" class="devsite-nav" data-nosnippet="" depth="2" role="navigation" scrollbars=""></devsite-toc>
+<devsite-recommendations-sidebar class="nocontent devsite-nav" data-nosnippet="">
+</devsite-recommendations-sidebar>
+</div>
+</div>
+<devsite-content>
+<article class="devsite-article">
+<div class="devsite-article-meta nocontent" data-nosnippet="" role="navigation">
+<ul aria-label="Breadcrumb" class="devsite-breadcrumb-list">
+<li class="devsite-breadcrumb-item">
+<a class="devsite-breadcrumb-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Breadcrumbs" data-value="1" href="https://docs.cloud.google.com/" track-metadata-eventdetail="Google Cloud Documentation" track-metadata-position="1" track-name="breadcrumb" track-type="globalNav">
+    
+          Home
+        
+  </a>
+</li>
+<li class="devsite-breadcrumb-item">
+<div aria-hidden="true" class="devsite-breadcrumb-guillemet material-icons"></div>
+<a class="devsite-breadcrumb-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Breadcrumbs" data-value="2" href="https://docs.cloud.google.com/docs" track-metadata-eventdetail="Documentation" track-metadata-position="2" track-name="breadcrumb" track-type="globalNav">
+    
+          Documentation
+        
+  </a>
+</li>
+<li class="devsite-breadcrumb-item">
+<div aria-hidden="true" class="devsite-breadcrumb-guillemet material-icons"></div>
+<a class="devsite-breadcrumb-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Breadcrumbs" data-value="3" href="https://docs.cloud.google.com/architecture" track-metadata-eventdetail="Cloud Architecture Center" track-metadata-position="3" track-name="breadcrumb" track-type="globalNav">
+    
+          Cloud Architecture Center
+        
+  </a>
+</li>
+</ul>
+<devsite-thumb-rating position="header">
+</devsite-thumb-rating>
+</div>
+<devsite-feedback bucket="Documentation" class="nocontent" context="" data-label="Send Feedback Button" data-nosnippet="" position="header" product-id="5313931" project-icon="https://docs.cloud.google.com/static/site-assets/images/cloud.svg" project-name="Cloud Architecture Center" track-metadata-position="header" track-name="sendFeedbackLink" track-type="feedback" version="t-devsite-webserver-20261015-r00-rc00.481220705528973076">
+<button>
+  
+    
+    Send feedback
+  
+  </button>
+</devsite-feedback>
+<h1 class="devsite-page-title" tabindex="-1">
+      Architecture decision records overview<devsite-actions data-nosnippet="" hidden=""><devsite-feature-tooltip ack-key="AckCollectionsBookmarkTooltipDismiss" analytics-action-close="Callout Profile dismissed" analytics-action-show="Callout Profile displayed" analytics-category="Site-Wide Custom Events" analytics-label="Create Collection Callout" class="devsite-page-bookmark-tooltip nocontent" close-button-text="Got it" data-nosnippet="" dismiss-button="true" dismiss-button-text="Dismiss" id="devsite-collections-dropdown">
+<devsite-bookmark></devsite-bookmark>
+<span slot="popout-heading">
+      
+      Stay organized with collections
+    </span>
+<span slot="popout-contents">
+      
+      Save and categorize content based on your preferences.
+    </span>
+</devsite-feature-tooltip>
+<devsite-llm-tools></devsite-llm-tools></devsite-actions>
+</h1>
+<devsite-toc class="devsite-nav" depth="2" devsite-toc-embedded="">
+</devsite-toc>
+<div class="devsite-article-body clearfix">
+<div class="last-reviewed">Last reviewed 2024-08-16 UTC</div>
+<p>To help explain why your infrastructure or application teams make certain design
+choices, you can use architecture decision records (ADRs). This document
+explains when and how to use ADRs as you build and run applications on
+Google Cloud.</p>
+<p>An ADR captures the key options available, the main requirements that drive a
+decision, and the design decisions themselves. You often store ADRs in a
+<a href="https://en.wikipedia.org/wiki/Markdown" track-metadata-position="body" track-name="externalLink" track-type="solutions">Markdown</a> 
+file close to the codebase relevant to that decision. If someone needs to
+understand the background of a specific architectural decision, such as why you
+use a
+<a href="/kubernetes-engine/docs/concepts/regional-clusters" track-metadata-position="body" track-name="internalLink" track-type="solution">regional Google Kubernetes Engine (GKE) cluster</a>,
+they can review the ADR and then the associated code.</p>
+<p>ADRs can also help you run more reliable applications and services. The ADR
+helps you understand your current state and troubleshoot when there's a problem.
+ADRs also build a collection of engineering decisions to help future decision
+choices and deployments.</p>
+<h2 data-text="When to use ADRs" id="when_to_use_adrs" tabindex="-1">When to use ADRs</h2>
+<p>You use ADRs to track the key areas that you think are important to your
+deployment. Your ADR might include the following categories:</p>
+<ul>
+<li>Specific product choices, such as the choice between
+<a href="/pubsub/docs/choosing-pubsub-or-cloud-tasks" track-metadata-position="body" track-name="internalLink" track-type="solution">Pub/Sub and Cloud Tasks</a>.</li>
+<li>Specific product options and configurations, such as the use of regional
+GKE clusters with
+<a href="/kubernetes-engine/docs/concepts/multi-cluster-ingress" track-metadata-position="body" track-name="internalLink" track-type="solution">Multi Cluster Ingress</a> 
+for highly available applications.</li>
+<li>General architectural guidance, such as best practices for
+<a href="https://docs.docker.com/engine/reference/builder/" track-metadata-position="body" track-name="externalLink" track-type="solutions">Dockerfile</a> 
+manifests.</li>
+</ul>
+<p>Some specific examples that might prompt you to create an ADR could be for the
+following choices:</p>
+<ul>
+<li>How and why do you set up high availability (HA) for your
+<a href="/sql/docs/introduction" track-metadata-position="body" track-name="internalLink" track-type="solution">Cloud SQL</a> 
+instances?</li>
+<li>How do you approach uptime of GKE clusters? Do you use
+regional clusters? Do you use canary releases? Why or why not?</li>
+</ul>
+<p>As you evaluate the products to use, the ADR helps to explain each of your
+decisions. You can revisit the ADR as the team evolves and learns more about the
+stack and additional decisions are made or adjusted. If you make adjustments,
+include the previous decision and why a change is made. This history keeps a
+record of how the architecture has changed as business needs evolve, or where
+there are new technical requirements or available solutions.</p>
+<p>The following prompts help you to know when to create ADRs:</p>
+<ul>
+<li>When you have a technical challenge or question and there's no existing
+basis for a decision, such as a recommended solution, standard operation
+procedure, blueprint, or codebase.</li>
+<li>When you or your team offers a solution that's not documented somewhere
+accessible to the team.</li>
+<li>When there are two or more engineering options and you want to document your
+thoughts and reasons behind the selection.</li>
+</ul>
+<p>When you write an ADR, it helps to have potential readers in mind. The primary
+readers are members of the team that work on the technology covered by the ADR.
+Broader groups of potential readers of the ADR might include adjacent teams who
+want to understand your decisions, such as architecture and security teams.</p>
+<p>You should also consider that the application might change owners or include new
+team members. An ADR helps new contributors understand the background of the
+engineering choices that were made. An ADR also makes it easier to plan future
+changes.</p>
+<h2 data-text="Format of an ADR" id="format_of_an_adr" tabindex="-1">Format of an ADR</h2>
+<p>A typical ADR includes a set of chapters. Your ADRs should help capture what you
+feel is important to the application and your organization. Some ADRs might be
+one page long, whereas others require a longer explanation.</p>
+<p>The following example ADR outline shows how you might format an ADR to include
+the information that's important for your environment:</p>
+<ul>
+<li>Authors and the team</li>
+<li>Context and problem you want to solve</li>
+<li>Functional and non-functional requirements you want to address</li>
+<li>Potential critical user journey (CUJ) the decision impacts</li>
+<li>Overview of the key options</li>
+<li>Your decision and reasons behind the accepted choice</li>
+</ul>
+<p>To help keep a record of decisions, you might include a timestamp for each
+decision to show when the choice was made.</p>
+<h2 data-text="How ADRs work" id="how_adrs_work" tabindex="-1">How ADRs work</h2>
+<p>ADRs work best when engineers, developers, or application owners can easily
+access information they contain. When they have a question about the why
+something is done a certain way, they can look at the ADR to find the answer.</p>
+<p>To make the ADR accessible, some teams host it in a central wiki that's also
+accessible to business owners, instead of in their source control repository.
+When someone has a question about a specific engineering decision, the ADR is
+there to provide answers.</p>
+<p>ADRs work well in the following scenarios:</p>
+<ul>
+<li><strong>Onboarding</strong>: New team members can easily learn about the project, and they
+can review the ADR if they have questions while they're learning a new
+codebase.</li>
+<li><strong>Evolution of the architecture</strong>: If there's a transfer of technology stack
+between teams, the new owners can review past decisions to understand the
+current state. The team can also review past decisions when there's a new
+technology available to them. The ADR can help teams avoid a repeat of the
+same discussion points, and it can help provide historical context when
+teams revisit topics.</li>
+<li><strong>Sharing best practices</strong>: Teams can align on best practices across the
+organization when ADRs detail why certain decisions were made and alternatives
+were decided against.</li>
+</ul>
+<p>An ADR is often written in
+<a href="https://en.wikipedia.org/wiki/Markdown" track-metadata-position="body" track-name="externalLink" track-type="solutions">Markdown</a> 
+to keep it lightweight and text-based. Markdown files can be included in the
+source control repository with your application code.</p>
+<p>Store your ADRs close to your application code, ideally in the same version
+control system. As you make changes to your ADR, you can review previous
+versions from source control as needed.</p>
+<p>You could also use another medium like a shared Google Doc or an internal wiki.
+These alternate locations might be more accessible to users not part of the
+ADR's team. Another option is to create your ADR in a source control repository,
+but mirror key decisions into a more accessible wiki.</p>
+<h2 data-text="What's next" id="whats_next" tabindex="-1">What's next</h2>
+<ul>
+<li>The
+<a href="/architecture" track-metadata-position="body" track-name="internalLink" track-type="solution">Cloud Architecture Center</a> 
+and the
+<a href="/architecture/framework" track-metadata-position="body" track-name="internalLink" track-type="solution">Google Cloud Well-Architected Framework</a> 
+provide additional guidance and best practices.</li>
+<li>For some areas that might be in your ADR, see
+<a href="/architecture/scalable-and-resilient-apps" track-metadata-position="body" track-name="internalLink" track-type="solution">Patterns for scalable and resilient apps</a>.</li>
+</ul>
+<devsite-hats-survey class="nocontent" data-nosnippet="" hats-id="Nd7nTix2o0eU5NUYprb0ThtUc5jf" listnr-id="83405"></devsite-hats-survey>
+</div>
+<devsite-thumb-rating position="footer">
+</devsite-thumb-rating>
+<devsite-feedback bucket="Documentation" class="nocontent" context="" data-label="Send Feedback Button" data-nosnippet="" position="footer" product-id="5313931" project-icon="https://docs.cloud.google.com/static/site-assets/images/cloud.svg" project-name="Cloud Architecture Center" track-metadata-position="footer" track-name="sendFeedbackLink" track-type="feedback" version="t-devsite-webserver-20261015-r00-rc00.481220705528973076">
+<button>
+  
+    
+    Send feedback
+  
+  </button>
+</devsite-feedback>
+<div class="devsite-floating-action-buttons"></div></article>
+<devsite-content-footer class="nocontent" data-nosnippet="">
+<p>Except as otherwise noted, the content of this page is licensed under the <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 License</a>, and code samples are licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 License</a>. For details, see the <a href="https://developers.google.com/site-policies">Google Developers Site Policies</a>. Java is a registered trademark of Oracle and/or its affiliates.</p>
+<p>Last updated 2024-08-16 UTC.</p>
+</devsite-content-footer>
+<devsite-notification>
+</devsite-notification>
+<div class="devsite-content-data">
+<template class="devsite-thumb-rating-feedback">
+<devsite-feedback bucket="Documentation" class="nocontent" context="" data-label="Send Feedback Button" data-nosnippet="" position="thumb-rating" product-id="5313931" project-icon="https://docs.cloud.google.com/static/site-assets/images/cloud.svg" project-name="Cloud Architecture Center" track-metadata-position="thumb-rating" track-name="sendFeedbackLink" track-type="feedback" version="t-devsite-webserver-20261015-r00-rc00.481220705528973076">
+<button>
+  
+    Need to tell us more?
+  
+  </button>
+</devsite-feedback>
+</template>
+<template class="devsite-content-data-template">
+      [[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Hard to understand","hardToUnderstand","thumb-down"],["Incorrect information or sample code","incorrectInformationOrSampleCode","thumb-down"],["Missing the information/samples I need","missingTheInformationSamplesINeed","thumb-down"],["Other","otherDown","thumb-down"]],["Last updated 2024-08-16 UTC."],[],[]]
+    </template>
+</div>
+</devsite-content>
+</main>
+<devsite-footer-promos class="devsite-footer">
+</devsite-footer-promos>
+<devsite-footer-linkboxes class="devsite-footer">
+<nav aria-label="Footer links" class="devsite-footer-linkboxes nocontent" data-nosnippet="">
+<ul class="devsite-footer-linkboxes-list">
+<li class="devsite-footer-linkbox">
+<h3 class="devsite-footer-linkbox-heading no-link">Products and pricing</h3>
+<ul class="devsite-footer-linkbox-list">
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 1)" href="//cloud.google.com/products/" track-metadata-child_headline="products and pricing" track-metadata-eventdetail="cloud.google.com/products/" track-metadata-module="footer" track-metadata-position="footer" track-name="see all products" track-type="footer link">
+            
+          
+            See all products
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 2)" href="//cloud.google.com/pricing/" track-metadata-child_headline="products and pricing" track-metadata-eventdetail="cloud.google.com/pricing/" track-metadata-module="footer" track-metadata-position="footer" track-name="google cloud pricing" track-type="footer link">
+            
+          
+            Google Cloud pricing
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 3)" href="//cloud.google.com/marketplace/" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/marketplace/" track-metadata-module="footer" track-metadata-position="footer" track-name="google cloud marketplace" track-type="footer link">
+            
+          
+            Google Cloud Marketplace
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 4)" href="//cloud.google.com/contact/" track-metadata-child_headline="engage" track-metadata-eventdetail="cloud.google.com/contact/" track-metadata-module="footer" track-metadata-position="footer" track-name="contact sales" track-type="footer link">
+            
+              
+              
+            
+          
+            Contact sales
+          
+          </a>
+</li>
+</ul>
+</li>
+<li class="devsite-footer-linkbox">
+<h3 class="devsite-footer-linkbox-heading no-link">Support</h3>
+<ul class="devsite-footer-linkbox-list">
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 1)" href="//discuss.google.dev/c/google-cloud/14/" rel="noopener" target="_blank" track-metadata-child_headline="engage" track-metadata-eventdetail="www.googlecloudcommunity.com" track-metadata-module="footer" track-metadata-position="footer" track-name="google cloud community" track-type="footer link">
+            
+          
+            Community forums
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 2)" href="//cloud.google.com/support-hub/" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/support-hub/" track-metadata-module="footer" track-metadata-position="footer" track-name="support" track-type="footer link">
+            
+          
+            Support
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 3)" href="//docs.cloud.google.com/release-notes" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/release-notes/" track-metadata-module="footer" track-metadata-position="footer" track-name="release notes" track-type="footer link">
+            
+          
+            Release Notes
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 4)" href="//status.cloud.google.com" target="_blank" track-metadata-child_headline="resources" track-metadata-eventdetail="status.cloud.google.com" track-metadata-module="footer" track-metadata-position="footer" track-name="system status" track-type="footer link">
+            
+              
+              
+            
+          
+            System status
+          
+          </a>
+</li>
+</ul>
+</li>
+<li class="devsite-footer-linkbox">
+<h3 class="devsite-footer-linkbox-heading no-link">Resources</h3>
+<ul class="devsite-footer-linkbox-list">
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 1)" href="//github.com/googlecloudPlatform/" track-metadata-child_headline="resources" track-metadata-eventdetail="github.com/googlecloudPlatform/" track-metadata-module="footer" track-metadata-position="footer" track-name="github" track-type="footer link">
+            
+          
+            GitHub
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 2)" href="/docs/get-started/" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/docs/get-started/" track-metadata-module="footer" track-metadata-position="footer" track-name="google cloud quickstarts" track-type="footer link">
+            
+          
+            Getting Started with Google Cloud
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 3)" href="/docs/samples" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/docs/samples" track-metadata-module="footer" track-metadata-position="footer" track-name="code samples" track-type="footer link">
+            
+          
+            Code samples
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 4)" href="/architecture/" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/architecture/" track-metadata-module="footer" track-metadata-position="footer" track-name="cloud architecture center" track-type="footer link">
+            
+          
+            Cloud Architecture Center
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 5)" href="//cloud.google.com/learn/training/" track-metadata-child_headline="resources" track-metadata-eventdetail="cloud.google.com/learn/training/" track-metadata-module="footer" track-metadata-position="footer" track-name="training" track-type="footer link">
+            
+          
+            Training and Certification
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 6)" href="//me.developers.google.com/" track-metadata-child_headline="resources" track-metadata-eventdetail="me.developers.google.com/" track-metadata-module="footer" track-metadata-position="footer" track-name="builders hub" track-type="footer link">
+            
+              
+              
+            
+          
+            Builders Hub
+          
+          </a>
+</li>
+</ul>
+</li>
+<li class="devsite-footer-linkbox">
+<h3 class="devsite-footer-linkbox-heading no-link">Engage</h3>
+<ul class="devsite-footer-linkbox-list">
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 1)" href="//cloud.google.com/blog/" track-metadata-child_headline="engage" track-metadata-eventdetail="cloud.google.com/blog/" track-metadata-module="footer" track-metadata-position="footer" track-name="blog" track-type="footer link">
+            
+          
+            Blog
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 2)" href="//cloud.google.com/events/" track-metadata-child_headline="engage" track-metadata-eventdetail="cloud.google.com/events/" track-metadata-module="footer" track-metadata-position="footer" track-name="events" track-type="footer link">
+            
+          
+            Events
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 3)" href="//x.com/googlecloud" rel="noopener" target="_blank" track-metadata-child_headline="engage" track-metadata-eventdetail="x.com/googlecloud" track-metadata-module="footer" track-metadata-position="footer" track-name="follow on x" track-type="footer link">
+            
+          
+            X (Twitter)
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 4)" href="//www.youtube.com/googlecloud" rel="noopener" target="_blank" track-metadata-child_headline="engage" track-metadata-eventdetail="www.youtube.com/googlecloud" track-metadata-module="footer" track-metadata-position="footer" track-name="google cloud on youtube" track-type="footer link">
+            
+          
+            Google Cloud on YouTube
+          
+          </a>
+</li>
+<li class="devsite-footer-linkbox-item">
+<a class="devsite-footer-linkbox-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Link (index 5)" href="//www.youtube.com/googlecloudplatform" rel="noopener" target="_blank" track-metadata-child_headline="engage" track-metadata-eventdetail="www.youtube.com/googlecloudplatform" track-metadata-module="footer" track-metadata-position="footer" track-name="google cloud tech on youtube" track-type="footer link">
+            
+              
+              
+            
+          
+            Google Cloud Tech on YouTube
+          
+          </a>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</devsite-footer-linkboxes>
+<devsite-footer-utility class="devsite-footer">
+<div class="devsite-footer-utility nocontent" data-nosnippet="">
+<nav aria-label="Other Google Developers websites" class="devsite-footer-sites">
+<a class="devsite-footer-sites-logo-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Google Developers Link" href="https://developers.google.com/">
+<picture>
+<source class="devsite-dark-theme" media="(prefers-color-scheme: none)" srcset="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/lockup-google-for-developers-dark-theme.svg"/>
+<img alt="Google Developers" class="devsite-footer-sites-logo" loading="lazy" src="https://www.gstatic.com/devrel-devsite/prod/v5a0f9ff8b593048661361a49e11ab98a8b1ac025e19e60e6189f2b56796f8a43/clouddocs/images/lockup-google-for-developers.svg"/>
+</picture>
+</a>
+<ul class="devsite-footer-sites-list">
+<li class="devsite-footer-sites-item">
+<a class="devsite-footer-sites-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Android Developers Link" href="https://developer.android.com/">
+          Android
+        </a>
+</li>
+<li class="devsite-footer-sites-item">
+<a class="devsite-footer-sites-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Chrome Link" href="https://developer.chrome.com/">
+          Chrome
+        </a>
+</li>
+<li class="devsite-footer-sites-item">
+<a class="devsite-footer-sites-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Firebase Link" href="https://firebase.google.com/">
+          Firebase
+        </a>
+</li>
+<li class="devsite-footer-sites-item">
+<a class="devsite-footer-sites-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Google AI Link" href="https://ai.google.com/">
+          Google AI
+        </a>
+</li>
+</ul>
+</nav>
+<nav aria-label="Utility links" class="devsite-footer-utility-links">
+<ul class="devsite-footer-utility-list">
+<li class="devsite-footer-utility-item">
+<a class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer About Google link" href="//about.google/" target="_blank" track-metadata-eventdetail="//about.google/" track-metadata-module="utility footer" track-metadata-position="footer" track-name="about google" track-type="footer link">
+          About Google
+        </a>
+</li>
+<li class="devsite-footer-utility-item devsite-footer-privacy-link">
+<a class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Privacy link" href="//policies.google.com/privacy" target="_blank" track-metadata-eventdetail="//policies.google.com/privacy" track-metadata-module="utility footer" track-metadata-position="footer" track-name="privacy" track-type="footer link">
+          Privacy
+        </a>
+</li>
+<li class="devsite-footer-utility-item">
+<a class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Site terms link" href="//policies.google.com/terms?hl=en" target="_blank" track-metadata-eventdetail="//www.google.com/intl/en/policies/terms/regional.html" track-metadata-module="utility footer" track-metadata-position="footer" track-name="site terms" track-type="footer link">
+          Site terms
+        </a>
+</li>
+<li class="devsite-footer-utility-item">
+<a class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Google Cloud terms link" href="//cloud.google.com/product-terms" track-metadata-eventdetail="//cloud.google.com/product-terms" track-metadata-module="utility footer" track-metadata-position="footer" track-name="google cloud terms" track-type="footer link">
+          Google Cloud terms
+        </a>
+</li>
+<li class="devsite-footer-utility-item glue-cookie-notification-bar-control">
+<a aria-hidden="true" class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Manage cookies link" href="#" track-metadata-eventdetail="#" track-metadata-module="utility footer" track-metadata-position="footer" track-name="Manage cookies" track-type="footer link">
+          Manage cookies
+        </a>
+</li>
+<li class="devsite-footer-utility-item devsite-footer-carbon-button">
+<a class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Our third decade of climate action: join us link" href="//cloud.google.com/sustainability" track-metadata-eventdetail="/sustainability/" track-metadata-module="utility footer" track-metadata-position="footer" track-name="Our third decade of climate action: join us" track-type="footer link">
+          Our third decade of climate action: join us
+        </a>
+</li>
+<li class="devsite-footer-utility-item devsite-footer-utility-button">
+<span class="devsite-footer-utility-description">Sign up for the Google Cloud newsletter</span>
+<a class="devsite-footer-utility-link gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Footer Subscribe link" href="//cloud.google.com/newsletter/" track-metadata-eventdetail="/newsletter/" track-metadata-module="utility footer" track-metadata-position="footer" track-name="subscribe" track-type="footer link">
+          Subscribe
+        </a>
+</li>
+</ul>
+<devsite-language-selector>
+<ul role="presentation">
+<li role="presentation">
+<a lang="en" role="menuitem">English</a>
+</li>
+<li role="presentation">
+<a lang="de" role="menuitem">Deutsch</a>
+</li>
+<li role="presentation">
+<a lang="es" role="menuitem">Español</a>
+</li>
+<li role="presentation">
+<a lang="es_419" role="menuitem">Español – América Latina</a>
+</li>
+<li role="presentation">
+<a lang="fr" role="menuitem">Français</a>
+</li>
+<li role="presentation">
+<a lang="id" role="menuitem">Indonesia</a>
+</li>
+<li role="presentation">
+<a lang="it" role="menuitem">Italiano</a>
+</li>
+<li role="presentation">
+<a lang="pt" role="menuitem">Português</a>
+</li>
+<li role="presentation">
+<a lang="pt_br" role="menuitem">Português – Brasil</a>
+</li>
+<li role="presentation">
+<a lang="he" role="menuitem">עברית</a>
+</li>
+<li role="presentation">
+<a lang="zh_cn" role="menuitem">中文 – 简体</a>
+</li>
+<li role="presentation">
+<a lang="zh_tw" role="menuitem">中文 – 繁體</a>
+</li>
+<li role="presentation">
+<a lang="ja" role="menuitem">日本語</a>
+</li>
+<li role="presentation">
+<a lang="ko" role="menuitem">한국어</a>
+</li>
+</ul>
+</devsite-language-selector>
+</nav>
+</div>
+</devsite-footer-utility>
+<devsite-panel>
+</devsite-panel>
+</section>
+</section>
+<devsite-sitemask></devsite-sitemask>
+<devsite-snackbar></devsite-snackbar>
+<devsite-tooltip></devsite-tooltip>
+<devsite-heading-link></devsite-heading-link>
+<devsite-analytics>
+
+
+</devsite-analytics>
+<devsite-badger></devsite-badger>
+<cloudx-user></cloudx-user>
+<cloudx-free-trial-eligible-store freetrialeligible="true"></cloudx-free-trial-eligible-store>
+
+<devsite-a11y-announce></devsite-a11y-announce>
+</body>
+</html>

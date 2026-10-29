@@ -4,8 +4,9 @@
 
 **Priority:** P1
 
-Run fresh direct-routing probes against the 16 public skills. The saved five-client routing
-results used the retired 23-skill committed corpus and do not validate the new descriptions.
+Run fresh direct-routing probes against the 41 public skills. The saved five-client routing
+results used the retired 23-skill committed corpus and do not validate the expanded pack or its
+shortened descriptions. Live routing and quality checks for this expansion are deferred.
 Start with one pass, inspect the trajectories, then repeat only the cases that show a concrete
 problem.
 
@@ -14,7 +15,7 @@ complete. At default effort, the guided arm tied the baseline on hidden correctn
 the structure metrics. At `xhigh`, both arms improved, but the guided arm finished three tests
 behind its baseline. Run another problem, with repeats, only before making a broader quality claim.
 
-The complete 24-skill metadata list uses 7,664 of Codex's 8,000 fallback characters at the
+The complete 49-skill metadata list uses 7,839 of Codex's 8,000 fallback characters at the
 recorded path. Test per-user installation first; use selected project packs when a deep repository
 path or unrelated host skills pushes the list over budget.
 
@@ -22,9 +23,9 @@ path or unrelated host skills pushes the list over budget.
 
 **Priority:** P2
 
-Create reproducible snapshots and verify licenses for the cataloged Developer Documentation
-Style, Technical Writing, and product-management pages before generating them. Model the R
-guide's CC BY 3.0 and CC BY-SA 2.0 terms separately.
+Developer Documentation Style and Technical Writing now have reproducible snapshots and
+generated skills. Finish source and license review for the remaining product-management pages.
+Model the R guide's CC BY 3.0 and CC BY-SA 2.0 terms separately.
 
 ## Decide how to handle source images and links
 

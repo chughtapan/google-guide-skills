@@ -1,0 +1,28 @@
+{
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the documentation contributors",
+    "audited": "2026-10-28",
+    "code_samples_spdx": "Apache-2.0",
+    "evidence_path": "LICENSE.txt",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_sha256": "083d0cbb3ec5f9947435491d0716cfca93cac1cc69ff33f3145f5a64525c7b42",
+  "pages": [
+    {
+      "license_path": "licenses/slo.txt",
+      "license_sha256": "6102c3d775e4f91c83f6f78f0f419b02326507b430b94a11a897fa04e754976f",
+      "path": "slo.html",
+      "resolved_url": "https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+      "selector": "article.devsite-article",
+      "sha256": "738c89454c0abb1794a0e3d3a8aa4cb7a3afa2543cb2a5de68f4c7c2dde4a768",
+      "url": "https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+    }
+  ],
+  "schema_version": 1,
+  "snapshot": "8b9c3cef75c7f104a8a59ab81de10fc3f5bb40c70e982c925d4999bd2f5c07a8",
+  "source": "cloud-slo",
+  "url": "https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring"
+}

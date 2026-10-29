@@ -74,6 +74,239 @@ smoke:
   - id: smoke-review-reviewer
     prompt: Review a teammate's change using Google's review standard, inspection order, comment style, and speed guidance.
     expected: [google-code-review-reviewer]
+  - id: smoke-api-resource-design
+    prompt: Design a resource-oriented API for publishers and books. Review a proposed flat table-shaped
+      endpoint and explain resource names and parent-child associations.
+    expected:
+    - google-api-resource-design
+    rubric:
+    - - resource
+    - - hierarch|parent|collection
+    - - database.*(schema|coupl)|schema.*(database|storage)
+  - id: smoke-api-methods
+    prompt: Review an AIP-style update endpoint that uses PUT, triggers an email side effect, and ignores
+      stale etags. Recommend method semantics.
+    expected:
+    - google-api-methods
+    rubric:
+    - - PATCH
+    - - side.effect|custom method
+    - - etag|freshness
+  - id: smoke-api-data-modeling
+    prompt: Review an API schema with a boolean state flag, ambiguous numeric units, timestamps encoded
+      as arbitrary strings, and required fields added later.
+    expected:
+    - google-api-data-modeling
+    rubric:
+    - - unit|quantity
+    - - timestamp|duration
+    - - state|enum
+  - id: smoke-api-list-design
+    prompt: Design list pagination with opaque page tokens, filtering, ordering, and partial results.
+      The proposal adds pagination to an existing unpaginated API.
+    expected:
+    - google-api-list-design
+    rubric:
+    - - opaque
+    - - compatib|breaking
+    - - filter|order
+  - id: smoke-api-async-and-batch
+    prompt: Design a long-running batch-create API. Explain operation completion, error reporting, and
+      when partial success is appropriate.
+    expected:
+    - google-api-async-and-batch
+    rubric:
+    - - operation
+    - - partial
+    - - atomic|error
+  - id: smoke-api-errors-and-retries
+    prompt: Review an API that retries every error, has no request IDs, and uses changing error strings
+      as machine-readable codes.
+    expected:
+    - google-api-errors-and-retries
+    rubric:
+    - - retry|retries
+    - - idempoten|request.*id
+    - - code|ErrorInfo|structured
+  - id: smoke-api-evolution
+    prompt: Assess compatibility of an API release that renames a field, changes its default, and removes
+      an enum value. Propose a versioning approach.
+    expected:
+    - google-api-evolution
+    rubric:
+    - - compatib|breaking
+    - - default
+    - - version|deprecat
+  - id: smoke-api-documentation
+    prompt: Write API field and method comments that explain units, defaults, valid ranges, side effects,
+      and failure behavior under AIP conventions.
+    expected:
+    - google-api-documentation
+    rubric:
+    - - unit
+    - - default
+    - - side.effect|failure|error
+  - id: smoke-design-docs
+    prompt: Draft a system design document for a new job service, covering requirements, alternatives,
+      scaling, dependencies, recovery, and security tradeoffs.
+    expected:
+    - google-design-docs
+    rubric:
+    - - requirement
+    - - dependenc|scal
+    - - security|recover
+  - id: smoke-adr
+    prompt: Write an architecture decision record for choosing between a durable queue and a database
+      polling table. Preserve why the choice was made and how later changes should be recorded.
+    expected:
+    - google-adr
+    rubric:
+    - - context|problem
+    - - option|alternative
+    - - reason|rationale
+    - - history|previous|timestamp
+  - id: smoke-service-architecture
+    prompt: Our services require coordinated releases and shared integration environments. Review service
+      boundaries to enable independent deployment and testing.
+    expected:
+    - google-service-architecture
+    rubric:
+    - - coupl
+    - - independen
+    - - test|deploy
+  - id: smoke-threat-modeling
+    prompt: Threat-model a document service used by employees and contractors. Identify adversaries,
+      insider capabilities, trust boundaries, and risk priorities.
+    expected:
+    - google-threat-modeling
+    rubric:
+    - - insider
+    - - adversar|attacker
+    - - risk|boundary|boundaries
+  - id: smoke-secure-design
+    prompt: Review a system with broad administrator credentials, a general-purpose remote shell, no
+      audit trail, and no emergency-access controls.
+    expected:
+    - google-secure-design
+    rubric:
+    - - least privilege
+    - - audit
+    - - breakglass|emergency
+  - id: smoke-security-testing
+    prompt: Plan security tests for a parser and an authorization boundary. Compare fuzzing, dynamic
+      analysis, static analysis, and negative permission tests.
+    expected:
+    - google-security-testing
+    rubric:
+    - - fuzz
+    - - static|dynamic
+    - - privilege|permission|authoriz
+  - id: smoke-secure-delivery
+    prompt: Review a release pipeline that allows manual binary uploads and unsigned builds. Propose
+      artifact provenance, deployment policy, and audited emergency access.
+    expected:
+    - google-secure-delivery
+    rubric:
+    - - provenance
+    - - sign|artifact
+    - - breakglass|emergency|audit
+  - id: smoke-reliability-design
+    prompt: Review a service for failure domains, redundancy, graceful degradation, overload handling,
+      and tested recovery.
+    expected:
+    - google-reliability-design
+    rubric:
+    - - failure domain|blast radius
+    - - degrad|shed|throttl
+    - - recover|rollback|failover
+  - id: smoke-incident-response
+    prompt: Prepare a response plan for a production outage with a suspected compromise. Assign roles,
+      coordinate handovers, plan recovery, and capture lessons afterward.
+    expected:
+    - google-incident-response
+    rubric:
+    - - triage|triaging|incident commander
+    - - handover|communication
+    - - postmortem|post.mortem|lesson
+  - id: smoke-observability
+    prompt: Review a monitoring plan that has many CPU dashboards but no user-visible signals or actionable
+      failure notifications. Recommend instrumentation and alerting improvements.
+    expected:
+    - google-observability
+    rubric:
+    - - user|customer
+    - - black.box|white.box|instrument
+    - - alert|notif
+  - id: smoke-slos
+    prompt: Define an availability SLI, a 99.9 percent SLO, its error budget, and the tradeoffs between
+      rolling and calendar compliance periods.
+    expected:
+    - google-slos
+    rubric:
+    - - indicator|ratio
+    - - budget
+    - - rolling
+    - - calendar
+  - id: smoke-delivery-performance
+    prompt: Design a software delivery improvement review using the current five DORA metrics. Explain
+      why aggregating unlike services and ranking individuals is misleading.
+    expected:
+    - google-delivery-performance
+    rubric:
+    - - lead time
+    - - deployment frequency
+    - - recovery
+    - - fail
+    - - rework
+  - id: smoke-database-change-management
+    prompt: Plan a zero-downtime database schema change with versioned migrations and application versions
+      that overlap during deployment.
+    expected:
+    - google-database-change-management
+    rubric:
+    - - migration
+    - - version
+    - - compatib|decoupl|expand|contract
+  - id: smoke-developer-documentation-style
+    prompt: Edit developer documentation for Google-style voice, code formatting, UI labels, descriptive
+      links, and clear procedural steps.
+    expected:
+    - google-developer-documentation-style
+    rubric:
+    - - code
+    - - bold|UI
+    - - link
+    - - step|procedure
+  - id: smoke-technical-writing
+    prompt: 'Improve a technical explanation for new operators: define the audience, set scope, organize
+      key points, self-edit, and include effective sample code.'
+    expected:
+    - google-technical-writing
+    rubric:
+    - - audience
+    - - scope
+    - - sample|example
+    - - edit|read.*aloud|read.*loud
+  - id: smoke-accessible-documentation
+    prompt: Review documentation that relies on red and green arrows, has generic link labels, and omits
+      alt text for complex diagrams.
+    expected:
+    - google-accessible-documentation
+    rubric:
+    - - alt text
+    - - color|colour
+    - - link
+    - - complex|diagram
+  - id: smoke-error-messages
+    prompt: Rewrite "Invalid value" for an attachment upload that exceeds a known size limit. Explain
+      the cause, constraint, and a concrete recovery action in helpful language.
+    expected:
+    - google-error-messages
+    rubric:
+    - - limit|maximum|size
+    - - reduc|remov|smaller|compress
+    - - specific|cause|exceed
+
 # Local-only routing controls. These contain prompts and identifiers, not converted book text.
 local_smoke:
   - id: local-smoke-teamwork-leadership
@@ -304,3 +537,367 @@ representative:
       - id: docs-neg-10
         split: validation
         prompt: Plan user interviews for a consumer mobile app.
+
+  - skill: google-api-resource-design
+    positive:
+    - id: api-resource-design-pos-01
+      split: validation
+      prompt: Design a resource-oriented API for publishers and books. Review a proposed flat table-shaped
+        endpoint and explain resource names and parent-child associations.
+      rubric:
+      - - resource
+      - - hierarch|parent|collection
+      - - database.*(schema|coupl)|schema.*(database|storage)
+    negative:
+    - id: api-resource-design-neg-01
+      split: validation
+      prompt: Normalize a relational database schema for publishers and books; no network API is being
+        designed.
+  - skill: google-api-methods
+    positive:
+    - id: api-methods-pos-01
+      split: validation
+      prompt: Review an AIP-style update endpoint that uses PUT, triggers an email side effect, and
+        ignores stale etags. Recommend method semantics.
+      rubric:
+      - - PATCH
+      - - side.effect|custom method
+      - - etag|freshness
+    negative:
+    - id: api-methods-neg-01
+      split: validation
+      prompt: Design pagination and filtering for an existing read-only collection endpoint.
+  - skill: google-api-data-modeling
+    positive:
+    - id: api-data-modeling-pos-01
+      split: validation
+      prompt: Review an API schema with a boolean state flag, ambiguous numeric units, timestamps encoded
+        as arbitrary strings, and required fields added later.
+      rubric:
+      - - unit|quantity
+      - - timestamp|duration
+      - - state|enum
+    negative:
+    - id: api-data-modeling-neg-01
+      split: validation
+      prompt: Optimize the storage layout and indexes of a database table.
+  - skill: google-api-list-design
+    positive:
+    - id: api-list-design-pos-01
+      split: validation
+      prompt: Design list pagination with opaque page tokens, filtering, ordering, and partial results.
+        The proposal adds pagination to an existing unpaginated API.
+      rubric:
+      - - opaque
+      - - compatib|breaking
+      - - filter|order
+    negative:
+    - id: api-list-design-neg-01
+      split: validation
+      prompt: Add CSS pagination controls to a blog; the backend contract is already fixed.
+  - skill: google-api-async-and-batch
+    positive:
+    - id: api-async-and-batch-pos-01
+      split: validation
+      prompt: Design a long-running batch-create API. Explain operation completion, error reporting,
+        and when partial success is appropriate.
+      rubric:
+      - - operation
+      - - partial
+      - - atomic|error
+    negative:
+    - id: api-async-and-batch-neg-01
+      split: validation
+      prompt: Choose batch sizes for a local data-processing loop with no public API.
+  - skill: google-api-errors-and-retries
+    positive:
+    - id: api-errors-and-retries-pos-01
+      split: validation
+      prompt: Review an API that retries every error, has no request IDs, and uses changing error strings
+        as machine-readable codes.
+      rubric:
+      - - retry|retries
+      - - idempoten|request.*id
+      - - code|ErrorInfo|structured
+    negative:
+    - id: api-errors-and-retries-neg-01
+      split: validation
+      prompt: Rewrite the wording of a GUI validation message without changing its error contract or
+        retry behavior.
+  - skill: google-api-evolution
+    positive:
+    - id: api-evolution-pos-01
+      split: validation
+      prompt: Assess compatibility of an API release that renames a field, changes its default, and
+        removes an enum value. Propose a versioning approach.
+      rubric:
+      - - compatib|breaking
+      - - default
+      - - version|deprecat
+    negative:
+    - id: api-evolution-neg-01
+      split: validation
+      prompt: Plan a database index rollout without changing the public API.
+  - skill: google-api-documentation
+    positive:
+    - id: api-documentation-pos-01
+      split: validation
+      prompt: Write API field and method comments that explain units, defaults, valid ranges, side effects,
+        and failure behavior under AIP conventions.
+      rubric:
+      - - unit
+      - - default
+      - - side.effect|failure|error
+    negative:
+    - id: api-documentation-neg-01
+      split: validation
+      prompt: Organize a developer portal into tutorials and how-to guides; no API reference comments
+        need editing.
+  - skill: google-design-docs
+    positive:
+    - id: design-docs-pos-01
+      split: validation
+      prompt: Draft a system design document for a new job service, covering requirements, alternatives,
+        scaling, dependencies, recovery, and security tradeoffs.
+      rubric:
+      - - requirement
+      - - dependenc|scal
+      - - security|recover
+    negative:
+    - id: design-docs-neg-01
+      split: validation
+      prompt: Record only the decision to choose a durable queue over a database polling table in an
+        ADR.
+  - skill: google-adr
+    positive:
+    - id: adr-pos-01
+      split: validation
+      prompt: Write an architecture decision record for choosing between a durable queue and a database
+        polling table. Preserve why the choice was made and how later changes should be recorded.
+      rubric:
+      - - context|problem
+      - - option|alternative
+      - - reason|rationale
+      - - history|previous|timestamp
+    negative:
+    - id: adr-neg-01
+      split: validation
+      prompt: Write a full system design document with capacity planning and data flows; no individual
+        decision has been made yet.
+  - skill: google-service-architecture
+    positive:
+    - id: service-architecture-pos-01
+      split: validation
+      prompt: Our services require coordinated releases and shared integration environments. Review
+        service boundaries to enable independent deployment and testing.
+      rubric:
+      - - coupl
+      - - independen
+      - - test|deploy
+    negative:
+    - id: service-architecture-neg-01
+      split: validation
+      prompt: Design resource names and HTTP verbs for a single public API.
+  - skill: google-threat-modeling
+    positive:
+    - id: threat-modeling-pos-01
+      split: validation
+      prompt: Threat-model a document service used by employees and contractors. Identify adversaries,
+        insider capabilities, trust boundaries, and risk priorities.
+      rubric:
+      - - insider
+      - - adversar|attacker
+      - - risk|boundary|boundaries
+    negative:
+    - id: threat-modeling-neg-01
+      split: validation
+      prompt: Help debug a slow database query with no security incident or threat assessment.
+  - skill: google-secure-design
+    positive:
+    - id: secure-design-pos-01
+      split: validation
+      prompt: Review a system with broad administrator credentials, a general-purpose remote shell,
+        no audit trail, and no emergency-access controls.
+      rubric:
+      - - least privilege
+      - - audit
+      - - breakglass|emergency
+    negative:
+    - id: secure-design-neg-01
+      split: validation
+      prompt: Choose fuzzing inputs and sanitizer settings for an already-designed parser.
+  - skill: google-security-testing
+    positive:
+    - id: security-testing-pos-01
+      split: validation
+      prompt: Plan security tests for a parser and an authorization boundary. Compare fuzzing, dynamic
+        analysis, static analysis, and negative permission tests.
+      rubric:
+      - - fuzz
+      - - static|dynamic
+      - - privilege|permission|authoriz
+    negative:
+    - id: security-testing-neg-01
+      split: validation
+      prompt: Review the capitalization of test method names under a language style guide.
+  - skill: google-secure-delivery
+    positive:
+    - id: secure-delivery-pos-01
+      split: validation
+      prompt: Review a release pipeline that allows manual binary uploads and unsigned builds. Propose
+        artifact provenance, deployment policy, and audited emergency access.
+      rubric:
+      - - provenance
+      - - sign|artifact
+      - - breakglass|emergency|audit
+    negative:
+    - id: secure-delivery-neg-01
+      split: validation
+      prompt: Measure deployment frequency and change lead time to identify delivery bottlenecks.
+  - skill: google-reliability-design
+    positive:
+    - id: reliability-design-pos-01
+      split: validation
+      prompt: Review a service for failure domains, redundancy, graceful degradation, overload handling,
+        and tested recovery.
+      rubric:
+      - - failure domain|blast radius
+      - - degrad|shed|throttl
+      - - recover|rollback|failover
+    negative:
+    - id: reliability-design-neg-01
+      split: validation
+      prompt: Calculate an error budget from an already-agreed SLO.
+  - skill: google-incident-response
+    positive:
+    - id: incident-response-pos-01
+      split: validation
+      prompt: Prepare a response plan for a production outage with a suspected compromise. Assign roles,
+        coordinate handovers, plan recovery, and capture lessons afterward.
+      rubric:
+      - - triage|triaging|incident commander
+      - - handover|communication
+      - - postmortem|post.mortem|lesson
+    negative:
+    - id: incident-response-neg-01
+      split: validation
+      prompt: Investigate a deterministic local unit-test failure with no production incident.
+  - skill: google-observability
+    positive:
+    - id: observability-pos-01
+      split: validation
+      prompt: Review a monitoring plan that has many CPU dashboards but no user-visible signals or actionable
+        failure notifications. Recommend instrumentation and alerting improvements.
+      rubric:
+      - - user|customer
+      - - black.box|white.box|instrument
+      - - alert|notif
+    negative:
+    - id: observability-neg-01
+      split: validation
+      prompt: Pick an SLO target and compliance window for an existing service.
+  - skill: google-slos
+    positive:
+    - id: slos-pos-01
+      split: validation
+      prompt: Define an availability SLI, a 99.9 percent SLO, its error budget, and the tradeoffs between
+        rolling and calendar compliance periods.
+      rubric:
+      - - indicator|ratio
+      - - budget
+      - - rolling
+      - - calendar
+    negative:
+    - id: slos-neg-01
+      split: validation
+      prompt: Implement a dashboard widget using a specific cloud monitoring SDK.
+  - skill: google-delivery-performance
+    positive:
+    - id: delivery-performance-pos-01
+      split: validation
+      prompt: Design a software delivery improvement review using the current five DORA metrics. Explain
+        why aggregating unlike services and ranking individuals is misleading.
+      rubric:
+      - - lead time
+      - - deployment frequency
+      - - recovery
+      - - fail
+      - - rework
+    negative:
+    - id: delivery-performance-neg-01
+      split: validation
+      prompt: Estimate algorithmic runtime from a microbenchmark.
+  - skill: google-database-change-management
+    positive:
+    - id: database-change-management-pos-01
+      split: validation
+      prompt: Plan a zero-downtime database schema change with versioned migrations and application
+        versions that overlap during deployment.
+      rubric:
+      - - migration
+      - - version
+      - - compatib|decoupl|expand|contract
+    negative:
+    - id: database-change-management-neg-01
+      split: validation
+      prompt: Rename an API field and decide whether the change requires a major API version.
+  - skill: google-developer-documentation-style
+    positive:
+    - id: developer-documentation-style-pos-01
+      split: validation
+      prompt: Edit developer documentation for Google-style voice, code formatting, UI labels, descriptive
+        links, and clear procedural steps.
+      rubric:
+      - - code
+      - - bold|UI
+      - - link
+      - - step|procedure
+    negative:
+    - id: developer-documentation-style-neg-01
+      split: validation
+      prompt: Decide where a repository should store its documentation and who maintains it.
+  - skill: google-technical-writing
+    positive:
+    - id: technical-writing-pos-01
+      split: validation
+      prompt: 'Improve a technical explanation for new operators: define the audience, set scope, organize
+        key points, self-edit, and include effective sample code.'
+      rubric:
+      - - audience
+      - - scope
+      - - sample|example
+      - - edit|read.*aloud|read.*loud
+    negative:
+    - id: technical-writing-neg-01
+      split: validation
+      prompt: Apply Python import ordering and naming conventions to production code.
+  - skill: google-accessible-documentation
+    positive:
+    - id: accessible-documentation-pos-01
+      split: validation
+      prompt: Review documentation that relies on red and green arrows, has generic link labels, and
+        omits alt text for complex diagrams.
+      rubric:
+      - - alt text
+      - - color|colour
+      - - link
+      - - complex|diagram
+    negative:
+    - id: accessible-documentation-neg-01
+      split: validation
+      prompt: Implement CSS contrast changes in the application UI without editing documentation.
+  - skill: google-error-messages
+    positive:
+    - id: error-messages-pos-01
+      split: validation
+      prompt: Rewrite "Invalid value" for an attachment upload that exceeds a known size limit. Explain
+        the cause, constraint, and a concrete recovery action in helpful language.
+      rubric:
+      - - limit|maximum|size
+      - - reduc|remov|smaller|compress
+      - - specific|cause|exceed
+    negative:
+    - id: error-messages-neg-01
+      split: validation
+      prompt: Choose canonical API status codes and automatic retry policy without editing user-facing
+        wording.

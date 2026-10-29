@@ -1,9 +1,7 @@
 ---
 name: google-xml-style
 description: >-
-  Use when designing or reviewing XML document formats under Google's naming, structure,
-  extensibility, namespace, validation, and schema conventions. Do not use merely to
-  pretty-print an existing XML file.
+  Design and review XML document formats.
 ---
 
 # Google XML Document Format Style Guide

@@ -23,6 +23,8 @@ class LicenseInfo:
     evidence_glob: str | None = None
     evidence_contains: str | None = None
     warning: str | None = None
+    evidence_paths: tuple[str, ...] = ()
+    code_samples_spdx: str | None = None
 
     def to_dict(self) -> dict[str, object]:
         """Return populated fields in provenance format."""
@@ -38,6 +40,10 @@ class LicenseInfo:
             "evidence_contains": self.evidence_contains,
             "warning": self.warning,
         }
+        if self.evidence_paths:
+            values["evidence_paths"] = list(self.evidence_paths)
+        if self.code_samples_spdx:
+            values["code_samples_spdx"] = self.code_samples_spdx
         return {key: value for key, value in values.items() if value is not None}
 
 
@@ -77,6 +83,30 @@ class Repository:
     revision: str
     default_branch: str
     license: LicenseInfo
+    adapter: str = "default"
+
+
+@dataclass(frozen=True)
+class WebPage:
+    """One explicitly enumerated, publicly licensed HTML page."""
+
+    path: str
+    url: str
+    selector: str
+
+    def to_dict(self) -> dict[str, str]:
+        """Return the page identity recorded in a snapshot lock."""
+        return {"path": self.path, "url": self.url, "selector": self.selector}
+
+
+@dataclass(frozen=True)
+class WebSource:
+    """Public pages whose accepted snapshot is stored in the checkout."""
+
+    id: str
+    url: str
+    license: LicenseInfo
+    pages: tuple[WebPage, ...]
 
 
 @dataclass(frozen=True)
@@ -116,6 +146,7 @@ class Collection:
     description: str
     artifacts: tuple[Artifact, ...]
     license_override: LicenseInfo | None = None
+    web_source: str | None = None
 
 
 @dataclass(frozen=True)
@@ -153,6 +184,8 @@ class Manifest:
     collections: dict[str, Collection]
     catalog_only: tuple[CatalogOnly, ...] = field(default_factory=tuple)
     source_path_policies: tuple[SourcePathPolicy, ...] = field(default_factory=tuple)
+    web_sources: dict[str, WebSource] = field(default_factory=dict)
+    packs: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
     @property
     def project_root(self) -> Path:
@@ -170,7 +203,15 @@ class Manifest:
 
     def license_for(self, collection: Collection) -> LicenseInfo:
         """Return the collection override or its repository license."""
+        if collection.web_source:
+            return self.web_sources[collection.web_source].license
         return collection.license_override or self.repositories[collection.repository].license
+
+    def source_url(self, collection: Collection) -> str:
+        """Return the canonical upstream URL for a collection."""
+        if collection.web_source:
+            return self.web_sources[collection.web_source].url
+        return self.repositories[collection.repository].url
 
     def artifacts(self, include_local: bool = False) -> list[tuple[Collection, Artifact]]:
         """List artifacts allowed by the requested distribution scope."""

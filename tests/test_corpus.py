@@ -12,12 +12,15 @@ from google_guide_skills import __version__
 from google_guide_skills.evals import load_cases, score_output
 from google_guide_skills.git_safe import command as git_command
 from google_guide_skills.git_safe import environment as git_environment
+from google_guide_skills.installer import selected_install_skills
 from google_guide_skills.manifest import load_manifest
 from google_guide_skills.metrics import (
     CODEX_FALLBACK_METADATA_CHARS,
     MIN_SUPPORTED_INSTALL_ROOT_CHARS,
     metadata_budget,
+    pack_metadata_budgets,
 )
+from google_guide_skills.packs import select_skills
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,12 +38,12 @@ def test_real_corpus_and_eval_matrix_cannot_drift_silently() -> None:
     smoke = [case for case in cases if case.stage == "smoke"]
     controls = [case for case in cases if case.stage == "controls"]
     local_smoke = [case for case in cases if case.stage == "local-smoke"]
-    assert len(smoke) == len(committed) == 16
+    assert len(smoke) == len(committed) == 41
     assert [skill for case in smoke for skill in case.expected_skills] == list(
         dict.fromkeys(skill for case in smoke for skill in case.expected_skills)
     )
     assert {skill for case in smoke for skill in case.expected_skills} == committed
-    assert len(controls) == len(committed) == 16
+    assert len(controls) == len(committed) == 41
     assert {skill for case in controls for skill in case.expected_skills} == committed
     assert all("{invocation}" in case.prompt for case in controls)
     assert len(local_smoke) == len(local) == 8
@@ -57,14 +60,21 @@ def test_real_corpus_and_eval_matrix_cannot_drift_silently() -> None:
             skill = case.forbidden_skills[0]
             polarity = "negative"
         counts[skill][polarity][case.split] += 1
-    assert set(counts) == {
+    original_representative = {
         "google-python-style",
         "google-code-review-reviewer",
         "google-documentation-guide",
     }
-    for polarities in counts.values():
+    new_skills = committed - set(manifest.packs["legacy"])
+    assert len(new_skills) == 25
+    assert set(counts) == original_representative | new_skills
+    for name in original_representative:
+        polarities = counts[name]
         assert polarities["positive"] == {"train": 6, "validation": 4}
         assert polarities["negative"] == {"train": 6, "validation": 4}
+    for name in new_skills:
+        assert counts[name]["positive"] == {"validation": 1}
+        assert counts[name]["negative"] == {"validation": 1}
 
 
 def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
@@ -78,10 +88,17 @@ def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
 
     skill_dirs = sorted(path for path in (ROOT / "skills").iterdir() if path.is_dir())
     budget = metadata_budget(skill_dirs)
-    assert budget["skills"] == 16
-    assert int(budget["maximum_install_root_chars"]) >= MIN_SUPPORTED_INSTALL_ROOT_CHARS
+    assert budget["skills"] == 41
     assert int(budget["codex_list_chars"]) <= CODEX_FALLBACK_METADATA_CHARS
-    eval_budget = metadata_budget(skill_dirs, install_root="/w/.agents/skills")
+    default_budget = pack_metadata_budgets(manifest)["default"]
+    assert default_budget["skills"] == 49
+    assert default_budget["maximum_install_root_chars"] >= MIN_SUPPORTED_INSTALL_ROOT_CHARS
+    for members in manifest.packs.values():
+        pack_budget = metadata_budget([path for path in skill_dirs if path.name in members])
+        assert int(pack_budget["maximum_install_root_chars"]) >= MIN_SUPPORTED_INSTALL_ROOT_CHARS
+        assert int(pack_budget["codex_list_chars"]) <= CODEX_FALLBACK_METADATA_CHARS
+    legacy_dirs = [path for path in skill_dirs if path.name in manifest.packs["legacy"]]
+    eval_budget = metadata_budget(legacy_dirs, install_root="/w/.agents/skills")
     assert eval_budget["reference_install_root"] == "/w/.agents/skills"
     assert int(eval_budget["codex_list_chars"]) <= CODEX_FALLBACK_METADATA_CHARS
     recorded = json.loads((ROOT / "catalog" / "tokens.json").read_text(encoding="utf-8"))
@@ -97,6 +114,16 @@ def test_real_corpus_path_policies_and_metadata_budget_are_enforced() -> None:
     go_skill = ROOT / "skills/google-go-style/SKILL.md"
     assert len(go_skill.read_text(encoding="utf-8").splitlines()) < 500
     assert not (go_skill.parent / "references").exists()
+
+
+def test_default_install_includes_every_skill_and_explicit_packs_stay_focused() -> None:
+    manifest = load_manifest(ROOT / "corpus.yaml")
+    public, local = selected_install_skills(manifest, None)
+    assert len(public) == 41
+    assert len(local) == 8
+    assert set(public + local) == set(manifest.packs["default"])
+    assert set(select_skills(manifest, packs=["legacy"])) == set(manifest.packs["legacy"])
+    assert set(select_skills(manifest, packs=["api"])) == set(manifest.packs["api"])
 
 
 def test_go_quality_rubric_matches_guide_headings() -> None:

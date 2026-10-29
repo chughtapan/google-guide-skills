@@ -1,0 +1,134 @@
+{
+  "artifact": "google-design-docs",
+  "collection": "secure-reliable",
+  "distribution": "committed",
+  "excerpts": [
+    {
+      "blocks": [
+        0
+      ],
+      "heading": "Design Objectives and Requirements",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Feature Requirements",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heading": "Nonfunctional Requirements",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Features Versus Emergent Properties",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1
+      ],
+      "heading": "Example: Google Design Document",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "heading": "Google’s Design Document Template",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        2
+      ],
+      "heading": "Cost of Adding Reliability and Security to Existing Systems",
+      "input": "raw/ch04.html"
+    },
+    {
+      "blocks": [
+        0,
+        1,
+        7,
+        9,
+        10,
+        12
+      ],
+      "heading": "Initial Velocity Versus Sustained Velocity",
+      "input": "raw/ch04.html"
+    }
+  ],
+  "generated_by": "google-guide-skills/0.4.0.0",
+  "generator_runtime": {
+    "beautifulsoup4": "4.15.0",
+    "lxml": "6.1.2",
+    "markdownify": "1.2.3",
+    "python": "3.13.7"
+  },
+  "inputs": [
+    {
+      "conversion": "book-chapter-to-markdown",
+      "path": "raw/ch04.html",
+      "sha256": "3b507935647eb60f8a3831e12961e2714bbcb28bb5fb66a34915193f59af0b9c"
+    }
+  ],
+  "license": {
+    "allow_committed_output": true,
+    "attribution": "Google LLC and the Building Secure and Reliable Systems authors",
+    "audited": "2026-10-28",
+    "evidence_path": "LICENSE",
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "license_note": null,
+  "rendering": "source-excerpts",
+  "repository": {
+    "id": "secure-reliable",
+    "revision": "2a2ae3e0d4dbd288f9862ed47194f5b1b1ed7c3c",
+    "url": "https://github.com/google/building-secure-and-reliable-systems.git"
+  },
+  "source_adapter": "html-book",
+  "source_path_policies": [],
+  "supplemental_licenses": [],
+  "wrapper_license": {
+    "attribution": "Google Guide Skills contributors",
+    "name": "Apache License 2.0",
+    "path": "LICENSE-Generator-Apache-2.0.txt",
+    "scope": "Generator-authored frontmatter, section framing, and metadata.",
+    "sha256": "c45f612629a31a2141d071c37b981c6c45b193eb4d857fe072ec78bff8a97f8f",
+    "spdx": "Apache-2.0",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0"
+  }
+}

@@ -1,9 +1,7 @@
 ---
 name: google-cpp-style
 description: >-
-  Use when writing or reviewing C++ under Google's C++ style conventions, including headers,
-  naming, classes, functions, ownership, exceptions, and formatting. Do not use as a general C++
-  language tutorial.
+  Write and review C++ with Google style.
 ---
 
 # Google C++ Style Guide
