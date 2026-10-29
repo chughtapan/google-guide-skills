@@ -44,7 +44,7 @@
       "input": "adr.html"
     }
   ],
-  "generated_by": "google-guide-skills/0.3.0.0",
+  "generated_by": "google-guide-skills/0.4.0.0",
   "generator_runtime": {
     "beautifulsoup4": "4.15.0",
     "lxml": "6.1.2",

@@ -4,6 +4,31 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0.0] - 2026-10-29
+
+### Added
+
+- Use 25 new Google guide skills for API design, design documents and ADRs, security,
+  reliability, delivery, and developer documentation.
+- Select related skills with `install --pack` and plan focused evaluations with `eval --pack`.
+  Repeated pack and skill options combine their selections.
+- Capture approved public documentation with `snapshot --source`. Saved pages, content hashes,
+  and license evidence support repeatable offline builds.
+
+### Changed
+
+- Installation selects all 49 skills by default: 41 public guides and eight local SWE-book skills.
+  Use `--pack legacy` for the original 24. The SWE-book license acceptance still applies.
+- Installation checks selected and existing skills at each destination before changing either
+  client. The check includes nested skills, directory links, and aliased folder names.
+- Startup descriptions fit the default pack within the documented metadata budget at the
+  reference installation path. Existing skills and longer paths can require a smaller selection.
+
+### Evaluation
+
+- Live routing and quality evaluations for the expanded pack remain deferred. The new cases and
+  offline checks do not establish model routing accuracy or answer quality.
+
 ## [0.3.0.0] - 2026-08-26
 
 ### Changed
